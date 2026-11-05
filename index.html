@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>AgroCluster Analytics — Платформа трансферу технологій НААН та ІІБ</title>
+	<title>AgroCluster Analytics — Платформа трансферу технологій НААН та ТОВ «ІІБ»</title>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 	<style>
@@ -16,8 +16,10 @@
 			--text-muted: #64748b;
 			--border-color: #e2e8f0;
 			--accent-green: #059669;
+			--accent-green-hover: #047857;
 			--accent-dark: #0f172a;
 			--accent-blue: #2563eb;
+			--danger: #dc2626;
 		}
 
 		* {
@@ -25,15 +27,16 @@
 		}
 
 		body {
-			font-family: 'Segoe UI', system-ui, sans-serif;
+			font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 			margin: 0;
-			background: var(--bg-main);
+			padding: 0;
+			background-color: var(--bg-main);
 			color: var(--text-primary);
 		}
 
 		.topbar {
-			background: var(--accent-dark);
-			color: #fff;
+			background-color: var(--accent-dark);
+			color: #ffffff;
 			padding: 14px 28px;
 			display: flex;
 			justify-content: space-between;
@@ -46,6 +49,7 @@
 		.brand-title {
 			font-size: 19px;
 			font-weight: 700;
+			letter-spacing: 0.3px;
 			margin: 0;
 		}
 
@@ -58,14 +62,14 @@
 
 		.nav-actions {
 			display: flex;
-			gap: 10px;
 			align-items: center;
+			gap: 10px;
 			flex-wrap: wrap;
 		}
 
 		.wl-select {
 			background: #1e293b;
-			color: #fff;
+			color: #f8fafc;
 			border: 1px solid #475569;
 			padding: 6px 10px;
 			border-radius: 6px;
@@ -73,18 +77,33 @@
 			cursor: pointer;
 		}
 
+		.status-badge {
+			font-size: 12px;
+			background: rgba(16, 185, 129, 0.15);
+			color: #34d399;
+			padding: 5px 12px;
+			border-radius: 20px;
+			border: 1px solid rgba(52, 211, 153, 0.3);
+		}
+
 		.admin-link {
 			color: #e2e8f0;
 			text-decoration: none;
 			font-size: 12.5px;
 			padding: 6px 12px;
-			border: 1px solid #334155;
 			border-radius: 6px;
+			border: 1px solid #334155;
+			transition: 0.2s;
+		}
+
+		.admin-link:hover {
+			background: #1e293b;
+			color: #ffffff;
 		}
 
 		.container-wide {
 			max-width: 1260px;
-			margin: 18px auto;
+			margin: 18px auto 0 auto;
 			padding: 0 20px;
 		}
 
@@ -92,6 +111,7 @@
 			background: var(--card-bg);
 			border-radius: 12px;
 			border: 1px solid var(--border-color);
+			box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 			padding: 20px;
 			margin-bottom: 18px;
 		}
@@ -99,15 +119,19 @@
 		.card-header {
 			display: flex;
 			justify-content: space-between;
+			align-items: center;
 			border-bottom: 1px solid var(--border-color);
 			padding-bottom: 12px;
 			margin-bottom: 14px;
+			flex-wrap: wrap;
+			gap: 8px;
 		}
 
 		.card-title {
 			font-size: 16px;
 			font-weight: 700;
 			margin: 0;
+			color: var(--text-primary);
 		}
 
 		.stage-grid {
@@ -116,34 +140,59 @@
 			gap: 12px;
 		}
 
+		@media (max-width: 960px) {
+			.stage-grid {
+				grid-template-columns: 1fr 1fr;
+			}
+		}
+
 		.stage-box {
 			background: #f8fafc;
 			border: 1px solid var(--border-color);
 			border-left: 4px solid var(--accent-green);
-			padding: 12px;
 			border-radius: 8px;
+			padding: 12px;
 		}
 
 		.stage-step {
 			font-size: 11px;
 			font-weight: 700;
+			text-transform: uppercase;
 			color: var(--accent-green);
 			margin-bottom: 4px;
-			text-transform: uppercase;
+		}
+
+		.stage-title {
+			font-size: 13.5px;
+			font-weight: 700;
+			margin-bottom: 4px;
+		}
+
+		.stage-desc {
+			font-size: 12px;
+			color: var(--text-secondary);
+			line-height: 1.4;
 		}
 
 		.calc-layout {
 			display: grid;
-			grid-template-columns: 1fr 1fr;
+			grid-template-columns: 1fr 1.25fr;
 			gap: 20px;
+			align-items: start;
+		}
+
+		@media (max-width: 960px) {
+			.calc-layout {
+				grid-template-columns: 1fr;
+			}
 		}
 
 		.slider-group {
 			background: #f8fafc;
-			padding: 10px 14px;
-			border-radius: 8px;
 			border: 1px solid var(--border-color);
-			margin-bottom: 12px;
+			border-radius: 8px;
+			padding: 10px 14px;
+			margin-bottom: 10px;
 		}
 
 		.slider-header {
@@ -154,9 +203,15 @@
 			margin-bottom: 6px;
 		}
 
+		.slider-val {
+			color: var(--accent-green);
+			font-weight: 700;
+		}
+
 		input[type="range"] {
 			width: 100%;
 			accent-color: var(--accent-green);
+			cursor: pointer;
 		}
 
 		.kpi-calc-grid {
@@ -168,8 +223,8 @@
 		.kpi-calc-box {
 			background: #f8fafc;
 			border: 1px solid var(--border-color);
-			padding: 12px;
 			border-radius: 8px;
+			padding: 12px;
 		}
 
 		.kpi-calc-box.highlight {
@@ -188,6 +243,7 @@
 		.kpi-calc-num {
 			font-size: 18px;
 			font-weight: 700;
+			color: var(--text-primary);
 		}
 
 		.workspace {
@@ -197,18 +253,51 @@
 			display: grid;
 			grid-template-columns: 1.05fr 0.95fr;
 			gap: 20px;
+			align-items: start;
+		}
+
+		@media (max-width: 960px) {
+			.workspace {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		.quick-chips {
+			display: flex;
+			gap: 8px;
+			flex-wrap: wrap;
+			margin-bottom: 12px;
+		}
+
+		.chip {
+			font-size: 12px;
+			background: #f8fafc;
+			color: var(--text-secondary);
+			border: 1px solid #cbd5e1;
+			padding: 6px 10px;
+			border-radius: 6px;
+			cursor: pointer;
+			transition: 0.15s;
+		}
+
+		.chip:hover {
+			background: #ecfdf5;
+			border-color: var(--accent-green);
+			color: var(--accent-green);
 		}
 
 		#chatbox {
+			width: 100%;
 			height: 360px;
 			background: #f8fafc;
 			border: 1px solid var(--border-color);
 			border-radius: 8px;
-			padding: 16px;
 			overflow-y: auto;
+			padding: 16px;
 			display: flex;
 			flex-direction: column;
 			gap: 12px;
+			scroll-behavior: smooth;
 		}
 
 		.msg {
@@ -216,18 +305,23 @@
 			border-radius: 10px;
 			max-width: 85%;
 			font-size: 14px;
-		}
-
-		.bot {
-			background: #fff;
-			border: 1px solid var(--border-color);
-			align-self: flex-start;
+			line-height: 1.5;
+			word-wrap: break-word;
 		}
 
 		.user {
-			background: var(--accent-dark);
-			color: #fff;
+			background-color: var(--accent-dark);
+			color: #ffffff;
 			align-self: flex-end;
+			border-bottom-right-radius: 2px;
+		}
+
+		.bot {
+			background-color: #ffffff;
+			color: var(--text-primary);
+			align-self: flex-start;
+			border: 1px solid var(--border-color);
+			border-bottom-left-radius: 2px;
 		}
 
 		.controls {
@@ -238,39 +332,86 @@
 
 		#textInput {
 			flex: 1;
-			padding: 11px;
+			padding: 11px 14px;
 			border-radius: 8px;
 			border: 1px solid #cbd5e1;
+			font-size: 14px;
 			outline: none;
 		}
 
 		.btn {
 			padding: 10px 14px;
+			font-size: 13px;
 			font-weight: 600;
 			cursor: pointer;
 			border-radius: 8px;
 			border: none;
-			color: #fff;
+			transition: 0.2s;
+			white-space: nowrap;
+			color: #ffffff;
+		}
+
+		#sendBtn {
+			background-color: var(--accent-dark);
 		}
 
 		.profile-grid {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
 			gap: 10px;
+			margin-bottom: 12px;
 		}
 
 		.profile-cell {
 			background: #f8fafc;
 			border: 1px solid var(--border-color);
-			padding: 9px 12px;
 			border-radius: 8px;
+			padding: 9px 12px;
 		}
 
-		.export-bar-3 {
+		.profile-cell.full-width {
+			grid-column: span 2;
+		}
+
+		.cell-label {
+			font-size: 11px;
+			text-transform: uppercase;
+			color: var(--text-muted);
+			display: block;
+			margin-bottom: 3px;
+		}
+
+		.cell-value {
+			font-size: 13.5px;
+			font-weight: 600;
+			color: var(--text-primary);
+		}
+
+		.export-bar-grid {
 			display: grid;
-			grid-template-columns: 1fr 1fr 1fr;
+			grid-template-columns: 1fr 1fr;
 			gap: 8px;
-			margin-top: 14px;
+			margin-top: 8px;
+		}
+
+		#downloadPdfBtn {
+			background-color: var(--accent-green);
+			width: 100%;
+		}
+
+		#downloadTeaserBtn {
+			background-color: var(--accent-blue);
+			width: 100%;
+		}
+
+		#downloadDocxBtn {
+			background-color: var(--accent-dark);
+			width: 100%;
+		}
+
+		#bridgeBotBtn {
+			background-color: #d97706;
+			width: 100%;
 		}
 	</style>
 </head>
@@ -278,7 +419,8 @@
 <body>
 	<header class="topbar">
 		<div>
-			<h1 class="brand-title" id="brandTitle">AgroCluster Analytics • ТОВ «ІІБ» & НААН</h1>
+			<h1 class="brand-title" id="brandTitle">AgroCluster Analytics • ТОВ «Інститут інноваційної біоекономіки» &
+				НААН</h1>
 			<span class="brand-sub" id="brandSub">White-Label платформа комерціалізації розробок: Драфт → Тизер →
 				Замовлення</span>
 		</div>
@@ -287,6 +429,7 @@
 				<option value="iib">White-Label: ТОВ «ІІБ» & НААН</option>
 				<option value="naan">White-Label: ННЦ «Інститут землеробства НААН»</option>
 			</select>
+			<span class="status-badge">Трансфер ОІВ • Онлайн</span>
 			<a href="admin.html" class="admin-link">Макроаналітика (Адмін)</a>
 		</div>
 	</header>
@@ -294,20 +437,28 @@
 	<section class="container-wide">
 		<div class="card">
 			<div class="card-header">
-				<h2 class="card-title">1. Ланцюг трансформації (Кейс: гірчиця «Біла Принцеса»)</h2>
+				<h2 class="card-title">1. Ланцюг трансформації наукової розробки (Кейс: гірчиця «Біла Принцеса»)</h2>
 			</div>
 			<div class="stage-grid">
 				<div class="stage-box">
-					<div class="stage-step">1. Наукове ядро (1 га)</div>Супереліта, Патент ОІВ НААН під замовлення.
+					<div class="stage-step">1. Наукове ядро (1 га)</div>
+					<div class="stage-title">Супереліта НААН</div>
+					<div class="stage-desc">Патент ОІВ та базовий розсадник під гарантоване замовлення.</div>
 				</div>
 				<div class="stage-box">
-					<div class="stage-step">2. Провайдинг (25 га)</div>Еліта, Маркетинг та формування Драфту від ІІБ.
+					<div class="stage-step">2. Провайдинг (25 га)</div>
+					<div class="stage-title">Еліта та Драфт ІІБ</div>
+					<div class="stage-desc">Маркетингова упаковка, розрахунок маржі та тизерів.</div>
 				</div>
 				<div class="stage-box">
-					<div class="stage-step">3. Агровиробництво (300 га)</div>РС-1, Товарне зерно, Форвардні контракти.
+					<div class="stage-step">3. Агровиробництво (300 га)</div>
+					<div class="stage-title">РС-1 та Сидерація</div>
+					<div class="stage-desc">Товарне зерно за форвардними контрактами (Off-take).</div>
 				</div>
 				<div class="stage-box">
-					<div class="stage-step">4. Висока маржа</div>Олія, порошок, шрот. Zero-Waste переробка.
+					<div class="stage-step">4. Висока маржа</div>
+					<div class="stage-title">Глибока переробка</div>
+					<div class="stage-desc">Олія, порошок, шрот. Zero-Waste модель (+140%).</div>
 				</div>
 			</div>
 		</div>
@@ -319,34 +470,41 @@
 			<div class="calc-layout">
 				<div>
 					<div class="slider-group">
-						<div class="slider-header"><span>Площа кластеру (га):</span><span id="lblArea">300 га</span>
-						</div><input type="range" id="rngArea" min="50" max="1000" step="50" value="300">
+						<div class="slider-header"><span>Площа кластеру (га):</span><span class="slider-val"
+								id="lblArea">300 га</span></div>
+						<input type="range" id="rngArea" min="50" max="1000" step="50" value="300">
 					</div>
 					<div class="slider-group">
-						<div class="slider-header"><span>Урожайність (т/га):</span><span id="lblYield">2.2 т/га</span>
-						</div><input type="range" id="rngYield" min="1.4" max="3.0" step="0.1" value="2.2">
+						<div class="slider-header"><span>Урожайність (т/га):</span><span class="slider-val"
+								id="lblYield">2.2 т/га</span></div>
+						<input type="range" id="rngYield" min="1.4" max="3.0" step="0.1" value="2.2">
 					</div>
 					<div class="slider-group">
-						<div class="slider-header"><span>Частка переробки (%):</span><span id="lblProc">60%</span></div>
+						<div class="slider-header"><span>Частка переробки (%):</span><span class="slider-val"
+								id="lblProc">60%</span></div>
 						<input type="range" id="rngProc" min="0" max="100" step="10" value="60">
 					</div>
-					<div class="slider-group">
-						<div class="slider-header"><span>Аванс селекції НААН (%):</span><span id="lblPrepay">30%</span>
-						</div><input type="range" id="rngPrepay" min="15" max="50" step="5" value="30">
+					<div class="slider-group" style="margin-bottom:0;">
+						<div class="slider-header"><span>Аванс селекції НААН (%):</span><span class="slider-val"
+								id="lblPrepay">30%</span></div>
+						<input type="range" id="rngPrepay" min="15" max="50" step="5" value="30">
 					</div>
 				</div>
 				<div class="kpi-calc-grid">
-					<div class="kpi-calc-box highlight"><span class="kpi-calc-label">Чиста маржа кластеру</span>
-						<div class="kpi-calc-num" id="outMargin" style="color:#059669;">0 грн</div><span
-							class="kpi-calc-sub" id="outROI">ROI: 0%</span>
+					<div class="kpi-calc-box highlight">
+						<span class="kpi-calc-label">Чиста маржа кластеру</span>
+						<div class="kpi-calc-num" id="outMargin" style="color:#059669;">0 грн</div>
 					</div>
-					<div class="kpi-calc-box highlight"><span class="kpi-calc-label">Передоплата розсаднику НААН</span>
-						<div class="kpi-calc-num" id="outPrepay">0 грн</div>
+					<div class="kpi-calc-box highlight">
+						<span class="kpi-calc-label">Передоплата розсаднику НААН</span>
+						<div class="kpi-calc-num" id="outPrepay" style="color:#2563eb;">0 грн</div>
 					</div>
-					<div class="kpi-calc-box"><span class="kpi-calc-label">Валовий збір</span>
+					<div class="kpi-calc-box">
+						<span class="kpi-calc-label">Валовий збір зерна</span>
 						<div class="kpi-calc-num" id="outHarvest">0 т</div>
 					</div>
-					<div class="kpi-calc-box"><span class="kpi-calc-label">Ефект цифровізації (E₂)</span>
+					<div class="kpi-calc-box">
+						<span class="kpi-calc-label">Ефект цифровізації (E₂)</span>
 						<div class="kpi-calc-num" id="outE2">0 грн</div>
 					</div>
 				</div>
@@ -359,55 +517,70 @@
 			<div class="card-header">
 				<h2 class="card-title">3. Цифровий Координатор ІІБ</h2>
 			</div>
+			<div class="quick-chips">
+				<button class="chip"
+					data-query="Код ЄДРПОУ 00496802, ННЦ Інститут землеробства НААН, Супереліта 1 га">ННЦ НААН
+					(Супереліта)</button>
+				<button class="chip" data-query="Код ЄДРПОУ 03728915, ФГ Подільський Колос, Насінництво РС-1 300 га">ФГ
+					Подільський Колос</button>
+				<button class="chip"
+					data-query="Код ЄДРПОУ 41258963, ТОВ Агро-Еко Переробка, Глибока переробка олії">ТОВ Агро-Еко
+					Переробка</button>
+			</div>
 			<div id="chatbox">
-				<div class="msg bot">Вітаю! Налаштуйте калькулятор та введіть ваш ЄДРПОУ для формування
-					<strong>Драфту</strong> та <strong>Інвест-Тизера</strong>.
+				<div class="msg bot">
+					<strong>AgroCluster НААН–ІІБ:</strong><br>
+					Вітаю! Налаштуйте повзунки калькулятора або введіть код ЄДРПОУ для формування Паспорта, Драфту та
+					Інвест-Тизера.
 				</div>
 			</div>
 			<div class="controls">
-				<input type="text" id="textInput" placeholder="Введіть код ЄДРПОУ...">
-				<button id="sendBtn" class="btn" style="background:var(--accent-dark);">Надіслати</button>
+				<input type="text" id="textInput" placeholder="Введіть код ЄДРПОУ або параметри...">
+				<button id="sendBtn" class="btn">Надіслати</button>
 			</div>
 		</section>
+
 		<section class="card">
 			<div class="card-header">
-				<h2 class="card-title">Генерація документів кластеру</h2>
+				<h2 class="card-title">Генерація документів та Інтеграція</h2>
 			</div>
 			<div class="profile-grid">
-				<div class="profile-cell"><span class="cell-label">ЄДРПОУ</span><span id="p_edrpou">00496802</span>
-				</div>
-				<div class="profile-cell"><span class="cell-label">Учасник</span><span id="p_company">ННЦ «ІНСТИТУТ
-						ЗЕМЛЕРОБСТВА НААН»</span></div>
+				<div class="profile-cell"><span class="cell-label">ЄДРПОУ</span><span class="cell-value"
+						id="p_edrpou">00496802</span></div>
+				<div class="profile-cell"><span class="cell-label">Регіон</span><span class="cell-value"
+						id="p_region">Київська обл.</span></div>
+				<div class="profile-cell full-width"><span class="cell-label">Учасник кластеру</span><span
+						class="cell-value" id="p_company">ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»</span></div>
 			</div>
-			<div class="export-bar-3">
-				<button id="downloadPdfBtn" class="btn" style="background:var(--accent-green);">1. Драфт (PDF)</button>
-				<button id="downloadTeaserBtn" class="btn" style="background:var(--accent-blue);">2. Pitch Deck
-					(PDF)</button>
-				<button id="downloadDocxBtn" class="btn" style="background:var(--accent-dark);">3. Проєкт
-					(DOCX)</button>
-				<div style="margin-top: 10px;">
-					<button id="bridgeBotBtn" class="btn" style="background: var(--accent-blue); width: 100%;">
-						3. Передати розрахунок і тизер у AgroGrant_Bot (Грантова заявка)
-					</button>
-				</div>
+			<div class="export-bar-grid">
+				<button id="downloadPdfBtn" class="btn">1. Драфт (PDF)</button>
+				<button id="downloadTeaserBtn" class="btn">2. Pitch Deck (PDF)</button>
+				<button id="downloadDocxBtn" class="btn">3. Проєкт (DOCX)</button>
+				<button id="bridgeBotBtn" class="btn">3. У AgroGrant_Bot</button>
 			</div>
 		</section>
 	</main>
 
 	<script>
-		// White-Label Logic
-		const WL_THEMES = {
-			iib: { title: "AgroCluster Analytics • ТОВ «ІІБ» & НААН", accent: "#059669", dark: "#0f172a" },
-			naan: { title: "Селекційний Хаб • ННЦ «Інститут землеробства НААН»", accent: "#0284c7", dark: "#0c4a6e" }
+		const LOCAL_COMPANIES = {
+			"00496802": { edrpou: "00496802", company_name: "ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»", region: "Київська обл.", activity_type: "Наукове ядро (Супереліта 1 га)" },
+			"03728915": { edrpou: "03728915", company_name: "ФГ «ПОДІЛЬСЬКИЙ КОЛОС»", region: "Вінницька обл.", activity_type: "Насінництво (Еліта / РС-1)" },
+			"41258963": { edrpou: "41258963", company_name: "ТОВ «АГРО-ЕКО ПЕРЕРОБКА»", region: "Черкаська обл.", activity_type: "Глибока переробка (Олія, шрот)" }
 		};
+
+		const WL_THEMES = {
+			iib: { title: "AgroCluster Analytics • ТОВ «ІІБ» & НААН", sub: "White-Label платформа комерціалізації розробок: Драфт → Тизер → Замовлення", accent: "#059669", dark: "#0f172a" },
+			naan: { title: "Селекційний Хаб • ННЦ «Інститут землеробства НААН»", sub: "Платформа авторського нагляду, ліцензування ОІВ та передзамовлення насіння", accent: "#0284c7", dark: "#0c4a6e" }
+		};
+
 		document.getElementById('wlSelect').addEventListener('change', (e) => {
 			const t = WL_THEMES[e.target.value];
 			document.getElementById('brandTitle').textContent = t.title;
+			document.getElementById('brandSub').textContent = t.sub;
 			document.documentElement.style.setProperty('--accent-green', t.accent);
 			document.documentElement.style.setProperty('--accent-dark', t.dark);
 		});
 
-		// Calculator Logic
 		let calcState = {};
 		function recalc() {
 			const area = +document.getElementById('rngArea').value;
@@ -428,13 +601,12 @@
 			const totalCost = (area * 24000) + (procTons * 22000);
 			const margin = Math.max(0, totalRev - totalCost);
 			const roi = totalCost > 0 ? Math.round((margin / totalCost) * 100) : 0;
-			const prepaySum = totalRev * prepay * 0.05; // 5% від виручки на науку як аванс
-			const e2 = margin * 0.15;
+			const prepaySum = Math.round(totalRev * prepay * 0.05);
+			const e2 = Math.round(margin * 0.15);
 
-			calcState = { area, yld, harvest, margin, roi, prepaySum, proc, e2 };
+			calcState = { area, yld, harvest, margin, roi, prepaySum, proc: proc * 100, e2 };
 
-			document.getElementById('outMargin').textContent = margin.toLocaleString('uk-UA') + ' грн';
-			document.getElementById('outROI').textContent = 'ROI: ' + roi + '%';
+			document.getElementById('outMargin').textContent = margin.toLocaleString('uk-UA') + ' грн (ROI: ' + roi + '%)';
 			document.getElementById('outPrepay').textContent = prepaySum.toLocaleString('uk-UA') + ' грн';
 			document.getElementById('outHarvest').textContent = harvest + ' т';
 			document.getElementById('outE2').textContent = '+' + e2.toLocaleString('uk-UA') + ' грн';
@@ -442,26 +614,40 @@
 		['rngArea', 'rngYield', 'rngProc', 'rngPrepay'].forEach(id => document.getElementById(id).addEventListener('input', recalc));
 		recalc();
 
-		// Chat & PDF Logic
 		const chatbox = document.getElementById('chatbox');
+		function handleQuery(text) {
+			chatbox.innerHTML += `<div class="msg user">${text}</div>`;
+			const edrpouMatch = text.match(/\b(\d{8})\b/);
+			if (edrpouMatch && LOCAL_COMPANIES[edrpouMatch[1]]) {
+				const comp = LOCAL_COMPANIES[edrpouMatch[1]];
+				document.getElementById('p_edrpou').textContent = comp.edrpou;
+				document.getElementById('p_company').textContent = comp.company_name;
+				document.getElementById('p_region').textContent = comp.region;
+				chatbox.innerHTML += `<div class="msg bot"><strong>ІІБ:</strong> Верифіковано учасника <strong>${comp.company_name}</strong>. Розраховано маржу ${calcState.margin.toLocaleString()} грн. Готово до генерації тизера!</div>`;
+			} else {
+				chatbox.innerHTML += `<div class="msg bot"><strong>ІІБ:</strong> Параметри учасника оновлено відповідно до калькулятора. Чиста маржа кластеру: ${calcState.margin.toLocaleString()} грн.</div>`;
+			}
+			chatbox.scrollTop = chatbox.scrollHeight;
+		}
+
 		document.getElementById('sendBtn').addEventListener('click', () => {
 			const val = document.getElementById('textInput').value;
 			if (!val) return;
-			chatbox.innerHTML += `<div class="msg user">${val}</div>`;
 			document.getElementById('textInput').value = '';
-			setTimeout(() => {
-				chatbox.innerHTML += `<div class="msg bot">Розрахунки оновлено! Можете вивантажувати Драфт та Тизер.</div>`;
-				chatbox.scrollTop = chatbox.scrollHeight;
-			}, 800);
+			handleQuery(val);
+		});
+
+		document.querySelectorAll('.chip').forEach(btn => {
+			btn.addEventListener('click', () => handleQuery(btn.getAttribute('data-query')));
 		});
 
 		document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
 			const box = document.createElement('div');
 			box.style.padding = '20px';
 			box.innerHTML = `<h2>ЕСКІЗНИЙ ПРОЄКТ (ДРАФТ) КЛАСТЕРУ</h2>
-            <p><strong>Суб'єкт:</strong> ${document.getElementById('p_company').innerText}</p>
-            <p><strong>Площа кластеру:</strong> ${calcState.area} га</p>
-            <p><strong>Чиста маржа:</strong> ${calcState.margin.toLocaleString()} грн (ROI ${calcState.roi}%)</p>
+            <p><strong>Суб'єкт:</strong> ${document.getElementById('p_company').innerText} (ЄДРПОУ ${document.getElementById('p_edrpou').innerText})</p>
+            <p><strong>Площа кластеру:</strong> ${calcState.area} га (Врожайність: ${calcState.yld} т/га)</p>
+            <p><strong>Чиста маржа кластеру:</strong> ${calcState.margin.toLocaleString()} грн (ROI ${calcState.roi}%)</p>
             <p><strong>Аванс науці (НААН):</strong> ${calcState.prepaySum.toLocaleString()} грн</p>`;
 			await html2pdf().from(box).save('AgroCluster_Draft.pdf');
 		});
@@ -470,29 +656,21 @@
 			const box = document.createElement('div');
 			box.style.padding = '20px';
 			box.innerHTML = `<h1 style="color:#059669;">INVESTMENT PITCH DECK</h1>
-            <h2 style="margin-bottom:5px;">КЛАСТЕР «БІЛА ПРИНЦЕСА»</h2>
-            <hr>
-            <h3>Фінансові показники:</h3>
-            <ul><li>Чиста маржа: <b>${calcState.margin.toLocaleString()} грн</b></li>
-            <li>Рентабельність (ROI): <b>${calcState.roi}%</b></li>
-            <li>Ефект цифровізації (E2): <b>+${calcState.e2.toLocaleString()} грн</b></li></ul>`;
+            <h2>КЛАСТЕР «БІЛА ПРИНЦЕСА»</h2><hr>
+            <p><b>Чиста маржа:</b> ${calcState.margin.toLocaleString()} грн</p>
+            <p><b>Рентабельність (ROI):</b> ${calcState.roi}%</p>
+            <p><b>Аванс селекції НААН:</b> ${calcState.prepaySum.toLocaleString()} грн</p>
+            <p><b>Ефект цифровізації (E₂):</b> +${calcState.e2.toLocaleString()} грн/рік</p>`;
 			await html2pdf().from(box).save('AgroCluster_Pitch.pdf');
 		});
 
 		document.getElementById('downloadDocxBtn').addEventListener('click', () => {
-			alert('Завантажуємо DOCX із сервера...');
 			window.location.href = "https://agrogrant.onrender.com/export/00000000-0000-0000-0000-000000000000";
 		});
-		// Bridge Bot Btn Logic
+
 		document.getElementById('bridgeBotBtn').addEventListener('click', () => {
-			// Формуємо рядок передачі параметрів калькулятора у ваш другий проєкт чат-бота
-			const botPayload = encodeURIComponent(
-				`Добрий день! Прошу сформувати грантову заявку на основі розрахунку кластеру: ` +
-				`площа ${calcState.area} га, чиста маржа ${calcState.margin.toLocaleString()} грн, ` +
-				`ROI ${calcState.roi}%, аванс науці ${calcState.prepaySum.toLocaleString()} грн.`
-			);
-			// Умовний перехід на посилання вашого другого бота або локальний порт
-			window.open(`https://dn7734.github.io/AgroGrant_Bot/?data=${botPayload}`, '_blank');
+			const payload = encodeURIComponent(`Заявка на грант з кластеру: площа ${calcState.area} га, маржа ${calcState.margin.toLocaleString()} грн, ROI ${calcState.roi}%.`);
+			window.open(`https://dn7734.github.io/AgroGrant_Bot/?data=${payload}`, '_blank');
 		});
 	</script>
 </body>

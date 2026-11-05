@@ -51,18 +51,26 @@ class ChatRequest(BaseModel):
 
 @app.get("/")
 def health_check():
-    return {"status": "ok", "service": "AgroCluster Backend"}
+    return {"status": "ok", "service": "AgroCluster Backend API"}
 
 @app.post("/chat/{user_id}")
 async def chat_with_bot(user_id: uuid.UUID, request: ChatRequest):
-    # Скорочений ендпоінт чату для демонстрації
-    return {"reply": "Дані отримано та оновлено в системі.", "profile": {}, "is_error": False}
+    return {
+        "reply": "Дані учасника кластеру успішно оновлено у системі.", 
+        "profile": {
+            "edrpou": "00496802",
+            "company_name": "ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»",
+            "activity_type": "Наукове ядро кластеру: Супереліта",
+            "size_category": "300 га (кластерний цикл)",
+            "own_contribution_percent": "30%"
+        }, 
+        "is_error": False
+    }
 
 @app.api_route("/export/{user_id}", methods=["GET", "HEAD"])
 def export_grant(user_id: uuid.UUID):
     db = SessionLocal()
     try:
-        # Для демо-версії генеруємо документ із базовим профілем
         profile_data = {
             "edrpou": "00496802",
             "company_name": "ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»",
