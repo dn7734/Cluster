@@ -385,6 +385,11 @@
 					(PDF)</button>
 				<button id="downloadDocxBtn" class="btn" style="background:var(--accent-dark);">3. Проєкт
 					(DOCX)</button>
+				<div style="margin-top: 10px;">
+					<button id="bridgeBotBtn" class="btn" style="background: var(--accent-blue); width: 100%;">
+						3. Передати розрахунок і тизер у AgroGrant_Bot (Грантова заявка)
+					</button>
+				</div>
 			</div>
 		</section>
 	</main>
@@ -477,6 +482,17 @@
 		document.getElementById('downloadDocxBtn').addEventListener('click', () => {
 			alert('Завантажуємо DOCX із сервера...');
 			window.location.href = "https://agrogrant.onrender.com/export/00000000-0000-0000-0000-000000000000";
+		});
+		// Bridge Bot Btn Logic
+		document.getElementById('bridgeBotBtn').addEventListener('click', () => {
+			// Формуємо рядок передачі параметрів калькулятора у ваш другий проєкт чат-бота
+			const botPayload = encodeURIComponent(
+				`Добрий день! Прошу сформувати грантову заявку на основі розрахунку кластеру: ` +
+				`площа ${calcState.area} га, чиста маржа ${calcState.margin.toLocaleString()} грн, ` +
+				`ROI ${calcState.roi}%, аванс науці ${calcState.prepaySum.toLocaleString()} грн.`
+			);
+			// Умовний перехід на посилання вашого другого бота або локальний порт
+			window.open(`https://dn7734.github.io/AgroGrant_Bot/?data=${botPayload}`, '_blank');
 		});
 	</script>
 </body>
