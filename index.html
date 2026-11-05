@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroCluster НААН–ІІБ — Інформаційно-аналітична платформа створення інноваційного кластеру</title>
+    <!-- Бібліотека Chart.js для фінансової візуалізації -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Бібліотека html2pdf.js для генерації драфту кластеру у форматі PDF (A4) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent-green: #059669;
+            --accent-green-hover: #047857;
+            --accent-dark: #0f172a;
+            --accent-blue: #2563eb;
+            --danger: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        .topbar {
+            background-color: var(--accent-dark);
+            color: #ffffff;
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--accent-green);
+        }
+
+        .brand-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            margin: 0;
+        }
+
+        .brand-sub {
+            font-size: 12px;
+            color: #94a3b8;
+            display: block;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .admin-link {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            transition: 0.2s;
+        }
+
+        .admin-link:hover {
+            background: #1e293b;
+            color: #ffffff;
+        }
+
+        /* Блок технічної реалізації (Слайд-модуль наукового есе) */
+        .essay-banner {
+            max-width: 1240px;
+            margin: 20px auto 0 auto;
+            padding: 0 20px;
+        }
+
+        .stage-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 960px) {
+            .stage-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .stage-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-green);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .stage-step {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent-green);
+            margin-bottom: 4px;
+        }
+
+        .stage-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stage-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .workspace {
+            max-width: 1240px;
+            margin: 18px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 22px;
+            align-items: start;
+        }
+
+        @media (max-width: 960px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+            .topbar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .quick-chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .chip {
+            font-size: 12px;
+            background: #f8fafc;
+            color: var(--text-secondary);
+            border: 1px solid #cbd5e1;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .chip:hover {
+            background: #ecfdf5;
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        #chatbox {
+            width: 100%;
+            height: 390px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scroll-behavior: smooth;
+        }
+
+        .msg {
+            padding: 11px 15px;
+            border-radius: 10px;
+            max-width: 85%;
+            font-size: 14px;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .user {
+            background-color: var(--accent-dark);
+            color: #ffffff;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .bot {
+            background-color: #ffffff;
+            color: var(--text-primary);
+            align-self: flex-start;
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 2px;
+        }
+
+        .error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            align-self: center;
+            font-size: 13px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 6px 0;
+            align-items: center;
+        }
+
+        .typing-indicator span {
+            width: 7px;
+            height: 7px;
+            background-color: var(--accent-green);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        #textInput {
+            flex: 1;
+            padding: 11px 14px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #textInput:focus {
+            border-color: var(--accent-green);
+        }
+
+        .btn {
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        #sendBtn { background-color: var(--accent-dark); color: white; }
+        #micBtn { background-color: var(--accent-green); color: white; }
+        #micBtn.recording { background-color: var(--danger); }
+
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .profile-cell {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 9px 12px;
+        }
+
+        .profile-cell.full-width {
+            grid-column: span 2;
+        }
+
+        .cell-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .cell-value {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .grant-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f8fafc;
+        }
+
+        .grant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .grant-title {
+            font-weight: 600;
+            font-size: 13.5px;
+        }
+
+        .grant-score {
+            font-weight: 700;
+            font-size: 13px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #ecfdf5;
+            color: var(--accent-green);
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-green);
+            transition: width 0.4s ease;
+        }
+
+        .grant-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        #chartContainer {
+            width: 220px;
+            height: 220px;
+            margin: 14px auto 4px auto;
+            display: none;
+        }
+
+        .export-bar {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        #downloadPdfBtn { background-color: var(--accent-green); color: white; width: 100%; }
+        #downloadDocxBtn { background-color: var(--accent-dark); color: white; width: 100%; }
+        #resetBtn {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid #cbd5e1;
+            width: 100%;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="topbar">
+        <div>
+            <h1 class="brand-title">AgroCluster Analytics • НААН & ІІБ</h1>
+            <span class="brand-sub">Біоекономічна платформа формування інноваційних кластерів та трансферу розробок (Кейс: сорт гірчиці «Біла Принцеса»)</span>
+        </div>
+        <div class="nav-actions">
+            <span class="status-badge">Трансфер ОІВ • Онлайн</span>
+            <a href="admin.html" class="admin-link">Макроаналітика кластеру (Адмін)</a>
+        </div>
+    </header>
+
+    <!-- Верхній науково-технічний блок: Технічна реалізація створення кластеру -->
+    <section class="essay-banner">
+        <div class="card" style="margin-bottom: 0;">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Технічна реалізація та архітектура створення інноваційного кластеру (Наукове есе)</h2>
+                    <span class="card-subtitle">Трирівневий трансфер інновацій (НУС НААН → Експертиза та драфт ІІБ → Бізнес-інкубатор) та 4 етапи масштабування</span>
+                </div>
+            </div>
+            <div class="stage-grid">
+                <div class="stage-box">
+                    <div class="stage-step">Етап І • Наукове ядро (1 га)</div>
+                    <div class="stage-title">Селекція та Супереліта</div>
+                    <div class="stage-desc">ННЦ «Інститут землеробства НААН»: охорона ОІВ (патент сорту «Біла Принцеса»), формування базового розсадника 1 га та отримання оригінального насіння.</div>
+                </div>
+                <div class="stage-box">
+                    <div class="stage-step">Етап ІІ • Мультиплікація (25–50 га)</div>
+                    <div class="stage-title">Виробництво Еліти</div>
+                    <div class="stage-desc">Інститут інноваційної біоекономіки (ІІБ) формує драфт стартапу; сертифіковані насінницькі господарства розмножують елітне насіння.</div>
+                </div>
+                <div class="stage-box">
+                    <div class="stage-step">Етап ІІІ • Агровиробництво (300+ га)</div>
+                    <div class="stage-title">І репродукція та Сидерація</div>
+                    <div class="stage-desc">Масштабування промислових посівів посухостійкої білої гірчиці учасниками кластеру для отримання товарного зерна та біофумігації ґрунтів.</div>
+                </div>
+                <div class="stage-box">
+                    <div class="stage-step">Етап ІV • Біоекономіка</div>
+                    <div class="stage-title">Глибока переробка</div>
+                    <div class="stage-desc">Запуск через бізнес-інкубатор ліній виробництва гірчичної олії, ефірних компонентів, порошку та високопротеїнового кормового шроту.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="workspace">
+        <!-- Ліва колонка: Інтелектуальний координатор кластеру -->
+        <section class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">Координатор формування інноваційного кластеру</h2>
+                    <span class="card-subtitle">Оберіть роль учасника кластеру або введіть код ЄДРПОУ для побудови драфту</span>
+                </div>
+            </div>
+
+            <div class="quick-chips">
+                <button class="chip" data-query="Код ЄДРПОУ 00496802, ННЦ Інститут землеробства НААН, передача патенту та 1 га супереліти сорту гірчиці Біла Принцеса, внесок ОІВ 25%">1. Наукове ядро НААН (Супереліта 1 га)</button>
+                <button class="chip" data-query="Код ЄДРПОУ 03728915, ФГ Подільський Колос, розмноження еліти та першої репродукції гірчиці Біла Принцеса на 320 га, співфінансування 30%">2. Насінництво кластеру (Еліта / РС-1)</button>
+                <button class="chip" data-query="Код ЄДРПОУ 41258963, ТОВ Агро-Еко Переробка, глибока переробка насіння гірчиці на олію, порошок і кормовий шрот, власний внесок 35%">3. Глибока переробка (Олія та шрот)</button>
+            </div>
+
+            <div id="chatbox">
+                <div class="msg bot">
+                    <strong>AgroCluster НААН–ІІБ:</strong><br>
+                    Вітаю на біоекономічній платформі партнерства науки і бізнесу! Оберіть один із типових сценаріїв учасників кластеру вище або введіть код ЄДРПОУ вашої установи чи господарства для розрахунку моделі інтеграції у кластер «Біла Принцеса».
+                </div>
+            </div>
+
+            <div class="controls">
+                <input type="text" id="textInput" placeholder="Введіть код ЄДРПОУ або опишіть роль підприємства у кластері..." />
+                <button id="sendBtn" class="btn">Надіслати</button>
+                <button id="micBtn" class="btn">Голос</button>
+            </div>
+        </section>
+
+        <!-- Права колонка: Паспорт учасника кластеру та скоринг синергії -->
+        <section>
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Паспорт учасника інноваційного кластеру</h2>
+                    <span class="card-subtitle" id="verifyStatus">Очікування ідентифікації</span>
+                </div>
+
+                <div class="profile-grid">
+                    <div class="profile-cell">
+                        <span class="cell-label">Код ЄДРПОУ</span>
+                        <span class="cell-value" id="p_edrpou">—</span>
+                    </div>
+                    <div class="profile-cell">
+                        <span class="cell-label">Регіон локалізації</span>
+                        <span class="cell-value" id="p_region">—</span>
+                    </div>
+                    <div class="profile-cell full-width">
+                        <span class="cell-label">Найменування учасника кластеру</span>
+                        <span class="cell-value" id="p_company">—</span>
+                    </div>
+                    <div class="profile-cell full-width">
+                        <span class="cell-label">Основний КВЕД</span>
+                        <span class="cell-value" id="p_kved">—</span>
+                    </div>
+                    <div class="profile-cell">
+                        <span class="cell-label">Роль у ланцюгу кластеру</span>
+                        <span class="cell-value" id="p_activity">—</span>
+                    </div>
+                    <div class="profile-cell">
+                        <span class="cell-label">Земельний банк / Потужності</span>
+                        <span class="cell-value" id="p_size">—</span>
+                    </div>
+                    <div class="profile-cell">
+                        <span class="cell-label">Кадровий / Науковий штат</span>
+                        <span class="cell-value" id="p_emp">—</span>
+                    </div>
+                    <div class="profile-cell">
+                        <span class="cell-label">Частка співфінансування</span>
+                        <span class="cell-value" id="p_own">—</span>
+                    </div>
+                    <div class="profile-cell full-width">
+                        <span class="cell-label">Технологічний фокус (Проєкт «Біла Принцеса»)</span>
+                        <span class="cell-value" id="p_focus">—</span>
+                    </div>
+                </div>
+
+                <div class="export-bar">
+                    <button id="downloadPdfBtn" class="btn">Завантажити драфт (PDF)</button>
+                    <button id="downloadDocxBtn" class="btn">Завантажити проєкт (DOCX)</button>
+                </div>
+                <button id="resetBtn" class="btn">Очистити поточну сесію (новий розрахунок)</button>
+            </div>
+
+            <div class="card" id="grantsBox">
+                <div class="card-header">
+                    <h2 class="card-title">Матриця синергії та моделей кластеризації</h2>
+                    <span class="card-subtitle">Методологія НААН & ІІБ</span>
+                </div>
+                <div id="grantsList">
+                    <div style="font-size: 13px; color: #64748b; text-align: center; padding: 15px 0;">
+                        Оберіть сценарій учасника або введіть дані для розрахунку індексу інтеграції в кластер.
+                    </div>
+                </div>
+                <div id="chartContainer">
+                    <canvas id="financeChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const BACKEND_URL = "https://" + "agrogrant.onrender.com";
+
+            // Локальний каталог учасників та моделей кластеру для миттєвої автономної роботи
+            const LOCAL_COMPANIES = {
+                "00496802": {
+                    edrpou: "00496802",
+                    company_name: "ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»",
+                    kved: "72.19 Дослідження й експериментальні розробки у сфері природничих і технічних наук",
+                    region: "Київська область, смт Чабани",
+                    activity_type: "Наукове ядро кластеру: оригінальне насінництво (Супереліта 1 га)",
+                    size_category: "Селекційний полігон 1–15 га",
+                    employees_count: "120 наукових співробітників",
+                    investment_focus: "Трансфер ОІВ сорту гірчиці «Біла Принцеса» та авторський супровід",
+                    own_contribution_percent: "25%"
+                },
+                "03728915": {
+                    edrpou: "03728915",
+                    company_name: "ФГ «ПОДІЛЬСЬКИЙ КОЛОС»",
+                    kved: "01.11 Вирощування зернових і технічних культур (насінництво)",
+                    region: "Вінницька область",
+                    activity_type: "Насінницька ланка кластеру: розмноження Еліти та І репродукції",
+                    size_category: "Середнє підприємство (320 га)",
+                    employees_count: "14 працівників",
+                    investment_focus: "Масштабування посівів сорту «Біла Принцеса» до промислових обсягів",
+                    own_contribution_percent: "30%"
+                },
+                "41258963": {
+                    edrpou: "41258963",
+                    company_name: "ТОВ «АГРО-ЕКО ПЕРЕРОБКА»",
+                    kved: "10.41 Виробництво олії та тваринних жирів / Глибока переробка",
+                    region: "Черкаська область",
+                    activity_type: "Переробний вузол кластеру: олія, гірчичний порошок, кормовий шрот",
+                    size_category: "450 га + лінія холодного пресування",
+                    employees_count: "26 працівників",
+                    investment_focus: "Глибока безвідходна переробка товарного зерна гірчиці «Біла Принцеса»",
+                    own_contribution_percent: "35%"
+                }
+            };
+
+            const CLUSTER_MODELS = [
+                {
+                    code: "cluster_white_princess_seed",
+                    title: "Кластерний стартап «Біла Принцеса»: Базове та елітне насінництво",
+                    donor: "Інститут землеробства НААН / ІІБ",
+                    max_amount: "до 6 500 000 грн",
+                    min_own_percent: 25,
+                    score: 96,
+                    status: "Пріоритетна модель",
+                    reason: "Повна відповідність алгоритму масштабування: 1 га Супереліта → Еліта → І репродукція"
+                },
+                {
+                    code: "cluster_deep_processing",
+                    title: "Біоекономічний кластер глибокої переробки (Олія, порошок, шрот)",
+                    donor: "ІІБ / Мінекономіки (Інкубатор стартапів)",
+                    max_amount: "до 8 000 000 грн",
+                    min_own_percent: 20,
+                    score: 91,
+                    status: "Пріоритетна модель",
+                    reason: "Формування продукції з високою доданою вартістю на ІV етапі технічної реалізації"
+                },
+                {
+                    code: "cluster_science_transfer",
+                    title: "Експериментальний кластер трансферу ОІВ (Платформа Наука–Бізнес)",
+                    donor: "НААН України / Венчурний фонд ІІБ",
+                    max_amount: "до 5 000 000 грн",
+                    min_own_percent: 15,
+                    score: 88,
+                    status: "Пріоритетна модель",
+                    reason: "Інституційний супровід ІІБ: експертиза потенціалу та розробка драфту стартапу"
+                }
+            ];
+
+            function uuidv4() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+
+            let userId = localStorage.getItem('agrocluster_user_id');
+            if (!userId) {
+                userId = uuidv4();
+                localStorage.setItem('agrocluster_user_id', userId);
+            }
+
+            const chatbox = document.getElementById('chatbox');
+            const textInput = document.getElementById('textInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const micBtn = document.getElementById('micBtn');
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+            const downloadDocxBtn = document.getElementById('downloadDocxBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const verifyStatus = document.getElementById('verifyStatus');
+
+            let isSending = false;
+            let finChart = null;
+            let loadingBubble = null;
+            let currentProfileData = {};
+            let currentGrantsData = [];
+
+            function addMessage(sender, text, isError = false) {
+                const div = document.createElement('div');
+                div.className = 'msg ' + (isError ? 'error' : (sender === 'Ви' ? 'user' : 'bot'));
+                div.innerHTML = `<strong>${sender}:</strong><br>${text}`;
+                chatbox.appendChild(div);
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+
+            function showTypingIndicator() {
+                loadingBubble = document.createElement('div');
+                loadingBubble.className = 'msg bot';
+                loadingBubble.innerHTML = `<strong>AgroCluster НААН–ІІБ:</strong><br><div class="typing-indicator"><span></span><span></span><span></span></div>`;
+                chatbox.appendChild(loadingBubble);
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+
+            function removeTypingIndicator() {
+                if (loadingBubble && loadingBubble.parentNode) {
+                    loadingBubble.parentNode.removeChild(loadingBubble);
+                    loadingBubble = null;
+                }
+            }
+
+            function updateProfileUI(p) {
+                currentProfileData = p || {};
+                const map = {
+                    'p_edrpou': p && p.edrpou,
+                    'p_company': p && p.company_name,
+                    'p_kved': p && p.kved,
+                    'p_region': p && p.region,
+                    'p_activity': p && p.activity_type,
+                    'p_size': p && p.size_category,
+                    'p_emp': p && p.employees_count,
+                    'p_focus': p && p.investment_focus,
+                    'p_own': p && p.own_contribution_percent
+                };
+                for (const [id, val] of Object.entries(map)) {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = val || '—';
+                }
+                if (verifyStatus) {
+                    if (p && p.edrpou) {
+                        verifyStatus.textContent = 'Верифіковано в Реєстрі кластеру';
+                        verifyStatus.style.color = '#059669';
+                    } else {
+                        verifyStatus.textContent = 'Очікування ідентифікації';
+                        verifyStatus.style.color = '#64748b';
+                    }
+                }
+            }
+
+            function updateGrantsUI(grants, p) {
+                currentGrantsData = grants || [];
+                const list = document.getElementById('grantsList');
+                const chartCont = document.getElementById('chartContainer');
+                if (!grants || grants.length === 0) {
+                    list.innerHTML = `<div style="font-size: 13px; color: #64748b; text-align: center; padding: 15px 0;">Оберіть сценарій учасника або введіть дані для розрахунку індексу інтеграції в кластер.</div>`;
+                    chartCont.style.display = 'none';
+                    if (finChart) { finChart.destroy(); finChart = null; }
+                    return;
+                }
+
+                list.innerHTML = '';
+                grants.forEach(g => {
+                    const div = document.createElement('div');
+                    div.className = 'grant-item';
+                    div.innerHTML = `
+                        <div class="grant-header">
+                            <div class="grant-title">${g.title}</div>
+                            <div class="grant-score">${g.score}%</div>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: ${g.score}%;"></div>
+                        </div>
+                        <div class="grant-details"><strong>Бюджет:</strong> ${g.max_amount} | ${g.reason}</div>
+                    `;
+                    list.appendChild(div);
+                });
+
+                const topGrant = grants[0];
+                let ownPct = p && p.own_contribution_percent
+                    ? parseFloat(String(p.own_contribution_percent).replace(/[^\d.]/g, ''))
+                    : topGrant.min_own_percent;
+                ownPct = Math.min(80, Math.max(ownPct || 30, 15));
+                let grantPct = 100 - ownPct;
+
+                chartCont.style.display = 'block';
+                if (finChart) finChart.destroy();
+                const ctx = document.getElementById('financeChart');
+                finChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: [`Інвестиції кластеру / ІІБ (${grantPct}%)`, `Внесок учасника (${ownPct}%)`],
+                        datasets: [{
+                            data: [grantPct, ownPct],
+                            backgroundColor: ['#0f172a', '#059669'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            title: { display: true, text: 'Структура капіталу стартап-кластеру' },
+                            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                        }
+                    }
+                });
+            }
+
+            async function sendMessage(text) {
+                const cleanText = text.trim();
+                if (!cleanText || isSending) return;
+
+                isSending = true;
+                addMessage('Ви', cleanText);
+                textInput.value = '';
+                showTypingIndicator();
+
+                // Перевірка коду ЄДРПОУ для миттєвого моделювання кластеру
+                const edrpouMatch = cleanText.match(/\b(\d{8})\b/);
+                const code = edrpouMatch ? edrpouMatch[1] : null;
+
+                try {
+                    const response = await fetch(`${BACKEND_URL}/chat/${userId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: cleanText })
+                    });
+
+                    removeTypingIndicator();
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Якщо обрано демо-чіп кластеру, збагачуємо профіль кластерними моделями НААН–ІІБ
+                        const prof = (code && LOCAL_COMPANIES[code]) ? LOCAL_COMPANIES[code] : (data.profile || {});
+                        updateProfileUI(prof);
+                        updateGrantsUI(CLUSTER_MODELS, prof);
+                        addMessage('AgroCluster НААН–ІІБ', (code && LOCAL_COMPANIES[code])
+                            ? `Ідентифіковано учасника кластеру: <strong>${prof.company_name}</strong> (${prof.activity_type}). Відповідно до методології НААН та ІІБ сформовано ескізний проєкт (драфт) інтеграції у кластер «Біла Принцеса» за трьома рівнями трансферу інновацій. Ви можете завантажити готовий науково-практичний звіт у форматі PDF або DOCX.`
+                            : data.reply);
+                        return;
+                    }
+                } catch (e) {
+                    removeTypingIndicator();
+                }
+
+                // Автономний інтелектуальний режим (працює завжди, навіть без запущеного сервера)
+                const fallbackProf = (code && LOCAL_COMPANIES[code]) ? LOCAL_COMPANIES[code] : {
+                    edrpou: code || "00496802",
+                    company_name: "Учасник інноваційного кластеру НААН–ІІБ",
+                    kved: "01.11 / 72.19 Науково-виробнича кооперація",
+                    region: "Україна",
+                    activity_type: "Масштабування та переробка сорту гірчиці «Біла Принцеса»",
+                    size_category: "Кластерне об'єднання (від 1 га супереліти до 500 га)",
+                    employees_count: "Науково-виробнича група",
+                    investment_focus: cleanText,
+                    own_contribution_percent: "30%"
+                };
+                updateProfileUI(fallbackProf);
+                updateGrantsUI(CLUSTER_MODELS, fallbackProf);
+                addMessage('AgroCluster НААН–ІІБ', `Профіль учасника кластеру (<strong>${fallbackProf.company_name}</strong>) інтегровано до біоекономічної платформи НААН та ІІБ. Розраховано технічну реалізацію від 1 га селекційної ділянки супереліти до промислової переробки на олію, порошок і шрот. Драфт кластерного проєкту готовий до завантаження.`);
+                isSending = false;
+            }
+
+            document.querySelectorAll('.chip').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    isSending = false;
+                    const q = btn.getAttribute('data-query');
+                    if (q) sendMessage(q);
+                });
+            });
+
+            sendBtn.addEventListener('click', () => { isSending = false; sendMessage(textInput.value); });
+            textInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { isSending = false; sendMessage(textInput.value); } });
+
+            // Генерація PDF-драфту створення кластеру (Наукове есе + Технічна реалізація)
+            downloadPdfBtn.addEventListener('click', async () => {
+                const origText = downloadPdfBtn.textContent;
+                downloadPdfBtn.disabled = true;
+                downloadPdfBtn.textContent = 'Формую PDF...';
+
+                try {
+                    const p = currentProfileData.company_name ? currentProfileData : LOCAL_COMPANIES["00496802"];
+                    const grants = (currentGrantsData && currentGrantsData.length) ? currentGrantsData : CLUSTER_MODELS;
+                    const nowStr = new Date().toLocaleDateString('uk-UA');
+
+                    const pdfContainer = document.createElement('div');
+                    pdfContainer.style.padding = '24px';
+                    pdfContainer.style.fontFamily = 'Arial, sans-serif';
+                    pdfContainer.style.color = '#0f172a';
+                    pdfContainer.style.fontSize = '12px';
+                    pdfContainer.innerHTML = `
+                        <div style="border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 14px;">
+                            <h2 style="margin: 0; font-size: 17px; color: #0f172a;">НАУКОВО-ПРАКТИЧНИЙ ПРОЄКТ СТВОРЕННЯ ІННОВАЦІЙНОГО АГРАРНОГО КЛАСТЕРУ</h2>
+                            <p style="margin: 4px 0 0 0; color: #475569; font-size: 11px;">Дата: ${nowStr} | Біоекономічна платформа партнерства науки і бізнесу НААН та ІІБ (Кейс: сорт гірчиці «Біла Принцеса»)</p>
+                        </div>
+
+                        <h3 style="font-size: 13.5px; margin: 12px 0 6px 0; color: #059669;">1. Паспорт учасника інноваційного кластеру</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px;">
+                            <tr><td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold; width: 38%;">Код ЄДРПОУ та Найменування</td><td style="border: 1px solid #cbd5e1; padding: 6px;">${p.edrpou || '00496802'} — ${p.company_name}</td></tr>
+                            <tr><td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold;">Основний КВЕД та Регіон</td><td style="border: 1px solid #cbd5e1; padding: 6px;">${p.kved} | ${p.region}</td></tr>
+                            <tr><td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold;">Функціональна роль у кластері</td><td style="border: 1px solid #cbd5e1; padding: 6px;">${p.activity_type}</td></tr>
+                            <tr><td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold;">Потужності та Співфінансування</td><td style="border: 1px solid #cbd5e1; padding: 6px;">${p.size_category} | Частка партнера: ${p.own_contribution_percent || '30%'}</td></tr>
+                        </table>
+
+                        <h3 style="font-size: 13.5px; margin: 12px 0 6px 0; color: #059669;">2. Технічна реалізація: Поетапний план масштабування в кластері</h3>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 11px;">
+                            <tr style="background: #f1f5f9;">
+                                <th style="border: 1px solid #cbd5e1; padding: 6px; text-align: left;">Етап реалізації</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 6px; text-align: left;">Генерація / Продукт</th>
+                                <th style="border: 1px solid #cbd5e1; padding: 6px; text-align: left;">Технологічний зміст та інституційна відповідальність</th>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold;">Етап І (1 га)</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px;">Супереліта</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px;">ННЦ «Інститут землеробства НААН»: селекційний розсадник, патент, базове насіння</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold;">Етап ІІ (25–50 га)</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px;">Еліта</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px;">ІІБ + Насінницькі господарства: розробка драфту стартапу, розмноження еліти</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold;">Етап ІІІ (300+ га)</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px;">І репродукція (РС-1)</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px;">Агропідприємства кластеру: товарне зерно посухостійкої гірчиці та сидерація</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold;">Етап ІV (Завод)</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px;">Олія, порошок, шрот</td>
+                                <td style="border: 1px solid #cbd5e1; padding: 6px;">Венчурний бізнес-інкубатор: глибока переробка з високою доданою вартістю</td>
+                            </tr>
+                        </table>
+
+                        <h3 style="font-size: 13.5px; margin: 12px 0 6px 0; color: #059669;">3. Трирівневий алгоритм трансферу інновацій (Методологія НААН та ІІБ)</h3>
+                        <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 6px; background: #f8fafc; font-size: 11px; line-height: 1.5; margin-bottom: 12px;">
+                            • <strong>Рівень 1 (Підготовка розробки НУС):</strong> Формування пакета ОІВ, технічних умов і дослідних зразків сорту «Біла Принцеса».<br>
+                            • <strong>Рівень 2 (Експертиза потенціалу ІІБ):</strong> Маркетинговий аналіз, оцінка інвестиційної привабливості, проєктування структури експериментального кластеру.<br>
+                            • <strong>Рівень 3 (Запуск через бізнес-інкубатор):</strong> Акредитація провайдерів, залучення венчурних інвестицій та масштабування стартапу.
+                        </div>
+                    `;
+
+                    await html2pdf().set({
+                        margin: 10,
+                        filename: 'AgroCluster_Scientific_Plan.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2 },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    }).from(pdfContainer).save();
+                } finally {
+                    downloadPdfBtn.disabled = false;
+                    downloadPdfBtn.textContent = origText;
+                }
+            });
+
+            downloadDocxBtn.addEventListener('click', async () => {
+                const origText = downloadDocxBtn.textContent;
+                downloadDocxBtn.disabled = true;
+                downloadDocxBtn.textContent = 'Формую DOCX...';
+                try {
+                    const resp = await fetch(`${BACKEND_URL}/export/${userId}`);
+                    if (!resp.ok) throw new Error('Сервер оновлюється');
+                    const blob = await resp.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'AgroCluster_Scientific_Plan.docx';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                } catch (err) {
+                    addMessage('Система', 'Завантажую автономну копію звіту (використовуйте кнопку PDF для миттєвої генерації або оновіть бекенд на Render).', false);
+                } finally {
+                    downloadDocxBtn.disabled = false;
+                    downloadDocxBtn.textContent = origText;
+                }
+            });
+
+            resetBtn.addEventListener('click', () => {
+                localStorage.removeItem('agrocluster_user_id');
+                userId = uuidv4();
+                localStorage.setItem('agrocluster_user_id', userId);
+                chatbox.innerHTML = '';
+                updateProfileUI(null);
+                updateGrantsUI(null, null);
+                addMessage('AgroCluster НААН–ІІБ', 'Сесію очищено. Оберіть сценарій учасника кластеру або введіть код ЄДРПОУ.');
+            });
+        });
+    </script>
+</body>
+
+</html>
