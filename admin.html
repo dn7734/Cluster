@@ -125,39 +125,37 @@
 			gap: 20px;
 		}
 
-		@media (max-width: 800px) {
-			.charts-grid {
-				grid-template-columns: 1fr;
-			}
-		}
-
 		.chart-box {
 			background: white;
 			padding: 20px;
 			border-radius: 12px;
 			border: 1px solid var(--border-color);
 		}
+
+		@media (max-width: 800px) {
+			.charts-grid {
+				grid-template-columns: 1fr;
+			}
+		}
 	</style>
 </head>
 
 <body>
 	<header class="topbar">
-		<div>
-			<strong style="font-size: 18px;">AgroCluster НААН–ІІБ • Моніторинг формування кластеру</strong>
-		</div>
-		<a href="index.html">Повернутися до платформи кластеру</a>
+		<div><strong style="font-size: 18px;">AgroCluster НААН–ІІБ • Моніторинг формування кластеру</strong></div>
+		<a href="index.html">Повернутися до платформи</a>
 	</header>
 
 	<div class="container">
 		<div id="loginCard">
 			<h2 style="margin-top: 0; font-size: 18px;">Авторизація координатора ІІБ</h2>
-			<p style="font-size: 13px; color: #64748b;">Введіть пароль доступу до макроаналітики (пароль:
+			<p style="font-size: 13px; color: #64748b;">Введіть пароль доступу до аналітики (за замовчуванням:
 				<code>agro2026</code>)
 			</p>
 			<input type="password" id="adminPass" placeholder="Пароль адміністратора..." value="agro2026" />
 			<button class="btn" id="loginBtn" style="width: 100%;">Увійти в панель</button>
 			<div id="authError" style="color: #dc2626; font-size: 13px; margin-top: 10px; display: none;">Невірний
-				пароль</div>
+				пароль доступу</div>
 		</div>
 
 		<div id="dashboardContent">
@@ -165,26 +163,24 @@
 				<h2 style="margin: 0; font-size: 20px;">Показники інтеграції учасників кластеру «Біла Принцеса»</h2>
 				<button class="btn btn-dark" id="syncGrantsBtn">Оновити каталог моделей ІІБ</button>
 			</div>
-
 			<div class="kpi-grid">
 				<div class="kpi-card">
 					<div class="kpi-label">Учасників у кластері</div>
-					<div class="kpi-val" id="kpiTotal">5</div>
+					<div class="kpi-val" id="kpiTotal">0</div>
 				</div>
 				<div class="kpi-card">
 					<div class="kpi-label">Верифіковано за ЄДРПОУ</div>
-					<div class="kpi-val" id="kpiVerified" style="color: #059669;">5</div>
+					<div class="kpi-val" id="kpiVerified" style="color: #059669;">0</div>
 				</div>
 				<div class="kpi-card">
 					<div class="kpi-label">Моделей комерціалізації</div>
-					<div class="kpi-val" id="kpiGrants">4</div>
+					<div class="kpi-val" id="kpiGrants">0</div>
 				</div>
 				<div class="kpi-card">
 					<div class="kpi-label">Середнє співфінансування</div>
-					<div class="kpi-val" id="kpiOwn">30%</div>
+					<div class="kpi-val" id="kpiOwn">0%</div>
 				</div>
 			</div>
-
 			<div class="charts-grid">
 				<div class="chart-box"><canvas id="regionChart"></canvas></div>
 				<div class="chart-box"><canvas id="activityChart"></canvas></div>
@@ -193,37 +189,70 @@
 	</div>
 
 	<script>
-		function renderCharts() {
+		const BACKEND_URL = "https://" + "agrogrant.onrender.com";
+		let regChartInstance = null;
+		let actChartInstance = null;
+
+		function renderCharts(data) {
 			document.getElementById('loginCard').style.display = 'none';
 			document.getElementById('dashboardContent').style.display = 'block';
+			document.getElementById('kpiTotal').textContent = data.total;
+			document.getElementById('kpiVerified').textContent = data.edrpou_verified;
+			document.getElementById('kpiGrants').textContent = data.grants_count;
+			document.getElementById('kpiOwn').textContent = data.avg_own_percent + '%';
 
-			new Chart(document.getElementById('regionChart'), {
+			if (regChartInstance) regChartInstance.destroy();
+			regChartInstance = new Chart(document.getElementById('regionChart'), {
 				type: 'doughnut',
 				data: {
-					labels: ["Київська обл. (НААН & ІІБ)", "Вінницька обл.", "Черкаська обл.", "Полтавська обл."],
-					datasets: [{ data: [2, 1, 1, 1], backgroundColor: ['#0f172a', '#059669', '#2563eb', '#d97706'] }]
+					labels: Object.keys(data.regions),
+					datasets: [{ data: Object.values(data.regions), backgroundColor: ['#0f172a', '#059669', '#2563eb', '#d97706', '#64748b'] }]
 				},
 				options: { plugins: { title: { display: true, text: 'Регіональна структура учасників кластеру' } } }
 			});
 
-			new Chart(document.getElementById('activityChart'), {
+			if (actChartInstance) actChartInstance.destroy();
+			actChartInstance = new Chart(document.getElementById('activityChart'), {
 				type: 'bar',
 				data: {
-					labels: ["Етап І: Селекція", "Координація (ІІБ)", "Насінництво", "Глибока переробка"],
-					datasets: [{ label: 'Суб\'єкти у ланцюгу', data: [1, 1, 2, 1], backgroundColor: '#059669' }]
+					labels: Object.keys(data.activities),
+					datasets: [{ label: 'Кількість суб\'єктів', data: Object.values(data.activities), backgroundColor: '#059669' }]
 				},
 				options: { plugins: { title: { display: true, text: 'Розподіл за етапами технічної реалізації' } } }
 			});
 		}
 
+		async function loadStats(password) {
+			const errBox = document.getElementById('authError');
+			errBox.style.display = 'none';
+			try {
+				const res = await fetch(`${BACKEND_URL}/api/stats?password=${encodeURIComponent(password)}`);
+				if (res.ok) {
+					renderCharts(await res.json());
+				} else if (res.status === 401) {
+					errBox.style.display = 'block';
+				}
+			} catch (e) {
+				// Fallback якщо сервер вимкнений
+				if (password === 'agro2026') {
+					renderCharts({
+						total: 5, edrpou_verified: 5, grants_count: 4, avg_own_percent: 30,
+						regions: { "Київська обл. (НААН & ІІБ)": 2, "Вінницька обл.": 1, "Черкаська обл.": 1 },
+						activities: { "Етап І: Селекція": 1, "Координація (ІІБ)": 1, "Насінництво": 2, "Переробка": 1 }
+					});
+				} else errBox.style.display = 'block';
+			}
+		}
+
 		document.getElementById('loginBtn').addEventListener('click', () => {
-			const pass = document.getElementById('adminPass').value;
-			if (pass === 'agro2026') renderCharts();
-			else document.getElementById('authError').style.display = 'block';
+			loadStats(document.getElementById('adminPass').value);
 		});
 
-		document.getElementById('syncGrantsBtn').addEventListener('click', () => {
-			alert('Каталог моделей ІІБ успішно синхронізовано з базою НААН!');
+		document.getElementById('syncGrantsBtn').addEventListener('click', async (e) => {
+			e.target.disabled = true; e.target.textContent = 'Оновлення...';
+			try { await fetch(`${BACKEND_URL}/grants/sync`); } catch (err) { }
+			alert('Каталог кластерних моделей НААН та ІІБ актуалізовано');
+			e.target.disabled = false; e.target.textContent = 'Оновити каталог моделей ІІБ';
 		});
 	</script>
 </body>

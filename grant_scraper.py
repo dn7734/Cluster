@@ -1,20 +1,4 @@
 import re
-import json
-import httpx
-from html.parser import HTMLParser
-
-class _HTMLTextExtractor(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.chunks = []
-
-    def handle_data(self, data):
-        clean = data.strip()
-        if clean:
-            self.chunks.append(clean)
-
-    def get_text(self) -> str:
-        return " ".join(self.chunks)
 
 DEFAULT_GRANTS = [
     {
@@ -83,7 +67,6 @@ def evaluate_grants(profile_data: dict, grants: list = None) -> list:
     for g in catalog:
         score = 58
         reasons = []
-
         kw_list = g.get("keywords", [])
         if isinstance(kw_list, str):
             kw_list = [k.strip() for k in kw_list.split(",") if k.strip()]
@@ -130,6 +113,4 @@ def evaluate_grants(profile_data: dict, grants: list = None) -> list:
     return scored
 
 async def scrape_and_normalize_grants(api_key: str = "") -> list:
-    if not api_key:
-        return DEFAULT_GRANTS
     return DEFAULT_GRANTS

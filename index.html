@@ -16,10 +16,8 @@
 			--text-muted: #64748b;
 			--border-color: #e2e8f0;
 			--accent-green: #059669;
-			--accent-green-hover: #047857;
 			--accent-dark: #0f172a;
 			--accent-blue: #2563eb;
-			--danger: #dc2626;
 		}
 
 		* {
@@ -27,16 +25,15 @@
 		}
 
 		body {
-			font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-			margin: 0;
-			padding: 0;
-			background-color: var(--bg-main);
+			font-family: 'Segoe UI', system-ui, sans-serif;
+			background: var(--bg-main);
 			color: var(--text-primary);
+			margin: 0;
 		}
 
 		.topbar {
-			background-color: var(--accent-dark);
-			color: #ffffff;
+			background: var(--accent-dark);
+			color: #fff;
 			padding: 14px 28px;
 			display: flex;
 			justify-content: space-between;
@@ -49,7 +46,6 @@
 		.brand-title {
 			font-size: 19px;
 			font-weight: 700;
-			letter-spacing: 0.3px;
 			margin: 0;
 		}
 
@@ -62,14 +58,14 @@
 
 		.nav-actions {
 			display: flex;
-			align-items: center;
 			gap: 10px;
+			align-items: center;
 			flex-wrap: wrap;
 		}
 
 		.wl-select {
 			background: #1e293b;
-			color: #f8fafc;
+			color: #fff;
 			border: 1px solid #475569;
 			padding: 6px 10px;
 			border-radius: 6px;
@@ -77,33 +73,18 @@
 			cursor: pointer;
 		}
 
-		.status-badge {
-			font-size: 12px;
-			background: rgba(16, 185, 129, 0.15);
-			color: #34d399;
-			padding: 5px 12px;
-			border-radius: 20px;
-			border: 1px solid rgba(52, 211, 153, 0.3);
-		}
-
 		.admin-link {
 			color: #e2e8f0;
 			text-decoration: none;
 			font-size: 12.5px;
 			padding: 6px 12px;
-			border-radius: 6px;
 			border: 1px solid #334155;
-			transition: 0.2s;
-		}
-
-		.admin-link:hover {
-			background: #1e293b;
-			color: #ffffff;
+			border-radius: 6px;
 		}
 
 		.container-wide {
 			max-width: 1260px;
-			margin: 18px auto 0 auto;
+			margin: 18px auto;
 			padding: 0 20px;
 		}
 
@@ -111,7 +92,6 @@
 			background: var(--card-bg);
 			border-radius: 12px;
 			border: 1px solid var(--border-color);
-			box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
 			padding: 20px;
 			margin-bottom: 18px;
 		}
@@ -119,19 +99,15 @@
 		.card-header {
 			display: flex;
 			justify-content: space-between;
-			align-items: center;
 			border-bottom: 1px solid var(--border-color);
 			padding-bottom: 12px;
 			margin-bottom: 14px;
-			flex-wrap: wrap;
-			gap: 8px;
 		}
 
 		.card-title {
 			font-size: 16px;
 			font-weight: 700;
 			margin: 0;
-			color: var(--text-primary);
 		}
 
 		.stage-grid {
@@ -140,58 +116,33 @@
 			gap: 12px;
 		}
 
-		@media (max-width: 960px) {
-			.stage-grid {
-				grid-template-columns: 1fr 1fr;
-			}
-		}
-
 		.stage-box {
 			background: #f8fafc;
 			border: 1px solid var(--border-color);
 			border-left: 4px solid var(--accent-green);
-			border-radius: 8px;
 			padding: 12px;
+			border-radius: 8px;
 		}
 
 		.stage-step {
 			font-size: 11px;
 			font-weight: 700;
-			text-transform: uppercase;
 			color: var(--accent-green);
 			margin-bottom: 4px;
-		}
-
-		.stage-title {
-			font-size: 13.5px;
-			font-weight: 700;
-			margin-bottom: 4px;
-		}
-
-		.stage-desc {
-			font-size: 12px;
-			color: var(--text-secondary);
-			line-height: 1.4;
+			text-transform: uppercase;
 		}
 
 		.calc-layout {
 			display: grid;
 			grid-template-columns: 1fr 1.25fr;
 			gap: 20px;
-			align-items: start;
-		}
-
-		@media (max-width: 960px) {
-			.calc-layout {
-				grid-template-columns: 1fr;
-			}
 		}
 
 		.slider-group {
 			background: #f8fafc;
-			border: 1px solid var(--border-color);
-			border-radius: 8px;
 			padding: 10px 14px;
+			border-radius: 8px;
+			border: 1px solid var(--border-color);
 			margin-bottom: 10px;
 		}
 
@@ -203,15 +154,9 @@
 			margin-bottom: 6px;
 		}
 
-		.slider-val {
-			color: var(--accent-green);
-			font-weight: 700;
-		}
-
 		input[type="range"] {
 			width: 100%;
 			accent-color: var(--accent-green);
-			cursor: pointer;
 		}
 
 		.kpi-calc-grid {
@@ -223,8 +168,8 @@
 		.kpi-calc-box {
 			background: #f8fafc;
 			border: 1px solid var(--border-color);
-			border-radius: 8px;
 			padding: 12px;
+			border-radius: 8px;
 		}
 
 		.kpi-calc-box.highlight {
@@ -243,7 +188,6 @@
 		.kpi-calc-num {
 			font-size: 18px;
 			font-weight: 700;
-			color: var(--text-primary);
 		}
 
 		.workspace {
@@ -253,51 +197,18 @@
 			display: grid;
 			grid-template-columns: 1.05fr 0.95fr;
 			gap: 20px;
-			align-items: start;
-		}
-
-		@media (max-width: 960px) {
-			.workspace {
-				grid-template-columns: 1fr;
-			}
-		}
-
-		.quick-chips {
-			display: flex;
-			gap: 8px;
-			flex-wrap: wrap;
-			margin-bottom: 12px;
-		}
-
-		.chip {
-			font-size: 12px;
-			background: #f8fafc;
-			color: var(--text-secondary);
-			border: 1px solid #cbd5e1;
-			padding: 6px 10px;
-			border-radius: 6px;
-			cursor: pointer;
-			transition: 0.15s;
-		}
-
-		.chip:hover {
-			background: #ecfdf5;
-			border-color: var(--accent-green);
-			color: var(--accent-green);
 		}
 
 		#chatbox {
-			width: 100%;
 			height: 360px;
 			background: #f8fafc;
 			border: 1px solid var(--border-color);
 			border-radius: 8px;
-			overflow-y: auto;
 			padding: 16px;
+			overflow-y: auto;
 			display: flex;
 			flex-direction: column;
 			gap: 12px;
-			scroll-behavior: smooth;
 		}
 
 		.msg {
@@ -305,23 +216,18 @@
 			border-radius: 10px;
 			max-width: 85%;
 			font-size: 14px;
-			line-height: 1.5;
-			word-wrap: break-word;
-		}
-
-		.user {
-			background-color: var(--accent-dark);
-			color: #ffffff;
-			align-self: flex-end;
-			border-bottom-right-radius: 2px;
 		}
 
 		.bot {
-			background-color: #ffffff;
-			color: var(--text-primary);
-			align-self: flex-start;
+			background: #fff;
 			border: 1px solid var(--border-color);
-			border-bottom-left-radius: 2px;
+			align-self: flex-start;
+		}
+
+		.user {
+			background: var(--accent-dark);
+			color: #fff;
+			align-self: flex-end;
 		}
 
 		.controls {
@@ -332,27 +238,19 @@
 
 		#textInput {
 			flex: 1;
-			padding: 11px 14px;
+			padding: 11px;
 			border-radius: 8px;
 			border: 1px solid #cbd5e1;
-			font-size: 14px;
 			outline: none;
 		}
 
 		.btn {
 			padding: 10px 14px;
-			font-size: 13px;
 			font-weight: 600;
 			cursor: pointer;
 			border-radius: 8px;
 			border: none;
-			transition: 0.2s;
-			white-space: nowrap;
-			color: #ffffff;
-		}
-
-		#sendBtn {
-			background-color: var(--accent-dark);
+			color: #fff;
 		}
 
 		.profile-grid {
@@ -365,26 +263,8 @@
 		.profile-cell {
 			background: #f8fafc;
 			border: 1px solid var(--border-color);
-			border-radius: 8px;
 			padding: 9px 12px;
-		}
-
-		.profile-cell.full-width {
-			grid-column: span 2;
-		}
-
-		.cell-label {
-			font-size: 11px;
-			text-transform: uppercase;
-			color: var(--text-muted);
-			display: block;
-			margin-bottom: 3px;
-		}
-
-		.cell-value {
-			font-size: 13.5px;
-			font-weight: 600;
-			color: var(--text-primary);
+			border-radius: 8px;
 		}
 
 		.export-bar-grid {
@@ -394,24 +274,22 @@
 			margin-top: 8px;
 		}
 
-		#downloadPdfBtn {
-			background-color: var(--accent-green);
-			width: 100%;
+		.chip {
+			font-size: 12px;
+			background: #f8fafc;
+			border: 1px solid #cbd5e1;
+			padding: 6px 10px;
+			border-radius: 6px;
+			cursor: pointer;
 		}
 
-		#downloadTeaserBtn {
-			background-color: var(--accent-blue);
-			width: 100%;
-		}
+		@media (max-width: 960px) {
 
-		#downloadDocxBtn {
-			background-color: var(--accent-dark);
-			width: 100%;
-		}
-
-		#bridgeBotBtn {
-			background-color: #d97706;
-			width: 100%;
+			.calc-layout,
+			.workspace,
+			.stage-grid {
+				grid-template-columns: 1fr;
+			}
 		}
 	</style>
 </head>
@@ -429,7 +307,6 @@
 				<option value="iib">White-Label: ТОВ «ІІБ» & НААН</option>
 				<option value="naan">White-Label: ННЦ «Інститут землеробства НААН»</option>
 			</select>
-			<span class="status-badge">Трансфер ОІВ • Онлайн</span>
 			<a href="admin.html" class="admin-link">Макроаналітика (Адмін)</a>
 		</div>
 	</header>
@@ -441,24 +318,20 @@
 			</div>
 			<div class="stage-grid">
 				<div class="stage-box">
-					<div class="stage-step">1. Наукове ядро (1 га)</div>
-					<div class="stage-title">Супереліта НААН</div>
-					<div class="stage-desc">Патент ОІВ та базовий розсадник під гарантоване замовлення.</div>
+					<div class="stage-step">1. Наукове ядро (1 га)</div>Супереліта НААН. Патент ОІВ та базовий розсадник
+					під гарантоване замовлення.
 				</div>
 				<div class="stage-box">
-					<div class="stage-step">2. Провайдинг (25 га)</div>
-					<div class="stage-title">Еліта та Драфт ІІБ</div>
-					<div class="stage-desc">Маркетингова упаковка, розрахунок маржі та тизерів.</div>
+					<div class="stage-step">2. Провайдинг (25 га)</div>Еліта та Драфт ІІБ. Маркетингова упаковка,
+					розрахунок маржі та тизерів.
 				</div>
 				<div class="stage-box">
-					<div class="stage-step">3. Агровиробництво (300 га)</div>
-					<div class="stage-title">РС-1 та Сидерація</div>
-					<div class="stage-desc">Товарне зерно за форвардними контрактами (Off-take).</div>
+					<div class="stage-step">3. Агровиробництво (300 га)</div>РС-1 та Сидерація. Товарне зерно за
+					форвардними контрактами (Off-take).
 				</div>
 				<div class="stage-box">
-					<div class="stage-step">4. Висока маржа</div>
-					<div class="stage-title">Глибока переробка</div>
-					<div class="stage-desc">Олія, порошок, шрот. Zero-Waste модель (+140%).</div>
+					<div class="stage-step">4. Висока маржа</div>Глибока переробка. Олія, порошок, шрот. Zero-Waste
+					модель (+140%).
 				</div>
 			</div>
 		</div>
@@ -471,40 +344,36 @@
 				<div>
 					<div class="slider-group">
 						<div class="slider-header"><span>Площа кластеру (га):</span><span class="slider-val"
-								id="lblArea">300 га</span></div>
-						<input type="range" id="rngArea" min="50" max="1000" step="50" value="300">
+								id="lblArea">300 га</span></div><input type="range" id="rngArea" min="50" max="1000"
+							step="50" value="300">
 					</div>
 					<div class="slider-group">
 						<div class="slider-header"><span>Урожайність (т/га):</span><span class="slider-val"
-								id="lblYield">2.2 т/га</span></div>
-						<input type="range" id="rngYield" min="1.4" max="3.0" step="0.1" value="2.2">
+								id="lblYield">2.2 т/га</span></div><input type="range" id="rngYield" min="1.4" max="3.0"
+							step="0.1" value="2.2">
 					</div>
 					<div class="slider-group">
 						<div class="slider-header"><span>Частка переробки (%):</span><span class="slider-val"
-								id="lblProc">60%</span></div>
-						<input type="range" id="rngProc" min="0" max="100" step="10" value="60">
+								id="lblProc">60%</span></div><input type="range" id="rngProc" min="0" max="100"
+							step="10" value="60">
 					</div>
 					<div class="slider-group" style="margin-bottom:0;">
 						<div class="slider-header"><span>Аванс селекції НААН (%):</span><span class="slider-val"
-								id="lblPrepay">30%</span></div>
-						<input type="range" id="rngPrepay" min="15" max="50" step="5" value="30">
+								id="lblPrepay">30%</span></div><input type="range" id="rngPrepay" min="15" max="50"
+							step="5" value="30">
 					</div>
 				</div>
 				<div class="kpi-calc-grid">
-					<div class="kpi-calc-box highlight">
-						<span class="kpi-calc-label">Чиста маржа кластеру</span>
+					<div class="kpi-calc-box highlight"><span class="kpi-calc-label">Чиста маржа кластеру</span>
 						<div class="kpi-calc-num" id="outMargin" style="color:#059669;">0 грн</div>
 					</div>
-					<div class="kpi-calc-box highlight">
-						<span class="kpi-calc-label">Передоплата розсаднику НААН</span>
+					<div class="kpi-calc-box highlight"><span class="kpi-calc-label">Передоплата розсаднику НААН</span>
 						<div class="kpi-calc-num" id="outPrepay" style="color:#2563eb;">0 грн</div>
 					</div>
-					<div class="kpi-calc-box">
-						<span class="kpi-calc-label">Валовий збір зерна</span>
+					<div class="kpi-calc-box"><span class="kpi-calc-label">Валовий збір зерна</span>
 						<div class="kpi-calc-num" id="outHarvest">0 т</div>
 					</div>
-					<div class="kpi-calc-box">
-						<span class="kpi-calc-label">Ефект цифровізації (E₂)</span>
+					<div class="kpi-calc-box"><span class="kpi-calc-label">Ефект цифровізації (E₂)</span>
 						<div class="kpi-calc-num" id="outE2">0 грн</div>
 					</div>
 				</div>
@@ -517,26 +386,20 @@
 			<div class="card-header">
 				<h2 class="card-title">3. Цифровий Координатор ІІБ</h2>
 			</div>
-			<div class="quick-chips">
+			<div style="display:flex; gap:8px; margin-bottom:12px;">
 				<button class="chip"
 					data-query="Код ЄДРПОУ 00496802, ННЦ Інститут землеробства НААН, Супереліта 1 га">ННЦ НААН
 					(Супереліта)</button>
 				<button class="chip" data-query="Код ЄДРПОУ 03728915, ФГ Подільський Колос, Насінництво РС-1 300 га">ФГ
 					Подільський Колос</button>
-				<button class="chip"
-					data-query="Код ЄДРПОУ 41258963, ТОВ Агро-Еко Переробка, Глибока переробка олії">ТОВ Агро-Еко
-					Переробка</button>
 			</div>
 			<div id="chatbox">
-				<div class="msg bot">
-					<strong>AgroCluster НААН–ІІБ:</strong><br>
-					Вітаю! Налаштуйте повзунки калькулятора або введіть код ЄДРПОУ для формування Паспорта, Драфту та
-					Інвест-Тизера.
-				</div>
+				<div class="msg bot"><strong>AgroCluster НААН–ІІБ:</strong><br>Вітаю! Налаштуйте повзунки або введіть
+					ЄДРПОУ для формування Паспорта, Драфту та Тизера.</div>
 			</div>
 			<div class="controls">
-				<input type="text" id="textInput" placeholder="Введіть код ЄДРПОУ або параметри...">
-				<button id="sendBtn" class="btn">Надіслати</button>
+				<input type="text" id="textInput" placeholder="Введіть код ЄДРПОУ...">
+				<button id="sendBtn" class="btn" style="background:var(--accent-dark);">Надіслати</button>
 			</div>
 		</section>
 
@@ -545,38 +408,31 @@
 				<h2 class="card-title">Генерація документів та Інтеграція</h2>
 			</div>
 			<div class="profile-grid">
-				<div class="profile-cell"><span class="cell-label">ЄДРПОУ</span><span class="cell-value"
-						id="p_edrpou">00496802</span></div>
-				<div class="profile-cell"><span class="cell-label">Регіон</span><span class="cell-value"
-						id="p_region">Київська обл.</span></div>
-				<div class="profile-cell full-width"><span class="cell-label">Учасник кластеру</span><span
-						class="cell-value" id="p_company">ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»</span></div>
+				<div class="profile-cell"><span class="cell-label">ЄДРПОУ</span><span id="p_edrpou"
+						style="font-weight:600;">00496802</span></div>
+				<div class="profile-cell"><span class="cell-label">Учасник</span><span id="p_company"
+						style="font-weight:600;">ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»</span></div>
 			</div>
 			<div class="export-bar-grid">
-				<button id="downloadPdfBtn" class="btn">1. Драфт (PDF)</button>
-				<button id="downloadTeaserBtn" class="btn">2. Pitch Deck (PDF)</button>
-				<button id="downloadDocxBtn" class="btn">3. Проєкт (DOCX)</button>
-				<button id="bridgeBotBtn" class="btn">3. У AgroGrant_Bot</button>
+				<button id="downloadPdfBtn" class="btn" style="background:var(--accent-green);">1. Драфт (PDF)</button>
+				<button id="downloadTeaserBtn" class="btn" style="background:var(--accent-blue);">2. Pitch Deck
+					(PDF)</button>
+				<button id="downloadDocxBtn" class="btn" style="background:var(--accent-dark);">3. Проєкт
+					(DOCX)</button>
+				<button id="bridgeBotBtn" class="btn" style="background:#d97706;">4. У AgroGrant_Bot</button>
 			</div>
 		</section>
 	</main>
 
 	<script>
-		const LOCAL_COMPANIES = {
-			"00496802": { edrpou: "00496802", company_name: "ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»", region: "Київська обл.", activity_type: "Наукове ядро (Супереліта 1 га)" },
-			"03728915": { edrpou: "03728915", company_name: "ФГ «ПОДІЛЬСЬКИЙ КОЛОС»", region: "Вінницька обл.", activity_type: "Насінництво (Еліта / РС-1)" },
-			"41258963": { edrpou: "41258963", company_name: "ТОВ «АГРО-ЕКО ПЕРЕРОБКА»", region: "Черкаська обл.", activity_type: "Глибока переробка (Олія, шрот)" }
-		};
-
 		const WL_THEMES = {
-			iib: { title: "AgroCluster Analytics • ТОВ «ІІБ» & НААН", sub: "White-Label платформа комерціалізації розробок: Драфт → Тизер → Замовлення", accent: "#059669", dark: "#0f172a" },
-			naan: { title: "Селекційний Хаб • ННЦ «Інститут землеробства НААН»", sub: "Платформа авторського нагляду, ліцензування ОІВ та передзамовлення насіння", accent: "#0284c7", dark: "#0c4a6e" }
+			iib: { title: "AgroCluster Analytics • ТОВ «ІІБ» & НААН", accent: "#059669", dark: "#0f172a" },
+			naan: { title: "Селекційний Хаб • ННЦ «Інститут землеробства НААН»", accent: "#0284c7", dark: "#0c4a6e" }
 		};
 
 		document.getElementById('wlSelect').addEventListener('change', (e) => {
 			const t = WL_THEMES[e.target.value];
 			document.getElementById('brandTitle').textContent = t.title;
-			document.getElementById('brandSub').textContent = t.sub;
 			document.documentElement.style.setProperty('--accent-green', t.accent);
 			document.documentElement.style.setProperty('--accent-dark', t.dark);
 		});
@@ -617,15 +473,13 @@
 		const chatbox = document.getElementById('chatbox');
 		function handleQuery(text) {
 			chatbox.innerHTML += `<div class="msg user">${text}</div>`;
-			const edrpouMatch = text.match(/\b(\d{8})\b/);
-			if (edrpouMatch && LOCAL_COMPANIES[edrpouMatch[1]]) {
-				const comp = LOCAL_COMPANIES[edrpouMatch[1]];
-				document.getElementById('p_edrpou').textContent = comp.edrpou;
-				document.getElementById('p_company').textContent = comp.company_name;
-				document.getElementById('p_region').textContent = comp.region;
-				chatbox.innerHTML += `<div class="msg bot"><strong>ІІБ:</strong> Верифіковано учасника <strong>${comp.company_name}</strong>. Розраховано маржу ${calcState.margin.toLocaleString()} грн. Готово до генерації тизера!</div>`;
+			const match = text.match(/\b(\d{8})\b/);
+			if (match) {
+				document.getElementById('p_edrpou').textContent = match[1];
+				document.getElementById('p_company').textContent = "ВЕРИФІКОВАНИЙ ПАРТНЕР КЛАСТЕРУ";
+				chatbox.innerHTML += `<div class="msg bot">Верифіковано! Розраховано маржу ${calcState.margin.toLocaleString()} грн. Готово до генерації тизера.</div>`;
 			} else {
-				chatbox.innerHTML += `<div class="msg bot"><strong>ІІБ:</strong> Параметри учасника оновлено відповідно до калькулятора. Чиста маржа кластеру: ${calcState.margin.toLocaleString()} грн.</div>`;
+				chatbox.innerHTML += `<div class="msg bot">Дані враховано. Можете вивантажувати Драфт та Тизер.</div>`;
 			}
 			chatbox.scrollTop = chatbox.scrollHeight;
 		}
@@ -637,9 +491,7 @@
 			handleQuery(val);
 		});
 
-		document.querySelectorAll('.chip').forEach(btn => {
-			btn.addEventListener('click', () => handleQuery(btn.getAttribute('data-query')));
-		});
+		document.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => handleQuery(btn.getAttribute('data-query'))));
 
 		document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
 			const box = document.createElement('div');
