@@ -1,480 +1,26 @@
 <!DOCTYPE html>
 <html lang="uk">
+<!--
+============================================================================
+ГОЛОВНА DOM-МОДЕЛЬ ІНТЕРФЕЙСУ (index.html)
+Програмний комплекс: «AgroCluster Analytics» (ТОВ «ІІБ» & НААН України)
+Архітектура: Модульна декомпозиція (HTML5 DOM + styles.css + app.js)
+============================================================================
+-->
 
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>AgroCluster Analytics — Платформа трансферу технологій НААН та ТОВ «ІІБ»</title>
-	<!-- Вбудована векторна іконка для усунення помилки 404 /favicon.ico -->
 	<link rel="icon"
 		href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+	<link rel="stylesheet" href="styles.css">
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-	<style>
-		:root {
-			--bg-main: #f1f5f9;
-			--card-bg: #ffffff;
-			--text-primary: #0f172a;
-			--text-secondary: #475569;
-			--text-muted: #64748b;
-			--border-color: #e2e8f0;
-			--accent-green: #059669;
-			--accent-green-hover: #047857;
-			--accent-dark: #0f172a;
-			--accent-blue: #2563eb;
-			--accent-amber: #d97706;
-			--danger: #dc2626;
-		}
-
-		* {
-			box-sizing: border-box;
-		}
-
-		body {
-			font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-			margin: 0;
-			padding: 0;
-			background-color: var(--bg-main);
-			color: var(--text-primary);
-		}
-
-		.topbar {
-			background-color: var(--accent-dark);
-			color: #ffffff;
-			padding: 14px 28px;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			border-bottom: 3px solid var(--accent-green);
-			flex-wrap: wrap;
-			gap: 12px;
-		}
-
-		.brand-title {
-			font-size: 19px;
-			font-weight: 700;
-			margin: 0;
-		}
-
-		.brand-sub {
-			font-size: 12px;
-			color: #94a3b8;
-			display: block;
-			margin-top: 2px;
-		}
-
-		.nav-actions {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-			flex-wrap: wrap;
-		}
-
-		.wl-select {
-			background: #1e293b;
-			color: #f8fafc;
-			border: 1px solid #475569;
-			padding: 6px 10px;
-			border-radius: 6px;
-			font-size: 12px;
-			cursor: pointer;
-		}
-
-		.status-badge {
-			font-size: 12px;
-			background: rgba(16, 185, 129, 0.15);
-			color: #34d399;
-			padding: 5px 12px;
-			border-radius: 20px;
-			border: 1px solid rgba(52, 211, 153, 0.3);
-		}
-
-		.admin-link {
-			color: #e2e8f0;
-			text-decoration: none;
-			font-size: 12.5px;
-			padding: 6px 12px;
-			border-radius: 6px;
-			border: 1px solid #334155;
-			transition: 0.2s;
-		}
-
-		.admin-link:hover {
-			background: #1e293b;
-			color: #ffffff;
-		}
-
-		.container-wide {
-			max-width: 1260px;
-			margin: 18px auto 0 auto;
-			padding: 0 20px;
-		}
-
-		.card {
-			background: var(--card-bg);
-			border-radius: 12px;
-			border: 1px solid var(--border-color);
-			box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
-			padding: 20px;
-			margin-bottom: 18px;
-		}
-
-		.card-header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			border-bottom: 1px solid var(--border-color);
-			padding-bottom: 12px;
-			margin-bottom: 14px;
-			flex-wrap: wrap;
-			gap: 8px;
-		}
-
-		.card-title {
-			font-size: 16px;
-			font-weight: 700;
-			margin: 0;
-		}
-
-		.card-subtitle {
-			font-size: 12px;
-			color: var(--text-muted);
-			display: block;
-			margin-top: 2px;
-		}
-
-		.stage-grid {
-			display: grid;
-			grid-template-columns: repeat(4, 1fr);
-			gap: 12px;
-		}
-
-		@media (max-width: 960px) {
-			.stage-grid {
-				grid-template-columns: 1fr 1fr;
-			}
-		}
-
-		.stage-box {
-			background: #f8fafc;
-			border: 1px solid var(--border-color);
-			border-left: 4px solid var(--accent-green);
-			border-radius: 8px;
-			padding: 12px;
-		}
-
-		.stage-step {
-			font-size: 11px;
-			font-weight: 700;
-			text-transform: uppercase;
-			color: var(--accent-green);
-			margin-bottom: 4px;
-		}
-
-		.stage-title {
-			font-size: 13.5px;
-			font-weight: 700;
-			margin-bottom: 4px;
-		}
-
-		.stage-desc {
-			font-size: 12px;
-			color: var(--text-secondary);
-			line-height: 1.4;
-		}
-
-		.calc-grid {
-			display: grid;
-			grid-template-columns: 1fr 1.25fr;
-			gap: 20px;
-			align-items: start;
-		}
-
-		@media (max-width: 960px) {
-			.calc-grid {
-				grid-template-columns: 1fr;
-			}
-		}
-
-		.slider-group {
-			background: #f8fafc;
-			border: 1px solid var(--border-color);
-			border-radius: 8px;
-			padding: 11px 14px;
-			margin-bottom: 10px;
-		}
-
-		.slider-header {
-			display: flex;
-			justify-content: space-between;
-			font-size: 13px;
-			font-weight: 600;
-			margin-bottom: 6px;
-		}
-
-		.slider-val {
-			color: var(--accent-green);
-			font-weight: 700;
-		}
-
-		input[type="range"] {
-			width: 100%;
-			accent-color: var(--accent-green);
-			cursor: pointer;
-		}
-
-		.slider-hint {
-			font-size: 11px;
-			color: var(--text-muted);
-			margin-top: 4px;
-		}
-
-		.kpi-row {
-			display: grid;
-			grid-template-columns: repeat(4, 1fr);
-			gap: 10px;
-			margin-bottom: 14px;
-		}
-
-		@media (max-width: 768px) {
-			.kpi-row {
-				grid-template-columns: 1fr 1fr;
-			}
-		}
-
-		.kpi-box {
-			background: #f8fafc;
-			border: 1px solid var(--border-color);
-			border-radius: 8px;
-			padding: 10px 12px;
-		}
-
-		.kpi-box.highlight {
-			background: #ecfdf5;
-			border-color: #a7f3d0;
-		}
-
-		.kpi-lbl {
-			font-size: 11px;
-			color: var(--text-muted);
-			text-transform: uppercase;
-			display: block;
-		}
-
-		.kpi-num {
-			font-size: 15.5px;
-			font-weight: 700;
-			color: var(--text-primary);
-			margin-top: 4px;
-			display: block;
-		}
-
-		.calc-table {
-			width: 100%;
-			border-collapse: collapse;
-			font-size: 12px;
-		}
-
-		.calc-table th,
-		.calc-table td {
-			border: 1px solid var(--border-color);
-			padding: 7px 9px;
-			text-align: left;
-		}
-
-		.calc-table th {
-			background: #f1f5f9;
-			font-weight: 600;
-			color: var(--text-secondary);
-		}
-
-		.margin-badge {
-			background: #ecfdf5;
-			color: var(--accent-green);
-			font-weight: 700;
-			padding: 2px 7px;
-			border-radius: 4px;
-		}
-
-		.workspace {
-			max-width: 1260px;
-			margin: 0 auto 24px auto;
-			padding: 0 20px;
-			display: grid;
-			grid-template-columns: 1.05fr 0.95fr;
-			gap: 20px;
-			align-items: start;
-		}
-
-		@media (max-width: 960px) {
-			.workspace {
-				grid-template-columns: 1fr;
-			}
-		}
-
-		.quick-chips {
-			display: flex;
-			gap: 8px;
-			flex-wrap: wrap;
-			margin-bottom: 12px;
-		}
-
-		.chip {
-			font-size: 12px;
-			background: #f8fafc;
-			color: var(--text-secondary);
-			border: 1px solid #cbd5e1;
-			padding: 6px 10px;
-			border-radius: 6px;
-			cursor: pointer;
-			transition: 0.15s;
-		}
-
-		.chip:hover {
-			background: #ecfdf5;
-			border-color: var(--accent-green);
-			color: var(--accent-green);
-		}
-
-		#chatbox {
-			width: 100%;
-			height: 350px;
-			background: #f8fafc;
-			border: 1px solid var(--border-color);
-			border-radius: 8px;
-			overflow-y: auto;
-			padding: 16px;
-			display: flex;
-			flex-direction: column;
-			gap: 12px;
-		}
-
-		.msg {
-			padding: 11px 15px;
-			border-radius: 10px;
-			max-width: 88%;
-			font-size: 13.5px;
-			line-height: 1.5;
-		}
-
-		.user {
-			background-color: var(--accent-dark);
-			color: #ffffff;
-			align-self: flex-end;
-		}
-
-		.bot {
-			background-color: #ffffff;
-			color: var(--text-primary);
-			align-self: flex-start;
-			border: 1px solid var(--border-color);
-		}
-
-		.controls {
-			display: flex;
-			gap: 8px;
-			margin-top: 14px;
-		}
-
-		#textInput {
-			flex: 1;
-			padding: 11px 14px;
-			border-radius: 8px;
-			border: 1px solid #cbd5e1;
-			font-size: 14px;
-			outline: none;
-		}
-
-		.btn {
-			padding: 10px 14px;
-			font-size: 13px;
-			font-weight: 600;
-			cursor: pointer;
-			border-radius: 8px;
-			border: none;
-			transition: 0.2s;
-			color: #ffffff;
-		}
-
-		.btn:disabled {
-			opacity: 0.6;
-			cursor: wait;
-		}
-
-		.profile-grid {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 10px;
-			margin-bottom: 12px;
-		}
-
-		.profile-cell {
-			background: #f8fafc;
-			border: 1px solid var(--border-color);
-			border-radius: 8px;
-			padding: 9px 12px;
-		}
-
-		.profile-cell.full-width {
-			grid-column: span 2;
-		}
-
-		.cell-label {
-			font-size: 11px;
-			text-transform: uppercase;
-			color: var(--text-muted);
-			display: block;
-			margin-bottom: 4px;
-		}
-
-		.cell-value {
-			font-size: 13.5px;
-			font-weight: 600;
-			color: var(--text-primary);
-			display: block;
-		}
-
-		.export-bar-grid {
-			display: grid;
-			grid-template-columns: 1fr 1fr;
-			gap: 8px;
-			margin-top: 10px;
-		}
-
-		/* Видимий оверлей для гарантованого рендерингу PDF без білих сторінок */
-		#pdfOverlayWrapper {
-			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(15, 23, 42, 0.75);
-			z-index: 99999;
-			overflow: auto;
-			justify-content: center;
-			align-items: flex-start;
-			padding: 20px;
-		}
-
-		#pdfRenderTarget {
-			width: 760px;
-			background: #ffffff;
-			color: #0f172a;
-			padding: 28px;
-			font-family: Arial, sans-serif;
-			box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-		}
-	</style>
 </head>
 
 <body>
-	<!-- Оверлей для 100% коректного рендерингу PDF через html2canvas -->
-	<div id="pdfOverlayWrapper">
-		<div id="pdfRenderTarget"></div>
-	</div>
-
-	<header class="topbar">
+	<header class="topbar" id="appTopbar">
 		<div>
 			<h1 class="brand-title" id="brandTitle">AgroCluster Analytics • ТОВ «Інститут інноваційної біоекономіки» &
 				НААН</h1>
@@ -487,825 +33,303 @@
 				<option value="naan">White-Label: ННЦ «Інститут землеробства НААН»</option>
 				<option value="agrotech">White-Label: Платформа «Агротехнополіс»</option>
 			</select>
-			<span class="status-badge" id="sysHealthBadge">Трансфер ОІВ • Онлайн</span>
+			<span class="status-badge">Трансфер ОІВ • Онлайн</span>
 			<a href="admin.html" class="admin-link">Макроаналітика та Логи (Адмін)</a>
 		</div>
 	</header>
 
-	<!-- ЧАНК 1: Науково-методичний ланцюг трансформації розробки -->
-	<section class="container-wide">
-		<div class="card">
-			<div class="card-header">
-				<div>
-					<h2 class="card-title">1. Ланцюг трансформації наукової розробки (Кейс: сорт гірчиці «Біла
-						Принцеса»)</h2>
-					<span class="card-subtitle">Система державно-приватного партнерства: НУС НААН (Портфель ОІВ) → ТОВ
-						«ІІБ» (Драфт, Тизер) → Агровиробництво та Переробка</span>
+	<!-- ОСНОВНИЙ ІНТЕРФЕЙС КОРИСТУВАЧА -->
+	<div id="mainUiContainer">
+		<!-- ЧАНК 1: Ланцюг трансформації наукової розробки -->
+		<section class="container-wide">
+			<div class="card">
+				<div class="card-header">
+					<div>
+						<h2 class="card-title">1. Ланцюг трансформації наукової розробки (Кейс: сорт гірчиці «Біла
+							Принцеса»)</h2>
+						<span class="card-subtitle">Система державно-приватного партнерства: НУС НААН (Портфель ОІВ) →
+							ТОВ «ІІБ» (Драфт, Тизер) → Агровиробництво та Переробка</span>
+					</div>
+				</div>
+				<div class="stage-grid">
+					<div class="stage-box">
+						<div class="stage-step">Етап І • Наукове ядро (1–5 га)</div>
+						<div class="stage-title">Супереліта НААН</div>
+						<div class="stage-desc">ННЦ «Інститут землеробства НААН»: охорона ОІВ (патент сорту «Біла
+							Принцеса»), закладання розсадника під замовлення з передоплатою.</div>
+					</div>
+					<div class="stage-box">
+						<div class="stage-step">Етап ІІ • Мультиплікація (25–50 га)</div>
+						<div class="stage-title">Еліта та Драфт ІІБ</div>
+						<div class="stage-desc">ТОВ «Інститут інноваційної біоекономіки» формує драфт стартапу;
+							насінницькі господарства розмножують елітне насіння.</div>
+					</div>
+					<div class="stage-box">
+						<div class="stage-step">Етап ІІІ • Агровиробництво (300+ га)</div>
+						<div class="stage-title">І репродукція та Сидерація</div>
+						<div class="stage-desc">Вирощування товарного зерна посухостійкої гірчиці учасниками кластеру за
+							форвардними контрактами (Off-take).</div>
+					</div>
+					<div class="stage-box">
+						<div class="stage-step">Етап ІV • Висока маржа</div>
+						<div class="stage-title">Глибока переробка (Zero-Waste)</div>
+						<div class="stage-desc">Холодне пресування олії, виробництво гірчичного порошку та
+							високопротеїнового кормового шроту (+135% доданої вартості).</div>
+					</div>
 				</div>
 			</div>
-			<div class="stage-grid">
-				<div class="stage-box">
-					<div class="stage-step">Етап І • Наукове ядро (1–5 га)</div>
-					<div class="stage-title">Супереліта НААН</div>
-					<div class="stage-desc">ННЦ «Інститут землеробства НААН»: охорона ОІВ (патент сорту «Біла
-						Принцеса»), закладання розсадника під замовлення з передоплатою.</div>
+
+			<!-- ЧАНК 2: Інтерактивний калькулятор дохідності та маржі -->
+			<div class="card">
+				<div class="card-header">
+					<div>
+						<h2 class="card-title">2. Інтерактивний калькулятор дохідності, маржі та замовлення селекції
+							(Модель E₂)</h2>
+						<span class="card-subtitle">Динамічне моделювання економічної вигоди кожного учасника кластеру
+							та розрахунку ефекту цифровізації (E₂)</span>
+					</div>
+					<span class="margin-badge" id="calcSummaryBadge">Рентабельність циклу (ROI): 120%</span>
 				</div>
-				<div class="stage-box">
-					<div class="stage-step">Етап ІІ • Мультиплікація (25–50 га)</div>
-					<div class="stage-title">Еліта та Драфт ІІБ</div>
-					<div class="stage-desc">ТОВ «Інститут інноваційної біоекономіки» формує драфт стартапу; насінницькі
-						господарства розмножують елітне насіння.</div>
-				</div>
-				<div class="stage-box">
-					<div class="stage-step">Етап ІІІ • Агровиробництво (300+ га)</div>
-					<div class="stage-title">І репродукція та Сидерація</div>
-					<div class="stage-desc">Вирощування товарного зерна посухостійкої гірчиці учасниками кластеру за
-						форвардними контрактами (Off-take).</div>
-				</div>
-				<div class="stage-box">
-					<div class="stage-step">Етап ІV • Висока маржа</div>
-					<div class="stage-title">Глибока переробка (Zero-Waste)</div>
-					<div class="stage-desc">Холодне пресування олії, виробництво гірчичного порошку та
-						високопротеїнового кормового шроту (+135% доданої вартості).</div>
+
+				<div class="calc-grid">
+					<div>
+						<div class="slider-group">
+							<div class="slider-header">
+								<span>Площа товарних посівів у кластері (РС-1):</span>
+								<span class="slider-val"><span id="valArea">300</span> га</span>
+							</div>
+							<input type="range" id="slArea" min="50" max="1500" step="50" value="300">
+							<div class="slider-hint" id="seedChainHint">Потреба насінницької бази: 1.0 га Супереліти
+								(НААН) → 15 га Еліти → 300 га РС-1</div>
+						</div>
+
+						<div class="slider-group">
+							<div class="slider-header">
+								<span>Врожайність сорту «Біла Принцеса»:</span>
+								<span class="slider-val"><span id="valYield">2.2</span> т/га</span>
+							</div>
+							<input type="range" id="slYield" min="1.4" max="3.0" step="0.1" value="2.2">
+							<div class="slider-hint">Потенціал сорту за даними Інституту землеробства НААН: 2.0–2.8 т/га
+							</div>
+						</div>
+
+						<div class="slider-group">
+							<div class="slider-header">
+								<span>Частка врожаю на глибоку переробку (Олія + Порошок + Шрот):</span>
+								<span class="slider-val"><span id="valProc">60</span>%</span>
+							</div>
+							<input type="range" id="slProc" min="0" max="100" step="10" value="60">
+							<div class="slider-hint">0% — продаж лише сировини; 60–100% — каскадна переробка у кластері
+							</div>
+						</div>
+
+						<div class="slider-group" style="margin-bottom:0;">
+							<div class="slider-header">
+								<span>Авансова передоплата бізнесу на замовлення селекції НААН:</span>
+								<span class="slider-val"><span id="valPrepay">30</span>%</span>
+							</div>
+							<input type="range" id="slPrepay" min="15" max="50" step="5" value="30">
+							<div class="slider-hint">Гарантоване фінансування розсадника НУС під замовлення на наступний
+								рік</div>
+						</div>
+					</div>
+
+					<div>
+						<div class="kpi-row">
+							<div class="kpi-box">
+								<span class="kpi-lbl">Валовий збір</span>
+								<span class="kpi-num" id="kpiHarvest">660 т</span>
+							</div>
+							<div class="kpi-box highlight">
+								<span class="kpi-lbl">Чиста маржа кластеру</span>
+								<span class="kpi-num" id="kpiMargin" style="color: #059669;">19.87 млн грн</span>
+							</div>
+							<div class="kpi-box highlight">
+								<span class="kpi-lbl">Аванс науці (НААН)</span>
+								<span class="kpi-num" id="kpiPrepaySum" style="color: #2563eb;">713 тис. грн</span>
+							</div>
+							<div class="kpi-box">
+								<span class="kpi-lbl">Ефект цифровізації (E₂)</span>
+								<span class="kpi-num" id="kpiEffectE2">+2.98 млн грн</span>
+							</div>
+						</div>
+
+						<table class="calc-table">
+							<thead>
+								<tr>
+									<th>Ланка кластеру (Учасник)</th>
+									<th>Витрати</th>
+									<th>Виручка</th>
+									<th>Чиста маржа</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td><strong>1. Наукове ядро (НУС НААН)</strong><br><span
+											style="font-size:10.5px; color:#64748b;">Супереліта + роялті з
+											обороту</span></td>
+									<td id="tCost1">180 тис. грн</td>
+									<td id="tRev1">2.38 млн грн</td>
+									<td><span class="margin-badge" id="tMar1">+2.20 млн грн</span></td>
+								</tr>
+								<tr>
+									<td><strong>2. Насінництво (Еліта / РС-1)</strong><br><span
+											style="font-size:10.5px; color:#64748b;">Мультиплікація посівного
+											матеріалу</span></td>
+									<td id="tCost2">450 тис. грн</td>
+									<td id="tRev2">1.95 млн грн</td>
+									<td><span class="margin-badge" id="tMar2">+1.50 млн грн</span></td>
+								</tr>
+								<tr>
+									<td><strong>3. Товарне агровиробництво</strong><br><span
+											style="font-size:10.5px; color:#64748b;">Вирощування зерна та
+											сидерація</span></td>
+									<td id="tCost3">7.20 млн грн</td>
+									<td id="tRev3">15.84 млн грн</td>
+									<td><span class="margin-badge" id="tMar3">+8.64 млн грн</span></td>
+								</tr>
+								<tr>
+									<td><strong>4. Глибока переробка (Завод ІІБ)</strong><br><span
+											style="font-size:10.5px; color:#64748b;">Олія холодного віджиму, порошок,
+											шрот</span></td>
+									<td id="tCost4">8.71 млн грн</td>
+									<td id="tRev4">16.24 млн грн</td>
+									<td><span class="margin-badge" id="tMar4">+7.52 млн грн</span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 				</div>
 			</div>
-		</div>
+		</section>
 
-		<!-- ЧАНК 2: Інтерактивний калькулятор маржинальності з матрицею розподілу -->
-		<div class="card">
-			<div class="card-header">
-				<div>
-					<h2 class="card-title">2. Інтерактивний калькулятор дохідності, маржі та замовлення селекції (Модель
-						E₂)</h2>
-					<span class="card-subtitle">Динамічне моделювання економічної вигоди кожного учасника кластеру та
-						розрахунку ефекту цифровізації (E₂)</span>
-				</div>
-				<span class="margin-badge" id="calcSummaryBadge">Рентабельність циклу (ROI): 118%</span>
-			</div>
-
-			<div class="calc-grid">
-				<div>
-					<div class="slider-group">
-						<div class="slider-header">
-							<span>Площа товарних посівів у кластері (РС-1):</span>
-							<span class="slider-val"><span id="valArea">300</span> га</span>
-						</div>
-						<input type="range" id="slArea" min="50" max="1500" step="50" value="300">
-						<div class="slider-hint" id="seedChainHint">Потреба насінницької бази: 1.0 га Супереліти (НААН)
-							→ 15 га Еліти → 300 га РС-1</div>
-					</div>
-
-					<div class="slider-group">
-						<div class="slider-header">
-							<span>Врожайність сорту «Біла Принцеса»:</span>
-							<span class="slider-val"><span id="valYield">2.2</span> т/га</span>
-						</div>
-						<input type="range" id="slYield" min="1.4" max="3.0" step="0.1" value="2.2">
-						<div class="slider-hint">Потенціал сорту за даними Інституту землеробства НААН: 2.0–2.8 т/га
-						</div>
-					</div>
-
-					<div class="slider-group">
-						<div class="slider-header">
-							<span>Частка врожаю на глибоку переробку (Олія + Порошок + Шрот):</span>
-							<span class="slider-val"><span id="valProc">60</span>%</span>
-						</div>
-						<input type="range" id="slProc" min="0" max="100" step="10" value="60">
-						<div class="slider-hint">0% — продаж лише сировини; 60–100% — каскадна переробка у кластері
-						</div>
-					</div>
-
-					<div class="slider-group" style="margin-bottom:0;">
-						<div class="slider-header">
-							<span>Авансова передоплата бізнесу на замовлення селекції НААН:</span>
-							<span class="slider-val"><span id="valPrepay">30</span>%</span>
-						</div>
-						<input type="range" id="slPrepay" min="15" max="50" step="5" value="30">
-						<div class="slider-hint">Гарантоване фінансування розсадника НУС під замовлення на наступний рік
-						</div>
+		<!-- ЧАНК 3: Діалоговий Координатор та Паспорт учасника -->
+		<main class="workspace">
+			<section class="card">
+				<div class="card-header">
+					<div>
+						<h2 class="card-title">3. Цифровий Координатор ІІБ (Верифікація та Драфт)</h2>
+						<span class="card-subtitle">Оберіть роль учасника або введіть код ЄДРПОУ для миттєвого пакування
+							проєкту</span>
 					</div>
 				</div>
 
-				<div>
-					<div class="kpi-row">
-						<div class="kpi-box">
-							<span class="kpi-lbl">Валовий збір</span>
-							<span class="kpi-num" id="kpiHarvest">660 т</span>
-						</div>
-						<div class="kpi-box highlight">
-							<span class="kpi-lbl">Чиста маржа кластеру</span>
-							<span class="kpi-num" id="kpiMargin" style="color: #059669;">19.87 млн грн</span>
-						</div>
-						<div class="kpi-box highlight">
-							<span class="kpi-lbl">Аванс науці (НААН)</span>
-							<span class="kpi-num" id="kpiPrepaySum" style="color: #2563eb;">713 тис. грн</span>
-						</div>
-						<div class="kpi-box">
-							<span class="kpi-lbl">Ефект цифровізації (E₂)</span>
-							<span class="kpi-num" id="kpiEffectE2">+2.98 млн грн</span>
+				<div class="quick-chips">
+					<button class="chip"
+						data-query="Код ЄДРПОУ 00496802, ННЦ Інститут землеробства НААН, передача патенту та розсадника супереліти сорту гірчиці Біла Принцеса, частка ОІВ 25%">1.
+						НУС НААН (Супереліта)</button>
+					<button class="chip"
+						data-query="Код ЄДРПОУ 40125890, ТОВ Інститут інноваційної біоекономіки, координація кластеру, маркетинг, пакування драфту та інвестиційного тизера, супровід 20%">2.
+						ТОВ «ІІБ» (Провайдер)</button>
+					<button class="chip"
+						data-query="Код ЄДРПОУ 03728915, ФГ Подільський Колос, розмноження еліти та товарні посіви гірчиці Біла Принцеса на 300 га, співфінансування 30%">3.
+						Агропартнер (300 га)</button>
+					<button class="chip"
+						data-query="Код ЄДРПОУ 41258963, ТОВ Агро-Еко Переробка, глибока переробка насіння гірчиці на олію, порошок і кормовий шрот, власний внесок 35%">4.
+						Завод переробки</button>
+				</div>
+
+				<div id="chatbox">
+					<div class="msg bot">
+						<strong>AgroCluster НААН–ІІБ:</strong><br>
+						Вітаю на платформі ТОВ «Інститут інноваційної біоекономіки»! Налаштуйте параметри у калькуляторі
+						вище та оберіть учасника кластеру. Система автоматично сформує: <strong>1) Ескізний проєкт
+							(Драфт PDF)</strong> та <strong>2) Інвестиційний Тизер (Pitch Deck PDF)</strong> для виходу
+						на грантові платформи.
+					</div>
+				</div>
+
+				<div class="controls">
+					<input type="text" id="textInput"
+						placeholder="Введіть код ЄДРПОУ або параметри учасника кластеру...">
+					<button id="sendBtn" class="btn" style="background: var(--accent-dark);">Надіслати</button>
+				</div>
+			</section>
+
+			<section>
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2 class="card-title">Паспорт учасника та Генерація документів</h2>
+							<span class="card-subtitle" id="verifyStatus"
+								style="color: #059669; font-weight: 600;">Верифіковано в Реєстрі ІІБ</span>
 						</div>
 					</div>
 
-					<table class="calc-table">
-						<thead>
-							<tr>
-								<th>Ланка кластеру (Учасник)</th>
-								<th>Витрати</th>
-								<th>Виручка</th>
-								<th>Чиста маржа</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td><strong>1. Наукове ядро (НУС НААН)</strong><br><span
-										style="font-size:10.5px; color:#64748b;">Супереліта + роялті з обороту</span>
-								</td>
-								<td id="tCost1">180 тис. грн</td>
-								<td id="tRev1">2.38 млн грн</td>
-								<td><span class="margin-badge" id="tMar1">+2.20 млн грн</span></td>
-							</tr>
-							<tr>
-								<td><strong>2. Насінництво (Еліта / РС-1)</strong><br><span
-										style="font-size:10.5px; color:#64748b;">Мультиплікація посівного
-										матеріалу</span></td>
-								<td id="tCost2">450 тис. грн</td>
-								<td id="tRev2">1.95 млн грн</td>
-								<td><span class="margin-badge" id="tMar2">+1.50 млн грн</span></td>
-							</tr>
-							<tr>
-								<td><strong>3. Товарне агровиробництво</strong><br><span
-										style="font-size:10.5px; color:#64748b;">Вирощування зерна та сидерація</span>
-								</td>
-								<td id="tCost3">7.20 млн грн</td>
-								<td id="tRev3">15.84 млн грн</td>
-								<td><span class="margin-badge" id="tMar3">+8.64 млн грн</span></td>
-							</tr>
-							<tr>
-								<td><strong>4. Глибока переробка (Завод ІІБ)</strong><br><span
-										style="font-size:10.5px; color:#64748b;">Олія холодного віджиму, порошок,
-										шрот</span></td>
-								<td id="tCost4">8.71 млн грн</td>
-								<td id="tRev4">16.24 млн грн</td>
-								<td><span class="margin-badge" id="tMar4">+7.52 млн грн</span></td>
-							</tr>
-						</tbody>
-					</table>
+					<div class="profile-grid">
+						<div class="profile-cell">
+							<span class="cell-label">Код ЄДРПОУ</span>
+							<span class="cell-value" id="p_edrpou">00496802</span>
+						</div>
+						<div class="profile-cell">
+							<span class="cell-label">Регіон локалізації</span>
+							<span class="cell-value" id="p_region">Київська обл., смт Чабани</span>
+						</div>
+						<div class="profile-cell full-width">
+							<span class="cell-label">Найменування суб'єкта кластеру</span>
+							<span class="cell-value" id="p_company">ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»</span>
+						</div>
+						<div class="profile-cell full-width">
+							<span class="cell-label">Основний КВЕД</span>
+							<span class="cell-value" id="p_kved">72.19 Дослідження й експериментальні розробки</span>
+						</div>
+						<div class="profile-cell">
+							<span class="cell-label">Роль у ланцюгу вартості</span>
+							<span class="cell-value" id="p_activity">Наукове ядро (Супереліта)</span>
+						</div>
+						<div class="profile-cell">
+							<span class="cell-label">Потужності в кластері</span>
+							<span class="cell-value" id="p_size">300 га (660 т зерна)</span>
+						</div>
+						<div class="profile-cell">
+							<span class="cell-label">Частка співфінансування</span>
+							<span class="cell-value" id="p_own">25% (ОІВ + селекція)</span>
+						</div>
+						<div class="profile-cell">
+							<span class="cell-label">Чиста маржа кластеру</span>
+							<span class="cell-value" id="p_margin_live" style="color:#059669;">19.87 млн грн</span>
+						</div>
+						<div class="profile-cell full-width">
+							<span class="cell-label">Фокус комерціалізації (Кейс «Біла Принцеса»)</span>
+							<span class="cell-value" id="p_focus">Трансфер ОІВ → Насінництво → Глибока переробка (Олія,
+								порошок, шрот)</span>
+						</div>
+					</div>
+
+					<div class="export-bar-grid">
+						<button id="downloadPdfBtn" class="btn" style="background: var(--accent-green);">1. Драфт
+							кластеру (PDF)</button>
+						<button id="downloadTeaserBtn" class="btn" style="background: var(--accent-blue);">2. Pitch Deck
+							/ Тизер (PDF)</button>
+						<button id="downloadDocxBtn" class="btn" style="background: var(--accent-dark);">3. Повний
+							проєкт (DOCX)</button>
+						<button id="bridgeBotBtn" class="btn" style="background: var(--accent-amber);">4. Передати у
+							AgroGrant_Bot</button>
+					</div>
 				</div>
-			</div>
-		</div>
+
+				<div class="card">
+					<div class="card-header">
+						<div>
+							<h2 class="card-title">Порівняння вигоди: Продаж сировини vs Кластерна модель ІІБ</h2>
+							<span class="card-subtitle">Візуалізація приросту чистого прибутку за рахунок глибокої
+								переробки</span>
+						</div>
+					</div>
+					<div style="height: 195px;">
+						<canvas id="marginCompareChart"></canvas>
+					</div>
+				</div>
+			</section>
+		</main>
+	</div>
+
+	<!-- ЧАНК 4: Статичний контейнер живого DOM-документа для безвідмовної генерації PDF -->
+	<section id="pdfCaptureSection">
+		<div id="pdfDocumentDom"></div>
 	</section>
 
-	<!-- ЧАНК 3: Координатор ІІБ, Паспорт учасника та Генератор документів -->
-	<main class="workspace">
-		<section class="card">
-			<div class="card-header">
-				<div>
-					<h2 class="card-title">3. Цифровий Координатор ІІБ (Верифікація та Драфт)</h2>
-					<span class="card-subtitle">Оберіть роль учасника або введіть код ЄДРПОУ для миттєвого пакування
-						проєкту</span>
-				</div>
-			</div>
-
-			<div class="quick-chips">
-				<button class="chip"
-					data-query="Код ЄДРПОУ 00496802, ННЦ Інститут землеробства НААН, передача патенту та розсадника супереліти сорту гірчиці Біла Принцеса, частка ОІВ 25%">1.
-					НУС НААН (Супереліта)</button>
-				<button class="chip"
-					data-query="Код ЄДРПОУ 40125890, ТОВ Інститут інноваційної біоекономіки, координація кластеру, маркетинг, пакування драфту та інвестиційного тизера, супровід 20%">2.
-					ТОВ «ІІБ» (Провайдер)</button>
-				<button class="chip"
-					data-query="Код ЄДРПОУ 03728915, ФГ Подільський Колос, розмноження еліти та товарні посіви гірчиці Біла Принцеса на 300 га, співфінансування 30%">3.
-					Агропартнер (300 га)</button>
-				<button class="chip"
-					data-query="Код ЄДРПОУ 41258963, ТОВ Агро-Еко Переробка, глибока переробка насіння гірчиці на олію, порошок і кормовий шрот, власний внесок 35%">4.
-					Завод переробки</button>
-			</div>
-
-			<div id="chatbox">
-				<div class="msg bot">
-					<strong>AgroCluster НААН–ІІБ:</strong><br>
-					Вітаю на платформі ТОВ «Інститут інноваційної біоекономіки»! Налаштуйте параметри у калькуляторі
-					вище та оберіть учасника кластеру. Система автоматично сформує: <strong>1) Ескізний проєкт (Драфт
-						PDF)</strong> та <strong>2) Інвестиційний Тизер (Pitch Deck PDF)</strong> для виходу на грантові
-					платформи.
-				</div>
-			</div>
-
-			<div class="controls">
-				<input type="text" id="textInput" placeholder="Введіть код ЄДРПОУ або параметри учасника кластеру...">
-				<button id="sendBtn" class="btn" style="background: var(--accent-dark);">Надіслати</button>
-			</div>
-		</section>
-
-		<section>
-			<div class="card">
-				<div class="card-header">
-					<div>
-						<h2 class="card-title">Паспорт учасника та Генерація документів</h2>
-						<span class="card-subtitle" id="verifyStatus"
-							style="color: #059669; font-weight: 600;">Верифіковано в Реєстрі ІІБ</span>
-					</div>
-				</div>
-
-				<div class="profile-grid">
-					<div class="profile-cell">
-						<span class="cell-label">Код ЄДРПОУ</span>
-						<span class="cell-value" id="p_edrpou">00496802</span>
-					</div>
-					<div class="profile-cell">
-						<span class="cell-label">Регіон локалізації</span>
-						<span class="cell-value" id="p_region">Київська обл., смт Чабани</span>
-					</div>
-					<div class="profile-cell full-width">
-						<span class="cell-label">Найменування суб'єкта кластеру</span>
-						<span class="cell-value" id="p_company">ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»</span>
-					</div>
-					<div class="profile-cell full-width">
-						<span class="cell-label">Основний КВЕД</span>
-						<span class="cell-value" id="p_kved">72.19 Дослідження й експериментальні розробки</span>
-					</div>
-					<div class="profile-cell">
-						<span class="cell-label">Роль у ланцюгу вартості</span>
-						<span class="cell-value" id="p_activity">Наукове ядро (Супереліта)</span>
-					</div>
-					<div class="profile-cell">
-						<span class="cell-label">Потужності в кластері</span>
-						<span class="cell-value" id="p_size">300 га (660 т зерна)</span>
-					</div>
-					<div class="profile-cell">
-						<span class="cell-label">Частка співфінансування</span>
-						<span class="cell-value" id="p_own">25% (ОІВ + селекція)</span>
-					</div>
-					<div class="profile-cell">
-						<span class="cell-label">Чиста маржа кластеру</span>
-						<span class="cell-value" id="p_margin_live" style="color:#059669;">19.87 млн грн</span>
-					</div>
-					<div class="profile-cell full-width">
-						<span class="cell-label">Фокус комерціалізації (Кейс «Біла Принцеса»)</span>
-						<span class="cell-value" id="p_focus">Трансфер ОІВ → Насінництво → Глибока переробка (Олія,
-							порошок, шрот)</span>
-					</div>
-				</div>
-
-				<div class="export-bar-grid">
-					<button id="downloadPdfBtn" class="btn" style="background: var(--accent-green);">1. Драфт кластеру
-						(PDF)</button>
-					<button id="downloadTeaserBtn" class="btn" style="background: var(--accent-blue);">2. Pitch Deck /
-						Тизер (PDF)</button>
-					<button id="downloadDocxBtn" class="btn" style="background: var(--accent-dark);">3. Повний проєкт
-						(DOCX)</button>
-					<button id="bridgeBotBtn" class="btn" style="background: var(--accent-amber);">4. Передати у
-						AgroGrant_Bot</button>
-				</div>
-			</div>
-
-			<div class="card">
-				<div class="card-header">
-					<div>
-						<h2 class="card-title">Порівняння вигоди: Продаж сировини vs Кластерна модель ІІБ</h2>
-						<span class="card-subtitle">Візуалізація приросту чистого прибутку за рахунок глибокої
-							переробки</span>
-					</div>
-				</div>
-				<div style="height: 195px;">
-					<canvas id="marginCompareChart"></canvas>
-				</div>
-			</div>
-		</section>
-	</main>
-
-	<script>
-		/**
-		 * НАУКОВО-МЕТОДИЧНИЙ КОМЕНТАР:
-		 * Модуль клієнтської логіки побудовано за принципом ізольованих чанків (Chunked Architecture):
-		 * 1. Конфігураційний чанк та двошарове логування (Dual-Layer Telemetry: LocalStorage + REST API).
-		 * 2. Економіко-математичний чанк розрахунку маржі кластеру та ефекту цифровізації E2.
-		 * 3. Чанк рендерингу документів через видимий Viewport Overlay для усунення дефектів html2canvas.
-		 */
-		document.addEventListener("DOMContentLoaded", () => {
-			// КРИТИЧНА КОНСТАНТА СЕРВЕРА (виправляє ReferenceError: BACKEND_URL is not defined)
-			const BACKEND_URL = "https://agrogrant.onrender.com";
-
-			// Реєстр базових учасників кластеру для миттєвої верифікації
-			const LOCAL_COMPANIES = {
-				"00496802": {
-					edrpou: "00496802",
-					company_name: "ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»",
-					kved: "72.19 Дослідження й експериментальні розробки у сфері природничих і технічних наук",
-					region: "Київська обл., смт Чабани",
-					activity_type: "Наукове ядро: Супереліта (1–5 га)",
-					own_contribution_percent: "25% (ОІВ + селекція)",
-					investment_focus: "Трансфер патенту сорту гірчиці «Біла Принцеса» та авторський нагляд"
-				},
-				"40125890": {
-					edrpou: "40125890",
-					company_name: "ТОВ «ІНСТИТУТ ІННОВАЦІЙНОЇ БІОЕКОНОМІКИ» (ІІБ)",
-					kved: "70.22 Консультування з питань комерційної діяльності й керування",
-					region: "м. Київ",
-					activity_type: "Координатор кластеру: Драфт і Тизер",
-					own_contribution_percent: "20% (Інжиніринг)",
-					investment_focus: "Маркетингова упаковка стартапів НААН та виведення тизерів на грантові платформи"
-				},
-				"03728915": {
-					edrpou: "03728915",
-					company_name: "ФГ «ПОДІЛЬСЬКИЙ КОЛОС»",
-					kved: "01.11 Вирощування зернових і технічних культур (насінництво)",
-					region: "Вінницька область",
-					activity_type: "Насінництво та товарні посіви (Еліта / РС-1)",
-					own_contribution_percent: "30% (Агровиробництво)",
-					investment_focus: "Масштабування посівів сорту «Біла Принцеса» за форвардним замовленням"
-				},
-				"41258963": {
-					edrpou: "41258963",
-					company_name: "ТОВ «АГРО-ЕКО ПЕРЕРОБКА»",
-					kved: "10.41 Виробництво олії та тваринних жирів / Глибока переробка",
-					region: "Черкаська область",
-					activity_type: "Переробний завод (Олія, порошок, шрот)",
-					own_contribution_percent: "35% (Лінія переробки)",
-					investment_focus: "Глибока безвідходна переробка товарного зерна гірчиці «Біла Принцеса»"
-				}
-			};
-
-			const WL_THEMES = {
-				iib: {
-					title: "AgroCluster Analytics • ТОВ «Інститут інноваційної біоекономіки» & НААН",
-					sub: "White-Label платформа комерціалізації наукових розробок: Драфт → Тизер → Замовлення за Маржею",
-					accent: "#059669", dark: "#0f172a"
-				},
-				naan: {
-					title: "Селекційний Хаб • ННЦ «Інститут землеробства НААН»",
-					sub: "Платформа авторського нагляду, ліцензування ОІВ та передзамовлення насіння «Біла Принцеса»",
-					accent: "#0284c7", dark: "#0c4a6e"
-				},
-				agrotech: {
-					title: "Трансферно-технологічний комплекс «Агротехнополіс»",
-					sub: "Цифрова екосистема електронного дорадництва, кооперативного пулу та глибокої біопереробки",
-					accent: "#4f46e5", dark: "#1e1b4b"
-				}
-			};
-
-			let currentProfile = LOCAL_COMPANIES["00496802"];
-			let calcState = {};
-			let compareChart = null;
-
-			/**
-			 * ЧАНК ЛОГУВАННЯ (Dual-Layer Telemetry):
-			 * Одночасно зберігає події у локальне сховище браузера (для миттєвого аудиту в адмінці)
-			 * та асинхронно відправляє телеметрію на сервер FastAPI у файл app.log і таблицю БД.
-			 */
-			async function logAction(actionName, detailsStr) {
-				const entry = {
-					timestamp: new Date().toISOString(),
-					action: actionName,
-					details: detailsStr
-				};
-				try {
-					const localLogs = JSON.parse(localStorage.getItem('agrocluster_logs') || '[]');
-					localLogs.unshift(entry);
-					localStorage.setItem('agrocluster_logs', JSON.stringify(localLogs.slice(0, 100)));
-				} catch (err) { }
-
-				try {
-					await fetch(`${BACKEND_URL}/log`, {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ action: actionName, details: detailsStr })
-					});
-				} catch (e) {
-					// Тихе перехоплення при холодному старті Render без зупинки інтерфейсу
-				}
-			}
-
-			// Перемикач White-Label
-			document.getElementById('wlSelect').addEventListener('change', (e) => {
-				const t = WL_THEMES[e.target.value] || WL_THEMES.iib;
-				document.getElementById('brandTitle').textContent = t.title;
-				document.getElementById('brandSub').textContent = t.sub;
-				document.documentElement.style.setProperty('--accent-green', t.accent);
-				document.documentElement.style.setProperty('--accent-dark', t.dark);
-				logAction('WHITE_LABEL_SWITCH', `Theme changed to ${e.target.value}`);
-			});
-
-			function fmtMln(val) {
-				if (Math.abs(val) >= 1000000) return (val / 1000000).toFixed(2) + ' млн грн';
-				return Math.round(val / 1000) + ' тис. грн';
-			}
-
-			/**
-			 * ЧАНК ЕКОНОМІКО-МАТЕМАТИЧНОГО МОДЕЛЮВАННЯ:
-			 * Розраховує показники 4 ланок кластеру, чисту маржу, ROI та ефект цифровізації E2.
-			 */
-			const slArea = document.getElementById('slArea');
-			const slYield = document.getElementById('slYield');
-			const slProc = document.getElementById('slProc');
-			const slPrepay = document.getElementById('slPrepay');
-
-			function recalcClusterEconomics() {
-				const area = parseFloat(slArea.value);
-				const yld = parseFloat(slYield.value);
-				const procPct = parseFloat(slProc.value) / 100.0;
-				const prepayPct = parseFloat(slPrepay.value) / 100.0;
-
-				document.getElementById('valArea').textContent = area;
-				document.getElementById('valYield').textContent = yld.toFixed(1);
-				document.getElementById('valProc').textContent = Math.round(procPct * 100);
-				document.getElementById('valPrepay').textContent = Math.round(prepayPct * 100);
-
-				const eliteHa = Math.max(5, Math.round(area / 20));
-				const superEliteHa = Math.max(1.0, +(eliteHa / 15).toFixed(1));
-				document.getElementById('seedChainHint').textContent =
-					`Потреба насінницької бази: ${superEliteHa} га Супереліти (НААН) → ${eliteHa} га Еліти → ${area} га РС-1`;
-
-				const totalHarvestTons = Math.round(area * yld);
-
-				// Ланка 1: Наукове ядро НААН
-				const cost1 = Math.round(superEliteHa * 180000);
-				const rev1 = Math.round((superEliteHa * 950000) + (area * 4750));
-				const mar1 = rev1 - cost1;
-				const prepaySum = Math.round(rev1 * prepayPct);
-
-				// Ланка 2: Насінництво (Еліта)
-				const cost2 = Math.round(eliteHa * 30000);
-				const rev2 = Math.round(eliteHa * 130000);
-				const mar2 = rev2 - cost2;
-
-				// Ланка 3: Товарне агровиробництво (РС-1)
-				const cost3 = Math.round(area * 24000);
-				const rev3 = Math.round(totalHarvestTons * 24000);
-				const mar3 = rev3 - cost3;
-
-				// Ланка 4: Глибока переробка (Олія, порошок, шрот)
-				const tonsProcessed = totalHarvestTons * procPct;
-				const cost4 = Math.round(tonsProcessed * 22000);
-				const rev4 = Math.round(tonsProcessed * 41000);
-				const mar4 = rev4 - cost4;
-
-				const totalCost = cost1 + cost2 + cost3 + cost4;
-				const totalRev = rev1 + rev2 + rev3 + rev4;
-				const totalMargin = mar1 + mar2 + mar3 + mar4;
-				const rawOnlyMargin = Math.round(mar1 * 0.4 + mar3);
-				const roi = Math.round((totalMargin / Math.max(1, totalCost)) * 100);
-				const effectE2 = Math.round(totalMargin * 0.15);
-
-				calcState = {
-					area, yld, procPct: Math.round(procPct * 100), prepayPct: Math.round(prepayPct * 100),
-					superEliteHa, eliteHa, totalHarvestTons,
-					cost1, rev1, mar1, prepaySum,
-					cost2, rev2, mar2,
-					cost3, rev3, mar3,
-					cost4, rev4, mar4,
-					totalCost, totalRev, totalMargin, rawOnlyMargin, roi, effectE2
-				};
-
-				document.getElementById('kpiHarvest').textContent = `${totalHarvestTons} т`;
-				document.getElementById('kpiMargin').textContent = fmtMln(totalMargin);
-				document.getElementById('kpiPrepaySum').textContent = fmtMln(prepaySum);
-				document.getElementById('kpiEffectE2').textContent = '+' + fmtMln(effectE2);
-				document.getElementById('calcSummaryBadge').textContent = `Рентабельність циклу (ROI): ${roi}%`;
-
-				document.getElementById('p_margin_live').textContent = `${fmtMln(totalMargin)} (ROI ${roi}%)`;
-				document.getElementById('p_size').textContent = `${area} га (${totalHarvestTons} т зерна)`;
-
-				document.getElementById('tCost1').textContent = fmtMln(cost1);
-				document.getElementById('tRev1').textContent = fmtMln(rev1);
-				document.getElementById('tMar1').textContent = '+' + fmtMln(mar1);
-
-				document.getElementById('tCost2').textContent = fmtMln(cost2);
-				document.getElementById('tRev2').textContent = fmtMln(rev2);
-				document.getElementById('tMar2').textContent = '+' + fmtMln(mar2);
-
-				document.getElementById('tCost3').textContent = fmtMln(cost3);
-				document.getElementById('tRev3').textContent = fmtMln(rev3);
-				document.getElementById('tMar3').textContent = '+' + fmtMln(mar3);
-
-				document.getElementById('tCost4').textContent = fmtMln(cost4);
-				document.getElementById('tRev4').textContent = fmtMln(rev4);
-				document.getElementById('tMar4').textContent = '+' + fmtMln(mar4);
-
-				renderComparisonChart(rawOnlyMargin, totalMargin);
-			}
-
-			function renderComparisonChart(rawMargin, clusterMargin) {
-				const ctx = document.getElementById('marginCompareChart');
-				const rawMln = +(rawMargin / 1000000).toFixed(2);
-				const clMln = +(clusterMargin / 1000000).toFixed(2);
-
-				if (compareChart) {
-					compareChart.data.datasets[0].data = [rawMln, clMln];
-					compareChart.update();
-					return;
-				}
-
-				compareChart = new Chart(ctx, {
-					type: 'bar',
-					data: {
-						labels: ['Без кластеру (Продаж сировини)', 'Кластер НААН–ІІБ (Насіння + Переробка)'],
-						datasets: [{
-							label: 'Чиста маржа (млн грн)',
-							data: [rawMln, clMln],
-							backgroundColor: ['#94a3b8', '#059669'],
-							borderRadius: 6
-						}]
-					},
-					options: {
-						responsive: true,
-						maintainAspectRatio: false,
-						plugins: { legend: { display: false } },
-						scales: { y: { beginAtZero: true, title: { display: true, text: 'млн грн' } } }
-					}
-				});
-			}
-
-			[slArea, slYield, slProc, slPrepay].forEach(el => {
-				el.addEventListener('input', recalcClusterEconomics);
-				el.addEventListener('change', () => {
-					logAction('CALC_UPDATE', `Area: ${calcState.area}ha, Yield: ${calcState.yld}t, Proc: ${calcState.procPct}%, ROI: ${calcState.roi}%`);
-				});
-			});
-
-			recalcClusterEconomics();
-
-			// Оновлення Паспорта учасника
-			function updateProfileUI(prof) {
-				currentProfile = prof;
-				document.getElementById('p_edrpou').textContent = prof.edrpou;
-				document.getElementById('p_company').textContent = prof.company_name;
-				document.getElementById('p_kved').textContent = prof.kved;
-				document.getElementById('p_region').textContent = prof.region;
-				document.getElementById('p_activity').textContent = prof.activity_type;
-				document.getElementById('p_own').textContent = prof.own_contribution_percent;
-				document.getElementById('p_focus').textContent = prof.investment_focus;
-			}
-
-			const chatbox = document.getElementById('chatbox');
-			function addChatMsg(sender, htmlText) {
-				const div = document.createElement('div');
-				div.className = 'msg ' + (sender === 'Ви' ? 'user' : 'bot');
-				div.innerHTML = `<strong>${sender}:</strong><br>${htmlText}`;
-				chatbox.appendChild(div);
-				chatbox.scrollTop = chatbox.scrollHeight;
-			}
-
-			async function handleUserQuery(text) {
-				const clean = text.trim();
-				if (!clean) return;
-				addChatMsg('Ви', clean);
-
-				const match = clean.match(/\b(\d{8})\b/);
-				const code = match ? match[1] : null;
-
-				if (code && LOCAL_COMPANIES[code]) {
-					const comp = LOCAL_COMPANIES[code];
-					updateProfileUI(comp);
-					logAction('EDRPOU_VERIFIED', `Code: ${code} (${comp.company_name})`);
-					addChatMsg('AgroCluster НААН–ІІБ',
-						`Верифіковано учасника кластеру: <strong>${comp.company_name}</strong> (ЄДРПОУ ${comp.edrpou}).<br>` +
-						`• Розрахункова чиста маржа кластеру (${calcState.area} га): <strong>${fmtMln(calcState.totalMargin)}</strong> (ROI ${calcState.roi}%).<br>` +
-						`• Гарантований аванс на замовлення селекції НААН: <strong>${fmtMln(calcState.prepaySum)}</strong>.<br>` +
-						`• Економічний ефект цифровізації (E₂): <strong>+${fmtMln(calcState.effectE2)}/рік</strong>.<br>` +
-						`Документи готові до завантаження.`
-					);
-					return;
-				}
-
-				if (code) {
-					const customComp = {
-						edrpou: code,
-						company_name: `АГРОПАРТНЕР КЛАСТЕРУ (ЄДРПОУ ${code})`,
-						kved: "01.11 / 10.41 Вирощування та переробка олійних культур",
-						region: "Україна",
-						activity_type: "Учасник виробничо-переробного циклу",
-						own_contribution_percent: "30%",
-						investment_focus: clean
-					};
-					updateProfileUI(customComp);
-					logAction('EDRPOU_CUSTOM', `Code: ${code}`);
-				} else {
-					logAction('CHAT_MESSAGE', clean);
-				}
-
-				addChatMsg('AgroCluster НААН–ІІБ',
-					`Параметри інтегровано до фінансової моделі сорту «Біла Принцеса». За площі ${calcState.area} га сукупна маржа становить <strong>${fmtMln(calcState.totalMargin)}</strong> (ROI ${calcState.roi}%). Натисніть кнопки праворуч для вивантаження PDF або DOCX.`
-				);
-			}
-
-			document.getElementById('sendBtn').addEventListener('click', () => {
-				const inp = document.getElementById('textInput');
-				handleUserQuery(inp.value);
-				inp.value = '';
-			});
-			document.getElementById('textInput').addEventListener('keydown', (e) => {
-				if (e.key === 'Enter') {
-					handleUserQuery(e.target.value);
-					e.target.value = '';
-				}
-			});
-			document.querySelectorAll('.chip').forEach(btn => {
-				btn.addEventListener('click', () => handleUserQuery(btn.getAttribute('data-query')));
-			});
-
-			/**
-			 * ЧАНК ГЕНЕРАЦІЇ PDF (Рішення Viewport Overlay DOM Rendering):
-			 * Відображає документ у фіксованому контейнері у верхній точці вікна на 150 мс,
-			 * що гарантує 100% заповненість PDF-файлу в усіх браузерах на базі Chromium.
-			 */
-			async function exportHtmlToPdf(htmlContent, fileName) {
-				const wrapper = document.getElementById('pdfOverlayWrapper');
-				const target = document.getElementById('pdfRenderTarget');
-				const prevScrollY = window.scrollY;
-
-				target.innerHTML = htmlContent;
-				wrapper.style.display = 'flex';
-				window.scrollTo(0, 0);
-
-				// Пауза 150 мс для завершення відмальовування таблиць і шрифтів браузером
-				await new Promise(resolve => setTimeout(resolve, 150));
-
-				try {
-					await html2pdf().set({
-						margin: [10, 10, 10, 10],
-						filename: fileName,
-						image: { type: 'jpeg', quality: 0.98 },
-						html2canvas: {
-							scale: 2,
-							useCORS: true,
-							backgroundColor: '#ffffff',
-							scrollY: 0,
-							scrollX: 0
-						},
-						jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-					}).from(target).save();
-				} finally {
-					wrapper.style.display = 'none';
-					target.innerHTML = '';
-					window.scrollTo(0, prevScrollY);
-				}
-			}
-
-			// 1. Генерація Ескізного проєкту (Драфту) у PDF
-			document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
-				const btn = document.getElementById('downloadPdfBtn');
-				const orig = btn.textContent;
-				btn.disabled = true;
-				btn.textContent = 'Формую Драфт...';
-				logAction('PDF_DRAFT_GENERATED', `EDRPOU: ${currentProfile.edrpou}, Area: ${calcState.area}ha, Margin: ${calcState.totalMargin}`);
-
-				try {
-					const nowStr = new Date().toLocaleDateString('uk-UA');
-					const draftHtml = `
-                        <div style="border-bottom: 3px solid #059669; padding-bottom: 10px; margin-bottom: 14px;">
-                            <div style="font-size: 10px; color: #059669; font-weight: bold; text-transform: uppercase;">Офіційний драфт кластерного проєкту • ТОВ «Інститут інноваційної біоекономіки» & НААН</div>
-                            <h2 style="margin: 4px 0 0 0; font-size: 17px; color: #0f172a;">ЕСКІЗНИЙ ПРОЄКТ (ДРАФТ) ІННОВАЦІЙНОГО АГРАРНОГО КЛАСТЕРУ</h2>
-                            <p style="margin: 4px 0 0 0; color: #475569; font-size: 11px;">Дата формування: ${nowStr} | Об'єкт трансферу ОІВ: Сорт гірчиці білої «Біла Принцеса»</p>
-                        </div>
-
-                        <h3 style="font-size: 13.5px; color: #059669; margin: 12px 0 6px 0;">1. Паспорт базового учасника кластеру</h3>
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 11.5px;">
-                            <tr><td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold; width: 38%; background: #f8fafc;">Найменування суб'єкта (ЄДРПОУ)</td><td style="border: 1px solid #cbd5e1; padding: 6px;">${currentProfile.company_name} (ЄДРПОУ ${currentProfile.edrpou})</td></tr>
-                            <tr><td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold; background: #f8fafc;">Основний КВЕД та Регіон</td><td style="border: 1px solid #cbd5e1; padding: 6px;">${currentProfile.kved} | ${currentProfile.region}</td></tr>
-                            <tr><td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold; background: #f8fafc;">Роль у ланцюгу доданої вартості</td><td style="border: 1px solid #cbd5e1; padding: 6px;">${currentProfile.activity_type} (Внесок: ${currentProfile.own_contribution_percent})</td></tr>
-                            <tr><td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold; background: #f8fafc;">Фокус комерціалізації</td><td style="border: 1px solid #cbd5e1; padding: 6px;">${currentProfile.investment_focus}</td></tr>
-                        </table>
-
-                        <h3 style="font-size: 13.5px; color: #059669; margin: 12px 0 6px 0;">2. Економіко-математична модель масштабування (${calcState.area} га | Врожайність ${calcState.yld} т/га | Переробка ${calcState.procPct}%)</h3>
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 11.5px;">
-                            <tr style="background: #f1f5f9;">
-                                <th style="border: 1px solid #cbd5e1; padding: 6px; text-align: left;">Етап ланцюга вартості</th>
-                                <th style="border: 1px solid #cbd5e1; padding: 6px; text-align: left;">Масштаб у кластері</th>
-                                <th style="border: 1px solid #cbd5e1; padding: 6px; text-align: left;">Витрати</th>
-                                <th style="border: 1px solid #cbd5e1; padding: 6px; text-align: left;">Виручка</th>
-                                <th style="border: 1px solid #cbd5e1; padding: 6px; text-align: left;">Чиста маржа</th>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>І. Наукове ядро (НУС НААН)</strong></td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${calcState.superEliteHa} га Супереліти + Роялті</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${fmtMln(calcState.cost1)}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${fmtMln(calcState.rev1)}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold; color: #059669;">+${fmtMln(calcState.mar1)}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>ІІ. Насінництво (Еліта)</strong></td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${calcState.eliteHa} га розмноження Еліти</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${fmtMln(calcState.cost2)}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${fmtMln(calcState.rev2)}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold; color: #059669;">+${fmtMln(calcState.mar2)}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>ІІІ. Агровиробництво (РС-1)</strong></td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${calcState.area} га (${calcState.totalHarvestTons} т зерна)</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${fmtMln(calcState.cost3)}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${fmtMln(calcState.rev3)}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold; color: #059669;">+${fmtMln(calcState.mar3)}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;"><strong>IV. Глибока переробка</strong></td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">Олія, порошок, шрот (${calcState.procPct}%)</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${fmtMln(calcState.cost4)}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px;">${fmtMln(calcState.rev4)}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: 6px; font-weight: bold; color: #059669;">+${fmtMln(calcState.mar4)}</td>
-                            </tr>
-                        </table>
-
-                        <h3 style="font-size: 13.5px; color: #059669; margin: 12px 0 6px 0;">3. Зведені фінансові індикатори та ефект цифровізації (E₂)</h3>
-                        <div style="background: #ecfdf5; border: 1px solid #6ee7b7; padding: 12px; border-radius: 6px; font-size: 12px; line-height: 1.6;">
-                            • <strong>Сукупна чиста маржа кластеру:</strong> ${fmtMln(calcState.totalMargin)} (Рентабельність циклу ROI: <strong>${calcState.roi}%</strong>)<br>
-                            • <strong>Гарантована авансова передоплата НУС НААН на селекцію (${calcState.prepayPct}%):</strong> ${fmtMln(calcState.prepaySum)}<br>
-                            • <strong>Економічний ефект від впровадження інформаційної системи (E₂):</strong> +${fmtMln(calcState.effectE2)}/рік (зниження трансакційних витрат на 15%)
-                        </div>
-                    `;
-					await exportHtmlToPdf(draftHtml, 'AgroCluster_Draft_Project.pdf');
-				} finally {
-					btn.disabled = false;
-					btn.textContent = orig;
-				}
-			});
-
-			// 2. Генерація односторінкового Інвестиційного Тизера (Pitch Deck) у PDF
-			document.getElementById('downloadTeaserBtn').addEventListener('click', async () => {
-				const btn = document.getElementById('downloadTeaserBtn');
-				const orig = btn.textContent;
-				btn.disabled = true;
-				btn.textContent = 'Формую Pitch...';
-				logAction('PDF_TEASER_GENERATED', `EDRPOU: ${currentProfile.edrpou}, ROI: ${calcState.roi}%`);
-
-				try {
-					const nowStr = new Date().toLocaleDateString('uk-UA');
-					const teaserHtml = `
-                        <div style="background: #0f172a; color: #ffffff; padding: 18px 20px; border-radius: 8px; border-bottom: 4px solid #059669; margin-bottom: 16px;">
-                            <div style="font-size: 10.5px; color: #34d399; text-transform: uppercase; letter-spacing: 0.8px; font-weight: bold;">INVESTMENT TEASER & PITCH DECK • ТОВ «ІНСТИТУТ ІННОВАЦІЙНОЇ БІОЕКОНОМІКИ»</div>
-                            <h1 style="margin: 6px 0 4px 0; font-size: 19px;">БІОЕКОНОМІЧНИЙ КЛАСТЕР «БІЛА ПРИНЦЕСА» (НААН & ІІБ)</h1>
-                            <div style="font-size: 11.5px; color: #cbd5e1;">Масштабування української селекції у високомаржинальну переробку (Олія • Порошок • Кормовий шрот)</div>
-                        </div>
-
-                        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
-                            <div style="flex: 1; background: #ecfdf5; border: 1px solid #6ee7b7; padding: 12px; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 10px; color: #047857; text-transform: uppercase; font-weight: bold;">Чиста маржа проєкту</div>
-                                <div style="font-size: 18px; font-weight: bold; color: #059669; margin-top: 4px;">${fmtMln(calcState.totalMargin)}</div>
-                            </div>
-                            <div style="flex: 1; background: #eff6ff; border: 1px solid #93c5fd; padding: 12px; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 10px; color: #1d4ed8; text-transform: uppercase; font-weight: bold;">Рентабельність (ROI)</div>
-                                <div style="font-size: 18px; font-weight: bold; color: #2563eb; margin-top: 4px;">${calcState.roi}% річних</div>
-                            </div>
-                            <div style="flex: 1; background: #fef3c7; border: 1px solid #fcd34d; padding: 12px; border-radius: 6px; text-align: center;">
-                                <div style="font-size: 10px; color: #b45309; text-transform: uppercase; font-weight: bold;">Аванс науці (НААН)</div>
-                                <div style="font-size: 18px; font-weight: bold; color: #d97706; margin-top: 4px;">${fmtMln(calcState.prepaySum)}</div>
-                            </div>
-                        </div>
-
-                        <h3 style="font-size: 13px; color: #0f172a; border-left: 4px solid #059669; padding-left: 8px; margin: 12px 0 6px 0;">1. Проблема ринку та Інноваційне рішення ІІБ</h3>
-                        <p style="font-size: 11.5px; line-height: 1.5; color: #334155; margin: 0 0 12px 0;">
-                            Наукові установи генерують високопродуктивні сорти, проте разовий продаж насіння не створює стійкого бізнесу. <strong>ТОВ «Інститут інноваційної біоекономіки»</strong> об'єднує запатентований сорт гірчиці «Біла Принцеса» (ННЦ «Інститут землеробства НААН») у замкнений промисловий кластер площею <strong>${calcState.area} га</strong> (валовий збір <strong>${calcState.totalHarvestTons} т</strong>) із глибокою переробкою (${calcState.procPct}%) та гарантованою передоплатою селекції (${calcState.prepayPct}%).
-                        </p>
-
-                        <h3 style="font-size: 13px; color: #0f172a; border-left: 4px solid #059669; padding-left: 8px; margin: 12px 0 6px 0;">2. Матриця розподілу чистої маржі за ланками кластеру</h3>
-                        <ul style="font-size: 11.5px; line-height: 1.6; color: #334155; margin: 0 0 14px 0;">
-                            <li><strong>Наукове ядро (НУС НААН):</strong> ${calcState.superEliteHa} га Супереліти + роялті = <strong>+${fmtMln(calcState.mar1)}</strong> чистої маржі.</li>
-                            <li><strong>Насінницькі господарства:</strong> ${calcState.eliteHa} га Еліти = <strong>+${fmtMln(calcState.mar2)}</strong> чистої маржі.</li>
-                            <li><strong>Товарне агровиробництво:</strong> ${calcState.area} га РС-1 = <strong>+${fmtMln(calcState.mar3)}</strong> чистої маржі.</li>
-                            <li><strong>Завод глибокої переробки:</strong> Олія, порошок, кормовий шрот = <strong>+${fmtMln(calcState.mar4)}</strong> чистої маржі.</li>
-                            <li><strong>Додатковий ефект цифровізації управління (E₂):</strong> <strong>+${fmtMln(calcState.effectE2)}/рік</strong>.</li>
-                        </ul>
-
-                        <div style="border-top: 1px solid #cbd5e1; padding-top: 10px; font-size: 11px; color: #475569; display: flex; justify-content: space-between;">
-                            <span>Базовий учасник: ${currentProfile.company_name} (ЄДРПОУ ${currentProfile.edrpou})</span>
-                            <span>Дата: ${nowStr} • Готово для подання у грантовий модуль AgroGrant_Bot</span>
-                        </div>
-                    `;
-					await exportHtmlToPdf(teaserHtml, 'AgroCluster_Investment_Pitch_Deck.pdf');
-				} finally {
-					btn.disabled = false;
-					btn.textContent = orig;
-				}
-			});
-
-			// 3. Експорт DOCX із передачею актуальних параметрів калькулятора
-			document.getElementById('downloadDocxBtn').addEventListener('click', () => {
-				logAction('DOCX_EXPORT_REQUEST', `EDRPOU: ${currentProfile.edrpou}, Area: ${calcState.area}ha`);
-				const params = new URLSearchParams({
-					edrpou: currentProfile.edrpou,
-					company: currentProfile.company_name,
-					area: calcState.area,
-					margin: fmtMln(calcState.totalMargin),
-					roi: calcState.roi,
-					prepay: fmtMln(calcState.prepaySum)
-				});
-				window.open(`${BACKEND_URL}/export/00000000-0000-0000-0000-000000000000?${params.toString()}`, '_blank');
-			});
-
-			// 4. Інтеграційний міст (Bridge) до AgroGrant_Bot
-			document.getElementById('bridgeBotBtn').addEventListener('click', () => {
-				logAction('BRIDGE_TO_GRANTBOT', `EDRPOU: ${currentProfile.edrpou}, Margin: ${calcState.totalMargin}`);
-				const payload = encodeURIComponent(
-					`Код ЄДРПОУ ${currentProfile.edrpou}, ${currentProfile.company_name}. ` +
-					`Проєкт кластеру «Біла Принцеса»: площа ${calcState.area} га, чиста маржа ${fmtMln(calcState.totalMargin)}, ` +
-					`ROI ${calcState.roi}%, передоплата селекції НААН ${fmtMln(calcState.prepaySum)}.`
-				);
-				window.open(`https://dn7734.github.io/AgroGrant_Bot/?data=${payload}`, '_blank');
-			});
-
-			logAction('SESSION_START', 'Platform initialized successfully');
-		});
-	</script>
+	<script src="app.js"></script>
 </body>
 
 </html>
