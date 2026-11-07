@@ -9,7 +9,7 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-	const BACKEND_URL = "https://agrogrant.onrender.com";
+	const BACKEND_URL = "https://cluster-fcsu.onrender.com";
 
 	const LOCAL_COMPANIES = {
 		"00496802": {
