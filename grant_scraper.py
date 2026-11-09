@@ -1,5 +1,8 @@
 """
-Модуль багатокритеріального скорингу моделей комерціалізації ОІВ (AgroCluster Analytics).
+НАУКОВО-МЕТОДИЧНИЙ ОПИС МОДУЛЯ (grant_scraper.py):
+Модуль багатокритеріального скорингу інвестиційних та грантових моделей кластеризації.
+Реалізує алгоритм ранжування неборгових фінансових інструментів (державні гранти на переробку,
+венчурне партнерство Наука–Бізнес, форвардний Off-take пул) відповідно до профілю учасника.
 """
 
 import re
@@ -53,13 +56,20 @@ DEFAULT_GRANTS = [
 
 
 def _extract_number(val: str) -> float:
+    """Допоміжна функція екстракції числового значення відсотка співфінансування."""
     if not val:
         return 0.0
     nums = re.findall(r"\d+(?:[.,]\d+)?", str(val))
-    return float(nums[0].replace(",", ".")) if nums else 0.0
+    if not nums:
+        return 0.0
+    return float(nums[0].replace(",", "."))
 
 
 def evaluate_grants(profile_data: dict, grants: list = None) -> list:
+    """
+    Розраховує інтегральний індекс релевантності (Score 30..98%) для кожної моделі
+    комерціалізації на основі профілю підприємства-учасника кластеру.
+    """
     catalog = grants if grants else DEFAULT_GRANTS
     activity = (profile_data.get("activity_type") or "").lower()
     focus = (profile_data.get("investment_focus") or "").lower()
@@ -75,21 +85,27 @@ def evaluate_grants(profile_data: dict, grants: list = None) -> list:
         if isinstance(kw_list, str):
             kw_list = [k.strip() for k in kw_list.split(",") if k.strip()]
 
-        if any(kw in combined_text for kw in kw_list):
+        matched_kw = [kw for kw in kw_list if kw in combined_text]
+        if matched_kw:
             score += 22
-            reasons.append("Технологічна спеціалізація збігається з ланкою кластеру")
+            reasons.append("Технологічна спеціалізація учасника збігається з ланкою кластеру")
 
         target_kveds = g.get("target_kveds", "")
         if kved and any(prefix.strip()[:4] in kved for prefix in target_kveds.split(",") if prefix.strip()):
             score += 10
-            reasons.append("КВЕД відповідає вимогам програми")
+            reasons.append("Основний КВЕД відповідає вимогам програми")
 
         min_own = float(g.get("min_own_percent") or 0)
         if own_pct >= min_own:
             score += 8
-            reasons.append(f"Частка співфінансування покриває поріг ({int(min_own)}%)")
+            reasons.append(f"Частка співфінансування покриває нормативний поріг ({int(min_own)}%)")
+        elif own_pct > 0 and own_pct < min_own:
+            score -= 8
+            reasons.append(f"Мінімальний рекомендований внесок становить {int(min_own)}%")
 
         score = max(35, min(98, score))
+        status = "Пріоритетна модель кластеру" if score >= 75 else "Доступно для кооперації"
+
         scored.append({
             "code": g.get("code"),
             "title": g.get("title"),
@@ -100,9 +116,14 @@ def evaluate_grants(profile_data: dict, grants: list = None) -> list:
             "land_req": g.get("land_req"),
             "requirements": g.get("requirements"),
             "score": score,
-            "status": "Пріоритетна модель" if score >= 75 else "Доступно для кооперації",
-            "reason": "; ".join(reasons) if reasons else "Базова відповідність критеріям кластеру НААН–ІІБ"
+            "status": status,
+            "reason": "; ".join(reasons) if reasons else "Базова відповідність критеріям трансферу технологій НААН–ІІБ"
         })
 
     scored.sort(key=lambda x: x["score"], reverse=True)
     return scored
+
+
+async def scrape_and_normalize_grants(api_key: str = "") -> list:
+    """Повертає нормалізований перелік моделей комерціалізації кластеру."""
+    return DEFAULT_GRANTS

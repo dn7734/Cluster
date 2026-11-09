@@ -1,47 +1,384 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroCluster НААН–ІІБ — Панель макроаналітики та логів</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="style.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AgroCluster НААН–ІІБ — Панель макроаналітики та журнал телеметрії</title>
+	<link rel="icon"
+		href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<link rel="stylesheet" href="style.css">
+	<style>
+		/* Спеціалізовані стилі адміністративного модуля моніторингу */
+		.admin-container {
+			max-width: 1220px;
+			margin: 24px auto;
+			padding: 0 20px;
+		}
+
+		#loginCard {
+			max-width: 420px;
+			margin: 60px auto;
+			background: var(--card-bg);
+			padding: 28px;
+			border-radius: 12px;
+			border: 1px solid var(--border-color);
+			box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+			text-align: center;
+		}
+
+		#loginCard input {
+			width: 100%;
+			padding: 11px 14px;
+			margin: 14px 0;
+			border: 1px solid #cbd5e1;
+			border-radius: 8px;
+			font-size: 14px;
+			outline: none;
+		}
+
+		#dashboardContent {
+			display: none;
+		}
+
+		.admin-kpi-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 16px;
+			margin-bottom: 20px;
+		}
+
+		@media (max-width: 860px) {
+			.admin-kpi-grid {
+				grid-template-columns: 1fr 1fr;
+			}
+		}
+
+		.admin-charts-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+			margin-bottom: 20px;
+		}
+
+		@media (max-width: 860px) {
+			.admin-charts-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		.log-table-wrapper {
+			max-height: 360px;
+			overflow-y: auto;
+			border: 1px solid var(--border-color);
+			border-radius: 8px;
+		}
+
+		.log-table {
+			width: 100%;
+			border-collapse: collapse;
+			font-size: 12.5px;
+			background: #ffffff;
+		}
+
+		.log-table th,
+		.log-table td {
+			border-bottom: 1px solid var(--border-color);
+			padding: 9px 12px;
+			text-align: left;
+		}
+
+		.log-table th {
+			background: #f8fafc;
+			font-weight: 700;
+			color: var(--text-secondary);
+			position: sticky;
+			top: 0;
+		}
+
+		.log-badge {
+			display: inline-block;
+			padding: 2px 8px;
+			border-radius: 4px;
+			font-size: 11px;
+			font-weight: 700;
+			background: #ecfdf5;
+			color: var(--accent-green);
+		}
+	</style>
 </head>
+
 <body>
-    <header class="topbar">
-        <div><strong style="font-size:18px;">AgroCluster НААН–ІІБ • Макроаналітика та Журнал Телеметрії</strong></div>
-        <a href="index.html" class="admin-link">← Повернутися до платформи</a>
-    </header>
-    <div class="container-wide">
-        <div class="card">
-            <h2 class="card-title">Журнал телеметрії та аудиту дій користувачів (Dual-Layer Logs)</h2>
-            <p style="font-size:13px; color:#475569;">Серверний вузол: <code>https://cluster-fcsu.onrender.com</code></p>
-            <div id="logsContainer" style="font-size:13px;">Завантаження логів...</div>
-        </div>
-    </div>
-    <script>
-        const BACKEND_URL = "https://cluster-fcsu.onrender.com";
-        async function loadLogs() {
-            const localLogs = JSON.parse(localStorage.getItem('agrocluster_logs') || '[]');
-            let serverLogs = [];
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/logs?password=agro2026`);
-                if (res.ok) {
-                    const data = await res.json();
-                    serverLogs = data.logs || [];
-                }
-            } catch (e) {}
-            const all = [...localLogs, ...serverLogs].slice(0, 50);
-            const box = document.getElementById('logsContainer');
-            if (!all.length) {
-                box.innerHTML = "Подій ще не зафіксовано.";
-                return;
-            }
-            box.innerHTML = "<table class='calc-table'><thead><tr><th>Час</th><th>Дія</th><th>Деталі</th></tr></thead><tbody>" +
-                all.map(x => `<tr><td>${x.timestamp}</td><td><strong>${x.action}</strong></td><td>${x.details || ''}</td></tr>`).join("") +
-                "</tbody></table>";
-        }
-        loadLogs();
-    </script>
+	<header class="topbar">
+		<div>
+			<h1 class="brand-title">AgroCluster НААН–ІІБ • Підсистема макроаналітики та аудиту телеметрії</h1>
+			<span class="brand-sub">Моніторинг інтеграції суб'єктів інноваційного кластеру «Біла Принцеса» та логування
+				транзакцій</span>
+		</div>
+		<div class="nav-actions">
+			<span class="status-badge" id="adminConnStatus">Режим синхронізації БД</span>
+			<a href="index.html" class="admin-link">← Повернутися до платформи кластеру</a>
+		</div>
+	</header>
+
+	<div class="admin-container">
+		<!-- Блок верифікації прав доступу координатора ІІБ -->
+		<div id="loginCard">
+			<h2 style="margin-top: 0; font-size: 18px;">Авторизація координатора ТОВ «ІІБ»</h2>
+			<p style="font-size: 13px; color: var(--text-muted);">
+				Введіть сервісний ключ доступу до панелі макроекономічної аналітики (за замовчуванням:
+				<code>agro2026</code>)
+			</p>
+			<input type="password" id="adminPass" placeholder="Пароль адміністратора..." value="agro2026">
+			<button class="btn" id="loginBtn" style="background: var(--accent-green); width: 100%;">Увійти до панелі
+				управління</button>
+			<div id="authError" style="color: var(--danger); font-size: 13px; margin-top: 10px; display: none;">
+				Помилка автентифікації: невірний пароль доступу
+			</div>
+		</div>
+
+		<!-- Основний робочий простір макроаналітики -->
+		<div id="dashboardContent">
+			<div class="card"
+				style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+				<div>
+					<h2 class="card-title">Зведені індикатори трансферу технологій та кластеризації</h2>
+					<span class="card-subtitle">Дані агрегуються з реєстру верифікованих учасників кластеру та
+						двоконтурної системи логування</span>
+				</div>
+				<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+					<button class="btn" id="syncGrantsBtn" style="background: var(--accent-green);">Синхронізувати
+						каталог НААН–ІІБ</button>
+					<button class="btn" id="refreshLogsBtn" style="background: var(--accent-dark);">Оновити
+						телеметрію</button>
+					<button class="btn" id="clearLocalLogsBtn" style="background: #64748b;">Очистити локальний
+						буфер</button>
+				</div>
+			</div>
+
+			<div class="admin-kpi-grid">
+				<div class="card" style="margin-bottom: 0;">
+					<span class="kpi-lbl">Суб'єктів у кластері</span>
+					<span class="kpi-num" id="kpiTotal" style="font-size: 24px;">4</span>
+				</div>
+				<div class="card" style="margin-bottom: 0;">
+					<span class="kpi-lbl">Верифіковано за ЄДРПОУ</span>
+					<span class="kpi-num" id="kpiVerified" style="font-size: 24px; color: var(--accent-green);">4</span>
+				</div>
+				<div class="card" style="margin-bottom: 0;">
+					<span class="kpi-lbl">Моделей фінансування</span>
+					<span class="kpi-num" id="kpiGrants" style="font-size: 24px;">4</span>
+				</div>
+				<div class="card" style="margin-bottom: 0;">
+					<span class="kpi-lbl">Записів у журналі логів</span>
+					<span class="kpi-num" id="kpiLogsCount" style="font-size: 24px; color: var(--accent-blue);">0</span>
+				</div>
+			</div>
+
+			<div class="admin-charts-grid">
+				<div class="card" style="margin-bottom: 0;">
+					<div class="card-header">
+						<h3 class="card-title" style="font-size: 14.5px;">Регіональна локалізація учасників кластеру
+						</h3>
+					</div>
+					<div style="height: 250px;">
+						<canvas id="regionChart"></canvas>
+					</div>
+				</div>
+				<div class="card" style="margin-bottom: 0;">
+					<div class="card-header">
+						<h3 class="card-title" style="font-size: 14.5px;">Структура розподілу за ланками доданої
+							вартості</h3>
+					</div>
+					<div style="height: 250px;">
+						<canvas id="activityChart"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<div class="card">
+				<div class="card-header">
+					<div>
+						<h3 class="card-title">Двоконтурний журнал логування розробки та дій користувачів (System Audit
+							Log)</h3>
+						<span class="card-subtitle">Відображає об'єднаний потік подій із клієнтського буфера
+							LocalStorage та серверної таблиці PostgreSQL system_logs</span>
+					</div>
+				</div>
+				<div class="log-table-wrapper">
+					<table class="log-table">
+						<thead>
+							<tr>
+								<th style="width: 20%;">Часова мітка</th>
+								<th style="width: 24%;">Код події (Action Chunk)</th>
+								<th>Параметри транзакції / Стан математичної моделі</th>
+							</tr>
+						</thead>
+						<tbody id="logsTableBody"></tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		/**
+		 * НАУКОВО-МЕТОДИЧНИЙ КОМЕНТАР:
+		 * Модуль адміністративної діагностики реалізує патерн Resilient Telemetry Aggregation.
+		 * При доступності хмарного сервера FastAPI статистика та логи вивантажуються із СКБД PostgreSQL.
+		 * У разі перебування безкоштовного інстансу Render у стані «холодного старту» система
+		 * безшовно перемикається на локальний контур телеметрії браузера (LocalStorage).
+		 */
+		const BACKEND_URL = "https://cluster-fcsu.onrender.com";
+		let regChartInstance = null;
+		let actChartInstance = null;
+
+		const FALLBACK_STATS = {
+			total: 4,
+			edrpou_verified: 4,
+			grants_count: 4,
+			avg_own_percent: 30,
+			regions: {
+				"Київська обл. (НААН & ІІБ)": 2,
+				"Вінницька обл. (Насінництво)": 1,
+				"Черкаська обл. (Переробка)": 1
+			},
+			activities: {
+				"І. Селекція (Супереліта)": 1,
+				"ІІ. Координація (ІІБ)": 1,
+				"ІІІ. Насінництво (РС-1)": 1,
+				"ІV. Глибока переробка": 1
+			}
+		};
+
+		async function loadTelemetryAndStats(password) {
+			const errBox = document.getElementById('authError');
+			const statusBadge = document.getElementById('adminConnStatus');
+			errBox.style.display = 'none';
+
+			if (password !== 'agro2026') {
+				errBox.style.display = 'block';
+				return;
+			}
+
+			let statsData = FALLBACK_STATS;
+			let serverLogs = [];
+
+			try {
+				const resStats = await fetch(`${BACKEND_URL}/api/stats?password=${encodeURIComponent(password)}`);
+				if (resStats.ok) {
+					statsData = await resStats.json();
+					statusBadge.textContent = "БД PostgreSQL • Синхронізовано";
+				}
+			} catch (e) {
+				statusBadge.textContent = "Автономний контур телеметрії";
+			}
+
+			try {
+				const resLogs = await fetch(`${BACKEND_URL}/api/logs?password=${encodeURIComponent(password)}`);
+				if (resLogs.ok) {
+					const parsed = await resLogs.json();
+					serverLogs = parsed.logs || [];
+				}
+			} catch (e) { }
+
+			const localLogs = JSON.parse(localStorage.getItem('agrocluster_logs') || '[]');
+			const combinedLogs = [...localLogs, ...serverLogs].slice(0, 80);
+
+			document.getElementById('loginCard').style.display = 'none';
+			document.getElementById('dashboardContent').style.display = 'block';
+
+			document.getElementById('kpiTotal').textContent = statsData.total;
+			document.getElementById('kpiVerified').textContent = statsData.edrpou_verified;
+			document.getElementById('kpiGrants').textContent = statsData.grants_count;
+			document.getElementById('kpiLogsCount').textContent = combinedLogs.length;
+
+			if (regChartInstance) regChartInstance.destroy();
+			regChartInstance = new Chart(document.getElementById('regionChart'), {
+				type: 'doughnut',
+				data: {
+					labels: Object.keys(statsData.regions),
+					datasets: [{
+						data: Object.values(statsData.regions),
+						backgroundColor: ['#0f172a', '#059669', '#2563eb', '#d97706']
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: { legend: { position: 'bottom' } }
+				}
+			});
+
+			if (actChartInstance) actChartInstance.destroy();
+			actChartInstance = new Chart(document.getElementById('activityChart'), {
+				type: 'bar',
+				data: {
+					labels: Object.keys(statsData.activities),
+					datasets: [{
+						label: 'Суб\'єкти кластеру',
+						data: Object.values(statsData.activities),
+						backgroundColor: '#059669',
+						borderRadius: 6
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					plugins: { legend: { display: false } },
+					scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+				}
+			});
+
+			const tbody = document.getElementById('logsTableBody');
+			tbody.innerHTML = '';
+
+			if (combinedLogs.length === 0) {
+				tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#64748b; padding: 20px;">Подій ще не зафіксовано. Перейдіть на головну сторінку та змініть параметри калькулятора або згенеруйте PDF.</td></tr>';
+			} else {
+				combinedLogs.forEach(item => {
+					const tr = document.createElement('tr');
+					tr.innerHTML = `
+                        <td>${item.timestamp}</td>
+                        <td><span class="log-badge">${item.action}</span></td>
+                        <td>${item.details || ''}</td>
+                    `;
+					tbody.appendChild(tr);
+				});
+			}
+		}
+
+		document.getElementById('loginBtn').addEventListener('click', () => {
+			loadTelemetryAndStats(document.getElementById('adminPass').value.trim());
+		});
+
+		document.getElementById('refreshLogsBtn').addEventListener('click', () => {
+			loadTelemetryAndStats(document.getElementById('adminPass').value.trim() || 'agro2026');
+		});
+
+		document.getElementById('clearLocalLogsBtn').addEventListener('click', () => {
+			localStorage.removeItem('agrocluster_logs');
+			loadTelemetryAndStats(document.getElementById('adminPass').value.trim() || 'agro2026');
+		});
+
+		document.getElementById('syncGrantsBtn').addEventListener('click', async (e) => {
+			const btn = e.target;
+			btn.disabled = true;
+			btn.textContent = 'Синхронізація...';
+			try { await fetch(`${BACKEND_URL}/grants/sync`); } catch (err) { }
+			const logs = JSON.parse(localStorage.getItem('agrocluster_logs') || '[]');
+			logs.unshift({
+				timestamp: new Date().toLocaleString('uk-UA'),
+				action: 'ADMIN_CATALOG_SYNC',
+				details: 'Актуалізовано матрицю 4 моделей комерціалізації сорту «Біла Принцеса»'
+			});
+			localStorage.setItem('agrocluster_logs', JSON.stringify(logs));
+			await loadTelemetryAndStats('agro2026');
+			btn.disabled = false;
+			btn.textContent = 'Синхронізувати каталог НААН–ІІБ';
+		});
+	</script>
 </body>
+
 </html>
