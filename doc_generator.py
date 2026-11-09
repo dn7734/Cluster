@@ -1,8 +1,5 @@
 """
-НАУКОВО-МЕТОДИЧНИЙ ОПИС МОДУЛЯ (doc_generator.py):
-Модуль автоматизованого формування проєктної документації у форматі Microsoft Word (DOCX).
-Синтезує паспорт верифікованого суб'єкта кластеру, параметри економіко-математичної моделі
-маржинальності сорту гірчиці «Біла Принцеса» та результати багатокритеріального скорингу.
+Модуль генерації проєкту інноваційного кластеру у форматі DOCX (AgroCluster Analytics).
 """
 
 import io
@@ -13,13 +10,7 @@ from grant_scraper import evaluate_grants
 
 
 def create_grant_document(profile_data: dict, grants_list: list = None) -> io.BytesIO:
-    """
-    Формує бінарний потік документа DOCX із повною структурою Ескізного проєкту (Драфту)
-    створення інноваційного аграрного кластеру НААН–ІІБ.
-    """
     doc = Document()
-
-    # Встановлення базового академічного шрифту документа
     normal_style = doc.styles["Normal"]
     normal_style.font.name = "Arial"
     normal_style.font.size = Pt(11)
@@ -27,13 +18,12 @@ def create_grant_document(profile_data: dict, grants_list: list = None) -> io.By
     doc.add_heading("ЕСКІЗНИЙ ПРОЄКТ (ДРАФТ) ІННОВАЦІЙНОГО АГРАРНОГО КЛАСТЕРУ", 0)
     doc.add_paragraph(
         f"Дата формування: {datetime.utcnow().strftime('%d.%m.%Y')} | "
-        f"Методологічний провайдер: ТОВ «Інститут інноваційної біоекономіки» (ІІБ) & НААН України\n"
+        f"Методологічний провайдер: ТОВ «Інститут інноваційної біоекономіки» (ІІБ) & НААН України
+"
         f"Об'єкт трансферу інновацій (ОІВ): Сорт гірчиці білої «Біла Принцеса»"
     )
 
-    # Розділ 1. Паспорт базового учасника та економічні індикатори
     doc.add_heading("1. Паспорт учасника кластеру та розрахункові показники маржинальності", level=1)
-
     fields = [
         ("Суб'єкт кластеру (Код ЄДРПОУ)", f"{profile_data.get('company_name', 'Не вказано')} ({profile_data.get('edrpou', '00496802')})"),
         ("Роль у ланцюгу доданої вартості", profile_data.get("activity_type", "Учасник кластерного циклу")),
@@ -45,72 +35,41 @@ def create_grant_document(profile_data: dict, grants_list: list = None) -> io.By
 
     table = doc.add_table(rows=1, cols=2)
     table.style = "Table Grid"
-    hdr = table.rows[0].cells
-    hdr[0].text = "Параметр паспорта кластеру"
-    hdr[1].text = "Верифіковане значення"
-
+    table.rows[0].cells[0].text = "Параметр паспорта кластеру"
+    table.rows[0].cells[1].text = "Верифіковане значення"
     for label, value in fields:
-        row_cells = table.add_row().cells
-        row_cells[0].text = label
-        row_cells[1].text = str(value)
+        rc = table.add_row().cells
+        rc[0].text = label
+        rc[1].text = str(value)
 
-    # Розділ 2. Матриця трансформації наукової розробки (4 технологічні етапи)
     doc.add_heading("2. Організаційно-економічний механізм масштабування (4 ланки кластеру)", level=1)
-
     tech_stages = [
-        (
-            "Етап І. Наукове ядро (1–5 га)",
-            "Оригінальне насіння (Супереліта)",
-            "ННЦ «Інститут землеробства НААН»: охорона ОІВ, закладання розсадника під замовлення бізнесу з авансовою передоплатою 30%."
-        ),
-        (
-            "Етап ІІ. Мультиплікація (25–50 га)",
-            "Елітне насіння та Драфт стартапу",
-            "ТОВ «Інститут інноваційної біоекономіки»: пакування драфту та інвестиційного тизера, авторський нагляд за насінницькими господарствами."
-        ),
-        (
-            "Етап ІІІ. Агровиробництво (300+ га)",
-            "Товарне насіння І репродукції (РС-1)",
-            "Агропідприємства кластеру: вирощування посухостійкої гірчиці за форвардними Off-take контрактами та сидерація ґрунтів."
-        ),
-        (
-            "Етап ІV. Глибока біопереробка",
-            "Олія холодного віджиму, порошок, шрот",
-            "Завод глибокої переробки: безвідходна технологія Zero-Waste із генерацією високої доданої вартості (+135% маржі)."
-        )
+        ("Етап І. Наукове ядро (1–5 га)", "Супереліта", "ННЦ «Інститут землеробства НААН»: селекція під замовлення з передоплатою 30%."),
+        ("Етап ІІ. Мультиплікація (25–50 га)", "Еліта та Драфт", "ТОВ «ІІБ»: пакування драфту та тизера, авторський нагляд за насінництвом."),
+        ("Етап ІІІ. Агровиробництво (300+ га)", "РС-1 (Товарне зерно)", "Вирощування гірчиці за форвардними Off-take контрактами та сидерація."),
+        ("Етап ІV. Глибока переробка", "Олія, порошок, шрот", "Безвідходна технологія Zero-Waste (+135% доданої вартості).")
     ]
-
-    tech_table = doc.add_table(rows=1, cols=3)
-    tech_table.style = "Table Grid"
-    th = tech_table.rows[0].cells
-    th[0].text = "Ланка інноваційного кластеру"
-    th[1].text = "Продукт генерації"
-    th[2].text = "Механізм державно-приватного партнерства"
-
+    t2 = doc.add_table(rows=1, cols=3)
+    t2.style = "Table Grid"
+    t2.rows[0].cells[0].text = "Ланка кластеру"
+    t2.rows[0].cells[1].text = "Продукт"
+    t2.rows[0].cells[2].text = "Механізм ДПП"
     for st, prod, desc in tech_stages:
-        rc = tech_table.add_row().cells
+        rc = t2.add_row().cells
         rc[0].text = st
         rc[1].text = prod
         rc[2].text = desc
 
-    # Розділ 3. Скоринг безкредитних джерел фінансування
-    doc.add_heading("3. Рекомендовані моделі залучення капіталу (Без боргового навантаження)", level=1)
-
-    scored_models = evaluate_grants(profile_data, grants_list)
-    for item in scored_models[:3]:
+    doc.add_heading("3. Рекомендовані безкредитні моделі фінансування", level=1)
+    for item in evaluate_grants(profile_data, grants_list)[:3]:
         p = doc.add_paragraph()
-        p.add_run(f"• {item['title']} (Індекс відповідності: {item['score']}%)\n").bold = True
-        p.add_run(f"Інституційний провайдер / Донор: {item['donor']}\n")
-        p.add_run(f"Обсяг фінансування: {item['max_amount']} (Поріг співфінансування: від {item['min_own_percent']}%)\n")
-        p.add_run(f"Аналітичне обґрунтування: {item['reason']}")
+        p.add_run(f"• {item['title']} (Індекс відповідності: {item['score']}%)
+").bold = True
+        p.add_run(f"Донор: {item['donor']} | Обсяг: {item['max_amount']} | Внесок: від {item['min_own_percent']}%
+")
+        p.add_run(f"Обґрунтування: {item['reason']}")
 
-    footer_p = doc.add_paragraph(
-        "\nДокумент сформовано автоматично інформаційно-аналітичною платформою AgroCluster Analytics. "
-        "Параметри верифіковано для передачі у грантовий модуль AgroGrant_Bot."
-    )
-    footer_p.runs[0].italic = True
-
-    file_stream = io.BytesIO()
-    doc.save(file_stream)
-    file_stream.seek(0)
-    return file_stream
+    stream = io.BytesIO()
+    doc.save(stream)
+    stream.seek(0)
+    return stream
