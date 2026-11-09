@@ -1,0 +1,12 @@
+specVersion: "v1alpha"
+serviceId: "agrocluster-dataconnect"
+location: "europe-west1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "agrocluster_db"
+      cloudSql:
+        instanceId: "agrocluster-pg-instance"
+connectorDirs:
+  - "./connector"

@@ -132,7 +132,9 @@
     </div>
 
     <script>
-        const BACKEND_URL = "https://cluster-fcsu.onrender.com";
+        const BACKEND_URL = (window.location.hostname.includes("github.io") || window.location.protocol === "file:")
+            ? ""
+            : window.location.origin;
         let regChartInstance = null;
         let actChartInstance = null;
 

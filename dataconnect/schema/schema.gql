@@ -1,0 +1,29 @@
+# Firebase Data Connect GraphQL Schema — AgroCluster Analytics (ТОВ «ІІБ» & НААН)
+# Секторальна база даних аграрних юридичних осіб України (Тільки Аграрії, Переробники та НУС НААН)
+
+type AgroEnterprise @table(name: "edrpou_registry", key: "edrpou") {
+  edrpou: String! @col(name: "edrpou", dataType: "varchar(8)")
+  companyName: String! @col(name: "company_name")
+  kved: String! @col(name: "kved")
+  region: String! @col(name: "region")
+  activityType: String! @col(name: "activity_type")
+  clusterRoleCode: String! @col(name: "cluster_role_code")
+  sizeCategory: String @col(name: "size_category")
+  ownContributionPercent: String @col(name: "own_contribution_percent")
+  investmentFocus: String @col(name: "investment_focus")
+  isBudgetInstitution: Boolean! @col(name: "is_budget_institution")
+  status: String! @col(name: "status")
+}
+
+type StartupLotApplication @table {
+  id: UUID! @default(expr: "uuidV4()")
+  applicantEdrpou: String!
+  applicantName: String!
+  sciencePartnerEdrpou: String!
+  lotCode: String!
+  lotTitle: String!
+  areaHa: Int!
+  totalMarginUah: Int!
+  investmentEntryUah: Int!
+  createdAt: Timestamp! @default(expr: "request.time")
+}

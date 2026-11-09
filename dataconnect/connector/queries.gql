@@ -1,0 +1,30 @@
+# Queries for AgroCluster Analytics Firebase Data Connect
+
+query ListAgroEnterprises($roleFilter: String) @auth(level: PUBLIC) {
+  agroEnterprises(where: { clusterRoleCode: { eq: $roleFilter } }) {
+    edrpou
+    companyName
+    kved
+    region
+    activityType
+    clusterRoleCode
+    sizeCategory
+    ownContributionPercent
+    investmentFocus
+    isBudgetInstitution
+    status
+  }
+}
+
+query GetAgroEnterpriseByEdrpou($edrpou: String!) @auth(level: PUBLIC) {
+  agroEnterprise(key: { edrpou: $edrpou }) {
+    edrpou
+    companyName
+    kved
+    region
+    activityType
+    clusterRoleCode
+    isBudgetInstitution
+    status
+  }
+}

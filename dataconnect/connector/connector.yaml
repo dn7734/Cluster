@@ -1,0 +1,5 @@
+connectorId: "agrocluster-connector"
+generate:
+  javascriptSdk:
+    outputDir: "../../dataconnect-generated/js/default-connector"
+    package: "@agrocluster/dataconnect"

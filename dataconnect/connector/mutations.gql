@@ -1,0 +1,49 @@
+# Mutations for AgroCluster Analytics Firebase Data Connect
+
+mutation UpsertAgroEnterprise(
+  $edrpou: String!,
+  $companyName: String!,
+  $kved: String!,
+  $region: String!,
+  $activityType: String!,
+  $clusterRoleCode: String!,
+  $isBudgetInstitution: Boolean!,
+  $status: String!
+) @auth(level: PUBLIC) {
+  agroEnterprise_upsert(
+    data: {
+      edrpou: $edrpou,
+      companyName: $companyName,
+      kved: $kved,
+      region: $region,
+      activityType: $activityType,
+      clusterRoleCode: $clusterRoleCode,
+      isBudgetInstitution: $isBudgetInstitution,
+      status: $status
+    }
+  )
+}
+
+mutation RegisterStartupLotApplication(
+  $applicantEdrpou: String!,
+  $applicantName: String!,
+  $sciencePartnerEdrpou: String!,
+  $lotCode: String!,
+  $lotTitle: String!,
+  $areaHa: Int!,
+  $totalMarginUah: Int!,
+  $investmentEntryUah: Int!
+) @auth(level: PUBLIC) {
+  startupLotApplication_insert(
+    data: {
+      applicantEdrpou: $applicantEdrpou,
+      applicantName: $applicantName,
+      sciencePartnerEdrpou: $sciencePartnerEdrpou,
+      lotCode: $lotCode,
+      lotTitle: $lotTitle,
+      areaHa: $areaHa,
+      totalMarginUah: $totalMarginUah,
+      investmentEntryUah: $investmentEntryUah
+    }
+  )
+}
