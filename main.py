@@ -1,17 +1,15 @@
 """
 НАУКОВО-МЕТОДИЧНИЙ ОПИС МОДУЛЯ (main.py):
 Серверне ядро інформаційно-аналітичної платформи «AgroCluster Analytics».
-Забезпечує:
-1. Об'єктно-реляційне відображення (ORM SQLAlchemy) сутностей кластеру у СКБД PostgreSQL / SQLite.
-2. Двоконтурну систему телеметрії (системний файл app.log + таблиця БД system_logs).
-3. Верифікацію суб'єктів господарювання за кодом ЄДРПОУ та інтеграцію з когнітивним сервісом LLM.
-4. Серверну генерацію проєктної документації у форматі DOCX із параметрами економічної моделі E2.
+Забезпечує ORM SQLAlchemy, двоконтурну телеметрію з авторотацією (RotatingFileHandler 1 МБ)
+та потокову генерацію DOCX-проєктів.
 """
 
 import os
 import re
 import uuid
 import logging
+from logging.handlers import RotatingFileHandler
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,20 +23,21 @@ from llm_service import LLMService
 from doc_generator import create_grant_document
 from grant_scraper import DEFAULT_GRANTS, evaluate_grants
 
-# =====================================================================
-# ЧАНК 1: Конфігурація файлового контуру логування (app.log)
-# =====================================================================
-logging.basicConfig(
-    filename="app.log",
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s",
+# Конфігурація логування з автоочищенням (RotatingFileHandler: ліміт 1 МБ, 2 резервні копії)
+log_handler = RotatingFileHandler(
+    "app.log",
+    maxBytes=1 * 1024 * 1024,
+    backupCount=2,
     encoding="utf-8"
 )
-logger = logging.getLogger("AgroClusterCore")
+log_formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
+log_handler.setFormatter(log_formatter)
 
-# =====================================================================
-# ЧАНК 2: Ініціалізація СКБД та нормалізація драйвера PostgreSQL
-# =====================================================================
+logger = logging.getLogger("AgroClusterCore")
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    logger.addHandler(log_handler)
+
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./cluster.db")
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg2://", 1)
@@ -52,11 +51,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
-# =====================================================================
-# ЧАНК 3: Реляційні моделі даних (ORM-сутності платформи)
-# =====================================================================
 class SystemLog(Base):
-    """Таблиця збереження телеметрії розробки та дій користувачів."""
     __tablename__ = "system_logs"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     timestamp = Column(DateTime, default=datetime.utcnow)
@@ -66,7 +61,6 @@ class SystemLog(Base):
 
 
 class User(Base):
-    """Модель сесії користувача платформи."""
     __tablename__ = "users"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     session_id = Column(String, unique=True, nullable=False)
@@ -75,7 +69,6 @@ class User(Base):
 
 
 class EnterpriseProfile(Base):
-    """Модель паспорта учасника інноваційного аграрного кластеру."""
     __tablename__ = "enterprise_profiles"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), unique=True)
@@ -92,7 +85,6 @@ class EnterpriseProfile(Base):
 
 
 class EDRPOURegistry(Base):
-    """Довідник базових суб'єктів кластеру (НААН, ІІБ, насінництво, переробка)."""
     __tablename__ = "edrpou_registry"
     edrpou = Column(String, primary_key=True, index=True)
     company_name = Column(String, nullable=False)
@@ -105,7 +97,6 @@ class EDRPOURegistry(Base):
 
 
 class GrantProgram(Base):
-    """Каталог безкредитних моделей фінансування та комерціалізації ОІВ."""
     __tablename__ = "grant_programs"
     code = Column(String, primary_key=True)
     title = Column(String, nullable=False)
@@ -121,7 +112,6 @@ class GrantProgram(Base):
 
 Base.metadata.create_all(bind=engine)
 
-# Еталонні учасники кластеру «Біла Принцеса» для початкової ініціалізації БД
 SEED_COMPANIES = [
     {
         "edrpou": "00496802",
@@ -163,7 +153,6 @@ SEED_COMPANIES = [
 
 
 def seed_initial_data() -> None:
-    """Початкове наповнення довідників СКБД еталонними даними кластеру."""
     db = SessionLocal()
     try:
         for comp in SEED_COMPANIES:
@@ -200,7 +189,6 @@ seed_initial_data()
 
 
 def lookup_or_create_edrpou(db, code: str) -> EDRPOURegistry:
-    """Пошук або динамічна реєстрація суб'єкта господарювання за кодом ЄДРПОУ."""
     record = db.query(EDRPOURegistry).filter(EDRPOURegistry.edrpou == code).first()
     if record:
         return record
@@ -222,7 +210,6 @@ def lookup_or_create_edrpou(db, code: str) -> EDRPOURegistry:
 
 
 def get_grants_from_db(db) -> list:
-    """Вивантаження актуального каталогу моделей комерціалізації з БД."""
     db_grants = db.query(GrantProgram).all()
     if not db_grants:
         return DEFAULT_GRANTS
@@ -242,9 +229,6 @@ def get_grants_from_db(db) -> list:
     ]
 
 
-# =====================================================================
-# ЧАНК 4: Маршрутизація REST API (FastAPI Endpoints)
-# =====================================================================
 app = FastAPI(title="AgroCluster Analytics API", version="2.0.0")
 app.add_middleware(
     CORSMiddleware,
@@ -268,13 +252,11 @@ class ChatRequest(BaseModel):
 
 @app.get("/")
 def health_check():
-    """Перевірка працездатності сервісу хмарним балансувальником Render."""
     return {"status": "ok", "service": "AgroCluster Analytics Backend v2.0"}
 
 
 @app.post("/log")
 async def record_telemetry_log(req: LogRequest, request: Request):
-    """Запис події одночасно у файловий журнал app.log та таблицю system_logs."""
     client_ip = request.client.host if request.client else "unknown"
     logger.info("IP: %s | ACTION: %s | DETAILS: %s", client_ip, req.action, req.details)
     db = SessionLocal()
@@ -291,7 +273,6 @@ async def record_telemetry_log(req: LogRequest, request: Request):
 
 @app.get("/api/logs")
 def get_system_logs(password: str = Query("")):
-    """Ендпоінт вивантаження журналу телеметрії для адміністративної панелі."""
     if password != ADMIN_PASSWORD:
         raise HTTPException(status_code=401, detail="Невірний пароль адміністратора")
     db = SessionLocal()
@@ -313,7 +294,6 @@ def get_system_logs(password: str = Query("")):
 
 @app.get("/api/stats")
 def get_admin_stats(password: str = Query("")):
-    """Агрегація макроекономічної статистики кластеру для графіків адмінки."""
     if password != ADMIN_PASSWORD:
         raise HTTPException(status_code=401, detail="Невірний пароль адміністратора")
     db = SessionLocal()
@@ -339,7 +319,6 @@ def get_admin_stats(password: str = Query("")):
 
 @app.get("/grants/sync")
 async def sync_grants():
-    """Примусова синхронізація каталогу моделей комерціалізації."""
     seed_initial_data()
     logger.info("Виконано синхронізацію каталогу моделей НААН-ІІБ")
     return {"status": "synced"}
@@ -347,7 +326,6 @@ async def sync_grants():
 
 @app.post("/chat/{user_id}")
 async def chat_with_coordinator(user_id: uuid.UUID, request: ChatRequest, req_meta: Request):
-    """Обробка діалогового запиту користувача з верифікацією ЄДРПОУ та скорингом."""
     client_ip = req_meta.client.host if req_meta.client else "unknown"
     db = SessionLocal()
     try:
@@ -427,7 +405,6 @@ def export_cluster_docx(
     roi: str = Query("118"),
     prepay: str = Query("713 тис. грн")
 ):
-    """Генерація та потокова передача DOCX-проєкту інноваційного кластеру."""
     client_ip = request.client.host if request.client else "unknown"
     logger.info("IP: %s | DOCX_EXPORT | EDRPOU: %s | Area: %s ha", client_ip, edrpou, area)
     db = SessionLocal()

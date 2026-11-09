@@ -13,13 +13,8 @@ from grant_scraper import evaluate_grants
 
 
 def create_grant_document(profile_data: dict, grants_list: list = None) -> io.BytesIO:
-    """
-    Формує бінарний потік документа DOCX із повною структурою Ескізного проєкту (Драфту)
-    створення інноваційного аграрного кластеру НААН–ІІБ.
-    """
     doc = Document()
 
-    # Встановлення базового академічного шрифту документа
     normal_style = doc.styles["Normal"]
     normal_style.font.name = "Arial"
     normal_style.font.size = Pt(11)
@@ -31,7 +26,6 @@ def create_grant_document(profile_data: dict, grants_list: list = None) -> io.By
         f"Об'єкт трансферу інновацій (ОІВ): Сорт гірчиці білої «Біла Принцеса»"
     )
 
-    # Розділ 1. Паспорт базового учасника та економічні індикатори
     doc.add_heading("1. Паспорт учасника кластеру та розрахункові показники маржинальності", level=1)
 
     fields = [
@@ -54,7 +48,6 @@ def create_grant_document(profile_data: dict, grants_list: list = None) -> io.By
         row_cells[0].text = label
         row_cells[1].text = str(value)
 
-    # Розділ 2. Матриця трансформації наукової розробки (4 технологічні етапи)
     doc.add_heading("2. Організаційно-економічний механізм масштабування (4 ланки кластеру)", level=1)
 
     tech_stages = [
@@ -93,7 +86,6 @@ def create_grant_document(profile_data: dict, grants_list: list = None) -> io.By
         rc[1].text = prod
         rc[2].text = desc
 
-    # Розділ 3. Скоринг безкредитних джерел фінансування
     doc.add_heading("3. Рекомендовані моделі залучення капіталу (Без боргового навантаження)", level=1)
 
     scored_models = evaluate_grants(profile_data, grants_list)

@@ -2,312 +2,277 @@
 <html lang="uk">
 
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>AgroCluster Analytics — Платформа трансферу технологій НААН та ТОВ «ІІБ»</title>
-	<link rel="icon"
-		href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-	<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroCluster Analytics — Платформа трансферу технологій НААН та ТОВ «ІІБ»</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌱</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-	<!-- Прихований оверлей для забезпечення надійного рендерингу PDF (Рішення №10) -->
-	<div id="pdfOverlayWrapper">
-		<div id="pdfRenderTarget"></div>
-	</div>
+    <div id="pdfOverlayWrapper">
+        <div id="pdfRenderTarget"></div>
+    </div>
 
-	<!-- Верхня панель навігації та White-Label брендингу -->
-	<header class="topbar">
-		<div>
-			<h1 class="brand-title" id="brandTitle">AgroCluster Analytics • ТОВ «Інститут інноваційної біоекономіки» &
-				НААН</h1>
-			<span class="brand-sub" id="brandSub">White-Label платформа комерціалізації наукових розробок: Драфт → Тизер
-				→ Замовлення за Маржею</span>
-		</div>
-		<div class="nav-actions">
-			<select id="wlSelect" class="wl-select" title="Зміна White-Label брендингу">
-				<option value="iib">White-Label: ТОВ «ІІБ» & НААН</option>
-				<option value="naan">White-Label: ННЦ «Інститут землеробства НААН»</option>
-				<option value="agrotech">White-Label: Платформа «Агротехнополіс»</option>
-			</select>
-			<span class="status-badge" id="sysHealthBadge">Трансфер ОІВ • Онлайн</span>
-			<a href="admin.html" class="admin-link">Макроаналітика та Логи (Адмін)</a>
-		</div>
-	</header>
+    <header class="topbar">
+        <div>
+            <h1 class="brand-title" id="brandTitle">AgroCluster Analytics • ТОВ «Інститут інноваційної біоекономіки» & НААН</h1>
+            <span class="brand-sub" id="brandSub">White-Label платформа комерціалізації наукових розробок: Драфт → Тизер → Замовлення за Маржею</span>
+        </div>
+        <div class="nav-actions">
+            <select id="wlSelect" class="wl-select" title="Зміна White-Label брендингу">
+                <option value="iib">White-Label: ТОВ «ІІБ» & НААН</option>
+                <option value="naan">White-Label: ННЦ «Інститут землеробства НААН»</option>
+                <option value="agrotech">White-Label: Платформа «Агротехнополіс»</option>
+            </select>
+            <span class="status-badge" id="sysHealthBadge">Трансфер ОІВ • Онлайн</span>
+            <a href="admin.html" class="admin-link">Макроаналітика та Логи (Адмін)</a>
+        </div>
+    </header>
 
-	<!-- Секція 1: Етапи трансферу наукової розробки -->
-	<section class="container-wide">
-		<div class="card">
-			<div class="card-header">
-				<div>
-					<h2 class="card-title">1. Ланцюг трансформації наукової розробки (Кейс: сорт гірчиці «Біла
-						Принцеса»)</h2>
-					<span class="card-subtitle">Система державно-приватного партнерства: Портфель ОІВ НААН → ІІБ →
-						Агровиробники та Переробні заводи</span>
-				</div>
-			</div>
-			<div class="stage-grid">
-				<div class="stage-box">
-					<div class="stage-step">Етап І • Наукове ядро (1–5 га)</div>
-					<div class="stage-title">Супереліта НААН</div>
-					<div class="stage-desc">ННЦ «Інститут землеробства НААН»: охорона ОІВ (патент сорту), закладання
-						розсадника під замовлення бізнесу.</div>
-				</div>
-				<div class="stage-box">
-					<div class="stage-step">Етап ІІ • Мультиплікація (25–50 га)</div>
-					<div class="stage-title">Еліта та Драфт ІІБ</div>
-					<div class="stage-desc">ТОВ «ІІБ» формує драфт стартапу; базові насінницькі господарства розмножують
-						елітне насіння із контролем чистоти.</div>
-				</div>
-				<div class="stage-box">
-					<div class="stage-step">Етап ІІІ • Агровиробництво (300+ га)</div>
-					<div class="stage-title">І репродукція та Сидерація</div>
-					<div class="stage-desc">Вирощування товарного зерна посухостійкої гірчиці учасниками кластеру за
-						форвардними контрактами (Off-take).</div>
-				</div>
-				<div class="stage-box">
-					<div class="stage-step">Етап ІV • Висока маржа</div>
-					<div class="stage-title">Глибока переробка (Zero-Waste)</div>
-					<div class="stage-desc">Холодне пресування олії, виробництво порошку та високопротеїнового кормового
-						шроту (+135% доданої вартості).</div>
-				</div>
-			</div>
-		</div>
+    <section class="container-wide">
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">1. Ланцюг трансформації наукової розробки (Кейс: сорт гірчиці «Біла Принцеса»)</h2>
+                    <span class="card-subtitle">Система державно-приватного партнерства: Портфель ОІВ НААН → ІІБ → Агровиробники та Переробні заводи</span>
+                </div>
+            </div>
+            <div class="stage-grid">
+                <div class="stage-box">
+                    <div class="stage-step">Етап І • Наукове ядро (1–5 га)</div>
+                    <div class="stage-title">Супереліта НААН</div>
+                    <div class="stage-desc">ННЦ «Інститут землеробства НААН»: охорона ОІВ (патент сорту), закладання розсадника під замовлення бізнесу.</div>
+                </div>
+                <div class="stage-box">
+                    <div class="stage-step">Етап ІІ • Мультиплікація (25–50 га)</div>
+                    <div class="stage-title">Еліта та Драфт ІІБ</div>
+                    <div class="stage-desc">ТОВ «ІІБ» формує драфт стартапу; базові насінницькі господарства розмножують елітне насіння із контролем чистоти.</div>
+                </div>
+                <div class="stage-box">
+                    <div class="stage-step">Етап ІІІ • Агровиробництво (300+ га)</div>
+                    <div class="stage-title">І репродукція та Сидерація</div>
+                    <div class="stage-desc">Вирощування товарного зерна посухостійкої гірчиці учасниками кластеру за форвардними контрактами (Off-take).</div>
+                </div>
+                <div class="stage-box">
+                    <div class="stage-step">Етап ІV • Висока маржа</div>
+                    <div class="stage-title">Глибока переробка (Zero-Waste)</div>
+                    <div class="stage-desc">Холодне пресування олії, виробництво порошку та високопротеїнового кормового шроту (+135% доданої вартості).</div>
+                </div>
+            </div>
+        </div>
 
-		<!-- Секція 2: Інтерактивний калькулятор дохідності та маржі -->
-		<div class="card">
-			<div class="card-header">
-				<div>
-					<h2 class="card-title">2. Інтерактивний калькулятор дохідності, маржі та замовлення селекції (Модель
-						E₂)</h2>
-					<span class="card-subtitle">Моделювання економічної вигоди кожного учасника кластеру в реальному
-						часі</span>
-				</div>
-				<span class="margin-badge" id="calcSummaryBadge">Рентабельність циклу (ROI): 118%</span>
-			</div>
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">2. Інтерактивний калькулятор дохідності, маржі та замовлення селекції (Модель E₂)</h2>
+                    <span class="card-subtitle">Моделювання економічної вигоди кожного учасника кластеру в реальному часі</span>
+                </div>
+                <span class="margin-badge" id="calcSummaryBadge">Рентабельність циклу (ROI): 118%</span>
+            </div>
 
-			<div class="calc-grid">
-				<div>
-					<div class="slider-group">
-						<div class="slider-header">
-							<span>Площа товарних посівів у кластері (РС-1):</span>
-							<span class="slider-val"><span id="valArea">300</span> га</span>
-						</div>
-						<input type="range" id="slArea" min="50" max="1500" step="50" value="300">
-						<div class="slider-hint" id="seedChainHint">Потреба насінницької бази: 1.0 га Супереліти (НААН)
-							→ 15 га Еліти → 300 га РС-1</div>
-					</div>
+            <div class="calc-grid">
+                <div>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span>Площа товарних посівів у кластері (РС-1):</span>
+                            <span class="slider-val"><span id="valArea">300</span> га</span>
+                        </div>
+                        <input type="range" id="slArea" min="50" max="1500" step="50" value="300">
+                        <div class="slider-hint" id="seedChainHint">Потреба насінницької бази: 1.0 га Супереліти (НААН) → 15 га Еліти → 300 га РС-1</div>
+                    </div>
 
-					<div class="slider-group">
-						<div class="slider-header">
-							<span>Врожайність сорту «Біла Принцеса»:</span>
-							<span class="slider-val"><span id="valYield">2.2</span> т/га</span>
-						</div>
-						<input type="range" id="slYield" min="1.4" max="3.0" step="0.1" value="2.2">
-						<div class="slider-hint">Потенціал сорту за даними Інституту землеробства НААН: 2.0–2.8 т/га
-						</div>
-					</div>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span>Врожайність сорту «Біла Принцеса»:</span>
+                            <span class="slider-val"><span id="valYield">2.2</span> т/га</span>
+                        </div>
+                        <input type="range" id="slYield" min="1.4" max="3.0" step="0.1" value="2.2">
+                        <div class="slider-hint">Потенціал сорту за даними Інституту землеробства НААН: 2.0–2.8 т/га</div>
+                    </div>
 
-					<div class="slider-group">
-						<div class="slider-header">
-							<span>Частка врожаю на глибоку переробку (Олія + Порошок + Шрот):</span>
-							<span class="slider-val"><span id="valProc">60</span>%</span>
-						</div>
-						<input type="range" id="slProc" min="0" max="100" step="10" value="60">
-						<div class="slider-hint">0% — продаж сировини; 60–100% — каскадна переробка у кластері</div>
-					</div>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span>Частка врожаю на глибоку переробку (Олія + Порошок + Шрот):</span>
+                            <span class="slider-val"><span id="valProc">60</span>%</span>
+                        </div>
+                        <input type="range" id="slProc" min="0" max="100" step="10" value="60">
+                        <div class="slider-hint">0% — продаж сировини; 60–100% — каскадна переробка у кластері</div>
+                    </div>
 
-					<div class="slider-group" style="margin-bottom:0;">
-						<div class="slider-header">
-							<span>Авансова передоплата бізнесу на замовлення селекції НААН:</span>
-							<span class="slider-val"><span id="valPrepay">30</span>%</span>
-						</div>
-						<input type="range" id="slPrepay" min="15" max="50" step="5" value="30">
-						<div class="slider-hint">Гарантоване фінансування розсадника НУС під замовлення на наступний рік
-						</div>
-					</div>
-				</div>
+                    <div class="slider-group" style="margin-bottom:0;">
+                        <div class="slider-header">
+                            <span>Авансова передоплата бізнесу на замовлення селекції НААН:</span>
+                            <span class="slider-val"><span id="valPrepay">30</span>%</span>
+                        </div>
+                        <input type="range" id="slPrepay" min="15" max="50" step="5" value="30">
+                        <div class="slider-hint">Гарантоване фінансування розсадника НУС під замовлення на наступний рік</div>
+                    </div>
+                </div>
 
-				<div>
-					<div class="kpi-row">
-						<div class="kpi-box">
-							<span class="kpi-lbl">Валовий збір</span>
-							<span class="kpi-num" id="kpiHarvest">660 т</span>
-						</div>
-						<div class="kpi-box highlight">
-							<span class="kpi-lbl">Чиста маржа кластеру</span>
-							<span class="kpi-num" id="kpiMargin" style="color: #059669;">19.87 млн грн</span>
-						</div>
-						<div class="kpi-box highlight">
-							<span class="kpi-lbl">Аванс науці (НААН)</span>
-							<span class="kpi-num" id="kpiPrepaySum" style="color: #2563eb;">713 тис. грн</span>
-						</div>
-						<div class="kpi-box">
-							<span class="kpi-lbl">Ефект цифровізації (E₂)</span>
-							<span class="kpi-num" id="kpiEffectE2">+2.98 млн грн</span>
-						</div>
-					</div>
+                <div>
+                    <div class="kpi-row">
+                        <div class="kpi-box">
+                            <span class="kpi-lbl">Валовий збір</span>
+                            <span class="kpi-num" id="kpiHarvest">660 т</span>
+                        </div>
+                        <div class="kpi-box highlight">
+                            <span class="kpi-lbl">Чиста маржа кластеру</span>
+                            <span class="kpi-num" id="kpiMargin" style="color: #059669;">19.87 млн грн</span>
+                        </div>
+                        <div class="kpi-box highlight">
+                            <span class="kpi-lbl">Аванс науці (НААН)</span>
+                            <span class="kpi-num" id="kpiPrepaySum" style="color: #2563eb;">713 тис. грн</span>
+                        </div>
+                        <div class="kpi-box">
+                            <span class="kpi-lbl">Ефект цифровізації (E₂)</span>
+                            <span class="kpi-num" id="kpiEffectE2">+2.98 млн грн</span>
+                        </div>
+                    </div>
 
-					<table class="calc-table">
-						<thead>
-							<tr>
-								<th>Ланка кластеру (Учасник)</th>
-								<th>Витрати</th>
-								<th>Виручка</th>
-								<th>Чиста маржа</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td><strong>1. Наукове ядро (НУС НААН)</strong></td>
-								<td id="tCost1">180 тис. грн</td>
-								<td id="tRev1">2.38 млн грн</td>
-								<td><span class="margin-badge" id="tMar1">+2.20 млн грн</span></td>
-							</tr>
-							<tr>
-								<td><strong>2. Насінництво (Еліта / РС-1)</strong></td>
-								<td id="tCost2">450 тис. грн</td>
-								<td id="tRev2">1.95 млн грн</td>
-								<td><span class="margin-badge" id="tMar2">+1.50 млн грн</span></td>
-							</tr>
-							<tr>
-								<td><strong>3. Товарне агровиробництво</strong></td>
-								<td id="tCost3">7.20 млн грн</td>
-								<td id="tRev3">15.84 млн грн</td>
-								<td><span class="margin-badge" id="tMar3">+8.64 млн грн</span></td>
-							</tr>
-							<tr>
-								<td><strong>4. Глибока переробка (Завод ІІБ)</strong></td>
-								<td id="tCost4">8.71 млн грн</td>
-								<td id="tRev4">16.24 млн грн</td>
-								<td><span class="margin-badge" id="tMar4">+7.52 млн грн</span></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-		</div>
-	</section>
+                    <table class="calc-table">
+                        <thead>
+                            <tr>
+                                <th>Ланка кластеру (Учасник)</th>
+                                <th>Витрати</th>
+                                <th>Виручка</th>
+                                <th>Чиста маржа</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. Наукове ядро (НУС НААН)</strong></td>
+                                <td id="tCost1">180 тис. грн</td>
+                                <td id="tRev1">2.38 млн грн</td>
+                                <td><span class="margin-badge" id="tMar1">+2.20 млн грн</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. Насінництво (Еліта / РС-1)</strong></td>
+                                <td id="tCost2">450 тис. грн</td>
+                                <td id="tRev2">1.95 млн грн</td>
+                                <td><span class="margin-badge" id="tMar2">+1.50 млн грн</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. Товарне агровиробництво</strong></td>
+                                <td id="tCost3">7.20 млн грн</td>
+                                <td id="tRev3">15.84 млн грн</td>
+                                <td><span class="margin-badge" id="tMar3">+8.64 млн грн</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. Глибока переробка (Завод ІІБ)</strong></td>
+                                <td id="tCost4">8.71 млн грн</td>
+                                <td id="tRev4">16.24 млн грн</td>
+                                <td><span class="margin-badge" id="tMar4">+7.52 млн грн</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
 
-	<!-- Секція 3: Координатор ІІБ та експорт документів -->
-	<main class="workspace">
-		<section class="card">
-			<div class="card-header">
-				<div>
-					<h2 class="card-title">3. Цифровий Координатор ІІБ (Верифікація та Драфт)</h2>
-					<span class="card-subtitle">Введіть ЄДРПОУ або оберіть роль для пакування проєкту</span>
-				</div>
-			</div>
+    <main class="workspace">
+        <section class="card">
+            <div class="card-header">
+                <div>
+                    <h2 class="card-title">3. Цифровий Координатор ІІБ (Верифікація та Драфт)</h2>
+                    <span class="card-subtitle">Введіть ЄДРПОУ або оберіть роль для пакування проєкту</span>
+                </div>
+            </div>
 
-			<div class="quick-chips">
-				<button class="chip"
-					data-query="Код ЄДРПОУ 00496802, ННЦ Інститут землеробства НААН, передача патенту та розсадника супереліти сорту гірчиці Біла Принцеса">1.
-					НУС НААН (Супереліта)</button>
-				<button class="chip"
-					data-query="Код ЄДРПОУ 40125890, ТОВ Інститут інноваційної біоекономіки, координація кластеру, пакування драфту та тизера">2.
-					ТОВ «ІІБ» (Провайдер)</button>
-				<button class="chip"
-					data-query="Код ЄДРПОУ 03728915, ФГ Подільський Колос, розмноження еліти та товарні посіви гірчиці на 300 га">3.
-					Агропартнер (300 га)</button>
-				<button class="chip"
-					data-query="Код ЄДРПОУ 41258963, ТОВ Агро-Еко Переробка, глибока переробка насіння гірчиці на олію та шрот">4.
-					Завод переробки</button>
-			</div>
+            <div class="quick-chips">
+                <button class="chip" data-query="Код ЄДРПОУ 00496802, ННЦ Інститут землеробства НААН, передача патенту та розсадника супереліти сорту гірчиці Біла Принцеса">1. НУС НААН (Супереліта)</button>
+                <button class="chip" data-query="Код ЄДРПОУ 40125890, ТОВ Інститут інноваційної біоекономіки, координація кластеру, пакування драфту та тизера">2. ТОВ «ІІБ» (Провайдер)</button>
+                <button class="chip" data-query="Код ЄДРПОУ 03728915, ФГ Подільський Колос, розмноження еліти та товарні посіви гірчиці на 300 га">3. Агропартнер (300 га)</button>
+                <button class="chip" data-query="Код ЄДРПОУ 41258963, ТОВ Агро-Еко Переробка, глибока переробка насіння гірчиці на олію та шрот">4. Завод переробки</button>
+            </div>
 
-			<div id="chatbox">
-				<div class="msg bot">
-					<strong>AgroCluster НААН–ІІБ:</strong><br>
-					Вітаю! Налаштуйте параметри у калькуляторі вище та оберіть учасника кластеру для формування Драфту
-					та Тизера.
-				</div>
-			</div>
+            <div id="chatbox">
+                <div class="msg bot">
+                    <strong>AgroCluster НААН–ІІБ:</strong><br>
+                    Вітаю! Налаштуйте параметри у калькуляторі вище та оберіть учасника кластеру для формування Драфту та Тизера.
+                </div>
+            </div>
 
-			<div class="controls">
-				<input type="text" id="textInput" placeholder="Введіть код ЄДРПОУ або параметри...">
-				<button id="sendBtn" class="btn" style="background: var(--accent-dark);">Надіслати</button>
-			</div>
-		</section>
+            <div class="controls">
+                <input type="text" id="textInput" placeholder="Введіть код ЄДРПОУ або параметри...">
+                <button id="sendBtn" class="btn" style="background: var(--accent-dark);">Надіслати</button>
+            </div>
+        </section>
 
-		<section>
-			<div class="card">
-				<div class="card-header">
-					<div>
-						<h2 class="card-title">Паспорт учасника та Генерація документів</h2>
-						<span class="card-subtitle" id="verifyStatus"
-							style="color: #059669; font-weight: 600;">Верифіковано в Реєстрі ІІБ</span>
-					</div>
-				</div>
+        <section>
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Паспорт учасника та Генерація документів</h2>
+                        <span class="card-subtitle" id="verifyStatus" style="color: #059669; font-weight: 600;">Верифіковано в Реєстрі ІІБ</span>
+                    </div>
+                </div>
 
-				<div class="profile-grid">
-					<div class="profile-cell">
-						<span class="cell-label">Код ЄДРПОУ</span>
-						<span class="cell-value" id="p_edrpou">00496802</span>
-					</div>
-					<div class="profile-cell">
-						<span class="cell-label">Регіон локалізації</span>
-						<span class="cell-value" id="p_region">Київська обл., смт Чабани</span>
-					</div>
-					<div class="profile-cell full-width">
-						<span class="cell-label">Найменування суб'єкта кластеру</span>
-						<span class="cell-value" id="p_company">ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»</span>
-					</div>
-					<div class="profile-cell full-width">
-						<span class="cell-label">Основний КВЕД</span>
-						<span class="cell-value" id="p_kved">72.19 Дослідження й експериментальні розробки</span>
-					</div>
-					<div class="profile-cell">
-						<span class="cell-label">Роль у ланцюгу вартості</span>
-						<span class="cell-value" id="p_activity">Наукове ядро (Супереліта)</span>
-					</div>
-					<div class="profile-cell">
-						<span class="cell-label">Потужності в кластері</span>
-						<span class="cell-value" id="p_size">300 га (660 т зерна)</span>
-					</div>
-					<div class="profile-cell">
-						<span class="cell-label">Частка співфінансування</span>
-						<span class="cell-value" id="p_own">25% (ОІВ + селекція)</span>
-					</div>
-					<div class="profile-cell">
-						<span class="cell-label">Чиста маржа кластеру</span>
-						<span class="cell-value" id="p_margin_live" style="color:#059669;">19.87 млн грн</span>
-					</div>
-					<div class="profile-cell full-width">
-						<span class="cell-label">Фокус комерціалізації (Кейс «Біла Принцеса»)</span>
-						<span class="cell-value" id="p_focus">Трансфер ОІВ → Насінництво → Глибока переробка (Олія,
-							порошок, шрот)</span>
-					</div>
-				</div>
+                <div class="profile-grid">
+                    <div class="profile-cell">
+                        <span class="cell-label">Код ЄДРПОУ</span>
+                        <span class="cell-value" id="p_edrpou">00496802</span>
+                    </div>
+                    <div class="profile-cell">
+                        <span class="cell-label">Регіон локалізації</span>
+                        <span class="cell-value" id="p_region">Київська обл., смт Чабани</span>
+                    </div>
+                    <div class="profile-cell full-width">
+                        <span class="cell-label">Найменування суб'єкта кластеру</span>
+                        <span class="cell-value" id="p_company">ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»</span>
+                    </div>
+                    <div class="profile-cell full-width">
+                        <span class="cell-label">Основний КВЕД</span>
+                        <span class="cell-value" id="p_kved">72.19 Дослідження й експериментальні розробки</span>
+                    </div>
+                    <div class="profile-cell">
+                        <span class="cell-label">Роль у ланцюгу вартості</span>
+                        <span class="cell-value" id="p_activity">Наукове ядро (Супереліта)</span>
+                    </div>
+                    <div class="profile-cell">
+                        <span class="cell-label">Потужності в кластері</span>
+                        <span class="cell-value" id="p_size">300 га (660 т зерна)</span>
+                    </div>
+                    <div class="profile-cell">
+                        <span class="cell-label">Частка співфінансування</span>
+                        <span class="cell-value" id="p_own">25% (ОІВ + селекція)</span>
+                    </div>
+                    <div class="profile-cell">
+                        <span class="cell-label">Чиста маржа кластеру</span>
+                        <span class="cell-value" id="p_margin_live" style="color:#059669;">19.87 млн грн</span>
+                    </div>
+                    <div class="profile-cell full-width">
+                        <span class="cell-label">Фокус комерціалізації (Кейс «Біла Принцеса»)</span>
+                        <span class="cell-value" id="p_focus">Трансфер ОІВ → Насінництво → Глибока переробка (Олія, порошок, шрот)</span>
+                    </div>
+                </div>
 
-				<div class="export-bar-grid">
-					<button id="downloadPdfBtn" class="btn" style="background: var(--accent-green);">1. Драфт кластеру
-						(PDF)</button>
-					<button id="downloadTeaserBtn" class="btn" style="background: var(--accent-blue);">2. Pitch Deck /
-						Тизер (PDF)</button>
-					<button id="downloadDocxBtn" class="btn" style="background: var(--accent-dark);">3. Повний проєкт
-						(DOCX)</button>
-					<button id="bridgeBotBtn" class="btn" style="background: var(--accent-amber);">4. Передати у
-						AgroGrant_Bot</button>
-				</div>
-			</div>
+                <div class="export-bar-grid">
+                    <button id="downloadPdfBtn" class="btn" style="background: var(--accent-green);">1. Драфт кластеру (PDF)</button>
+                    <button id="downloadTeaserBtn" class="btn" style="background: var(--accent-blue);">2. Pitch Deck / Тизер (PDF)</button>
+                    <button id="downloadDocxBtn" class="btn" style="background: var(--accent-dark);">3. Повний проєкт (DOCX)</button>
+                    <button id="bridgeBotBtn" class="btn" style="background: var(--accent-amber);">4. Передати у AgroGrant_Bot</button>
+                </div>
+            </div>
 
-			<div class="card">
-				<div class="card-header">
-					<div>
-						<h2 class="card-title">Порівняння вигоди: Продаж сировини vs Кластерна модель</h2>
-						<span class="card-subtitle">Візуалізація приросту чистого прибутку (E₂)</span>
-					</div>
-				</div>
-				<div style="height: 195px;">
-					<canvas id="marginCompareChart"></canvas>
-				</div>
-			</div>
-		</section>
-	</main>
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <h2 class="card-title">Порівняння вигоди: Продаж сировини vs Кластерна модель</h2>
+                        <span class="card-subtitle">Візуалізація приросту чистого прибутку (E₂)</span>
+                    </div>
+                </div>
+                <div style="height: 195px;">
+                    <canvas id="marginCompareChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
 
-	<!-- Підключення зовнішнього файлу скриптів -->
-	<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>

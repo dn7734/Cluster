@@ -13,8 +13,6 @@ import httpx
 
 
 class LLMService:
-    """Сервіс взаємодії з каскадом генеративних моделей Gemini API."""
-
     def __init__(self):
         self.models = [
             "gemini-2.0-flash",
@@ -24,10 +22,6 @@ class LLMService:
         self.api_key = os.getenv("GEMINI_API_KEY", "").strip()
 
     async def generate_response(self, user_message: str, current_profile: dict) -> dict:
-        """
-        Формує контекстно-залежну відповідь координатора ІІБ та виділяє структуровані
-        параметри учасника кластеру з тексту повідомлення.
-        """
         if not self.api_key:
             return {
                 "reply": (

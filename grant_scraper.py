@@ -56,7 +56,6 @@ DEFAULT_GRANTS = [
 
 
 def _extract_number(val: str) -> float:
-    """Допоміжна функція екстракції числового значення відсотка співфінансування."""
     if not val:
         return 0.0
     nums = re.findall(r"\d+(?:[.,]\d+)?", str(val))
@@ -66,10 +65,6 @@ def _extract_number(val: str) -> float:
 
 
 def evaluate_grants(profile_data: dict, grants: list = None) -> list:
-    """
-    Розраховує інтегральний індекс релевантності (Score 30..98%) для кожної моделі
-    комерціалізації на основі профілю підприємства-учасника кластеру.
-    """
     catalog = grants if grants else DEFAULT_GRANTS
     activity = (profile_data.get("activity_type") or "").lower()
     focus = (profile_data.get("investment_focus") or "").lower()
@@ -125,5 +120,4 @@ def evaluate_grants(profile_data: dict, grants: list = None) -> list:
 
 
 async def scrape_and_normalize_grants(api_key: str = "") -> list:
-    """Повертає нормалізований перелік моделей комерціалізації кластеру."""
     return DEFAULT_GRANTS
