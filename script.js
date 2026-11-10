@@ -113,6 +113,126 @@ document.addEventListener("DOMContentLoaded", () => {
             own_contribution_percent: "30% (Органічний земельний банк)",
             investment_focus: "Застосування сорту «Біла Принцеса» для відновлення азоту та боротьби з нематодами",
             is_budget_institution: false
+        },
+        "00497049": {
+            edrpou: "00497049",
+            company_name: "ІНСТИТУТ РОСЛИННИЦТВА ІМ. В.Я. ЮР'ЄВА НААН",
+            kved: "72.19 Дослідження й експериментальні розробки у сфері природничих наук",
+            region: "Харківська обл., м. Харків",
+            activity_type: "Наукове ядро (НУС НААН): Генетичні ресурси та насінництво",
+            own_contribution_percent: "25% (ОІВ та банк насіння)",
+            investment_focus: "Збереження чистоти лінії сорту та авторський нагляд за розмноженням",
+            is_budget_institution: true
+        },
+        "00497214": {
+            edrpou: "00497214",
+            company_name: "СЕЛЕКЦІЙНО-ГЕНЕТИЧНИЙ ІНСТИТУТ — НЦНС НААН",
+            kved: "72.19 Дослідження й експериментальні розробки у сфері біологічних наук",
+            region: "Одеська обл., м. Одеса",
+            activity_type: "Наукове ядро (НУС НААН): Посухостійка селекція",
+            own_contribution_percent: "25% (ОІВ + насіннєві розсадники)",
+            investment_focus: "Адаптивні технології вирощування білої гірчиці в умовах степової зони",
+            is_budget_institution: true
+        },
+        "03770142": {
+            edrpou: "03770142",
+            company_name: "ПП «АГРОЕКОЛОГІЯ»",
+            kved: "01.11 Вирощування зернових і насіння олійних культур",
+            region: "Полтавська обл., Шишацький р-н",
+            activity_type: "Капсула ІІ • Товарні та органічні посіви СН-1 (Органік)",
+            own_contribution_percent: "35% (Органічний земельний банк 8 000 га)",
+            investment_focus: "Біофумігація ґрунтів та органічний експорт насіння гірчиці в ЄС",
+            is_budget_institution: false
+        },
+        "03771540": {
+            edrpou: "03771540",
+            company_name: "СТОВ «АГРОФІРМА \"МАЯК\"»",
+            kved: "01.11 Вирощування зернових і насіння олійних культур",
+            region: "Полтавська обл., Котелевський р-н",
+            activity_type: "Капсула ІІ • Товарне агровиробництво (2 000 га)",
+            own_contribution_percent: "30% (Власна інфраструктура зберігання)",
+            investment_focus: "Форвардний контракт на поставку 4 000 т гірчиці на переробний завод",
+            is_budget_institution: false
+        },
+        "35118742": {
+            edrpou: "35118742",
+            company_name: "ТОВ «АГРО-РЕГІОН БОРИСПІЛЬ»",
+            kved: "01.11 Вирощування зернових та олійних культур",
+            region: "Київська обл., Бориспільський р-н",
+            activity_type: "Капсула ІІ • Товарні посіви СН-1 та експортний трейдинг",
+            own_contribution_percent: "30% (Логістичний комплекс)",
+            investment_focus: "Масштабування вирощування «Білої Принцеси» під судновий експорт",
+            is_budget_institution: false
+        },
+        "32759904": {
+            edrpou: "32759904",
+            company_name: "ТОВ «БАРИШІВСЬКА ЗЕРНОВА КОМПАНІЯ» (GRAIN ALLIANCE)",
+            kved: "01.11 Вирощування зернових (крім рису), бобових та олійних культур",
+            region: "Київська обл., Броварський р-н",
+            activity_type: "Капсула ІІ • Товарні та насінницькі посіви у 50-км зоні",
+            own_contribution_percent: "35% (Елеваторні потужності та техніка)",
+            investment_focus: "Вирощування насіння РС-1 за європейськими стандартами якості",
+            is_budget_institution: false
+        },
+        "31847120": {
+            edrpou: "31847120",
+            company_name: "ПРАТ «НВФ \"УРОЖАЙ\"»",
+            kved: "01.11 Вирощування зернових культур",
+            region: "Черкаська обл., м. Черкаси",
+            activity_type: "Капсула ІІ • Агровиробничий кластерний пул (Черкащина)",
+            own_contribution_percent: "30% (Земельний банк Черкащини)",
+            investment_focus: "Контрактація посівів сорту «Біла Принцеса» для локального заводу переробки",
+            is_budget_institution: false
+        },
+        "33654128": {
+            edrpou: "33654128",
+            company_name: "ТОВ «ПОДІЛЛЯ-ЗЕРНОПРОДУКТ»",
+            kved: "01.11 Вирощування зернових і насіння олійних культур",
+            region: "Хмельницька обл., м. Хмельницький",
+            activity_type: "Капсула ІІ • Товарний агропул Хмельниччини",
+            own_contribution_percent: "30% (Агровиробничі ресурси)",
+            investment_focus: "Впровадження білої гірчиці у сівозміну як попередника озимих",
+            is_budget_institution: false
+        },
+        "32145896": {
+            edrpou: "32145896",
+            company_name: "ТОВ «АГРОІНВЕСТ ДНІПРО»",
+            kved: "01.11 Вирощування зернових і насіння олійних культур",
+            region: "Дніпропетровська обл., Дніпровський р-н",
+            activity_type: "Капсула ІІ • Товарні посіви в умовах східного Степу",
+            own_contribution_percent: "30% (МТР та зрошувальні системи)",
+            investment_focus: "Вирощування посухостійкого сорту «Біла Принцеса» для переробки",
+            is_budget_institution: false
+        },
+        "36985214": {
+            edrpou: "36985214",
+            company_name: "ТОВ «ОЛІЙНОЕКСТРАКЦІЙНИЙ ЗАВОД \"ОЛІЯР-СХІД\"»",
+            kved: "10.41 Виробництво олії та тваринних жирів",
+            region: "Дніпропетровська обл., м. Кам'янське",
+            activity_type: "Капсула ІІІ (Вихід Б) • Глибока переробка на олію та шрот",
+            own_contribution_percent: "40% (Промисловий завод переробки)",
+            investment_focus: "Контрактація 50-км сировинної зони для стабільного завантаження ліній",
+            is_budget_institution: false
+        },
+        "31245879": {
+            edrpou: "31245879",
+            company_name: "ТОВ «ВОЛИНЬ-ЗЕРНО-ПРОДУКТ» (ТМ ВІЛІЯ)",
+            kved: "01.11 Вирощування зернових та насіння олійних культур",
+            region: "Волинська обл., м. Луцьк",
+            activity_type: "Капсула І–ІІ • Насінництво, товарне вирощування та експорт ЄС",
+            own_contribution_percent: "35% (Елеваторний та залізничний хаб)",
+            investment_focus: "Прямий експорт партій олії та порошку до покупців у Євросоюзі",
+            is_budget_institution: false
+        },
+        "35041289": {
+            edrpou: "35041289",
+            company_name: "ТОВ «ЧЕРНІГІВСЬКА ІНДУСТРІАЛЬНА МОЛОЧНА КОМПАНІЯ» (ІМК)",
+            kved: "01.11 Вирощування зернових, бобових і насіння олійних культур",
+            region: "Чернігівська обл., Чернігівський р-н",
+            activity_type: "Капсула ІІ • Товарні посіви СН-1 та сидерація Полісся",
+            own_contribution_percent: "30% (Земельні та тваринницькі комплекси)",
+            investment_focus: "Замкнений цикл: вирощування насіння + споживання шроту на корм тваринам",
+            is_budget_institution: false
         }
     };
 
@@ -252,7 +372,15 @@ document.addEventListener("DOMContentLoaded", () => {
         logAction('WHITE_LABEL_SWITCH', `Обрано брендинг: ${e.target.value}`);
     });
 
+    let currentCurrency = 'UAH';
+    const EUR_RATE = 45.0;
+
     function fmtMln(val) {
+        if (currentCurrency === 'EUR') {
+            const eur = val / EUR_RATE;
+            if (Math.abs(eur) >= 1000000) return (eur / 1000000).toFixed(2) + ' млн €';
+            return Math.round(eur / 1000) + ' тис. €';
+        }
         if (Math.abs(val) >= 1000000) return (val / 1000000).toFixed(2) + ' млн грн';
         return Math.round(val / 1000) + ' тис. грн';
     }
@@ -371,8 +499,21 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('kpiNaanBenefit').textContent = '+' + fmtMln(mar1);
         document.getElementById('kpiNaanMult').textContent = `×${naanMult} проти 46 тис. грн без ІІБ`;
         document.getElementById('kpiEntryPoint').textContent = fmtMln(investmentEntryUah);
-        document.getElementById('kpiEntryEur').textContent = `Старт Еліти (~${investmentEntryEur} тис. €)`;
+        document.getElementById('kpiEntryEur').textContent = currentCurrency === 'EUR'
+            ? `В еквіваленті ~${(investmentEntryUah / 1000000).toFixed(2)} млн грн`
+            : `Старт Еліти (~${investmentEntryEur} тис. €)`;
         document.getElementById('calcSummaryBadge').textContent = `Рентабельність циклу (ROI): ${roi}%`;
+
+        // Окупність лінії глибокої переробки (CAPEX 8 000 000 грн)
+        const lineCapexUah = 8000000;
+        const paybackSeasons = mar4 > 0 ? (lineCapexUah / mar4).toFixed(1) : '> 5';
+        const paybackMonths = mar4 > 0 ? Math.max(1, Math.round((lineCapexUah / mar4) * 12)) : 60;
+        const kpiPayback = document.getElementById('kpiPayback');
+        const kpiPaybackSub = document.getElementById('kpiPaybackSub');
+        if (kpiPayback && kpiPaybackSub) {
+            kpiPayback.textContent = `${paybackSeasons} сезону`;
+            kpiPaybackSub.textContent = `CAPEX ${fmtMln(lineCapexUah)} (~${paybackMonths} міс.)`;
+        }
 
         document.getElementById('p_margin_live').textContent = `${fmtMln(totalMargin)} (ROI ${roi}%)`;
         document.getElementById('p_size').textContent = `${area} га (${totalHarvestTons} т: ${tonsProcessed} т переробка / ${tonsSiderat} т сидерат)`;
@@ -400,11 +541,16 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderComparisonChart(rawMargin, clusterMargin) {
         const ctx = document.getElementById('marginCompareChart');
         if (!ctx) return;
-        const rawMln = +(rawMargin / 1000000).toFixed(2);
-        const clMln = +(clusterMargin / 1000000).toFixed(2);
+        const factor = currentCurrency === 'EUR' ? (1000000 * EUR_RATE) : 1000000;
+        const rawMln = +(rawMargin / factor).toFixed(2);
+        const clMln = +(clusterMargin / factor).toFixed(2);
+        const curLabel = currentCurrency === 'EUR' ? 'млн €' : 'млн грн';
 
         if (compareChart) {
             compareChart.data.datasets[0].data = [rawMln, clMln];
+            compareChart.data.datasets[0].label = `Чиста маржа (${curLabel})`;
+            compareChart.options.plugins.title.text = `Чиста маржа проєкту (${curLabel})`;
+            compareChart.options.scales.y.title.text = curLabel;
             compareChart.update();
             return;
         }
@@ -414,7 +560,7 @@ document.addEventListener("DOMContentLoaded", () => {
             data: {
                 labels: ['Без Драфту ІІБ (Сировина)', 'Кластер ІІБ (Zero-Waste)'],
                 datasets: [{
-                    label: 'Чиста маржа (млн грн)',
+                    label: `Чиста маржа (${curLabel})`,
                     data: [rawMln, clMln],
                     backgroundColor: ['#94a3b8', '#059669'],
                     borderRadius: 6
@@ -425,9 +571,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { display: false },
-                    title: { display: true, text: 'Чиста маржа проєкту (млн грн)', font: { size: 11, weight: 'bold' } }
+                    title: { display: true, text: `Чиста маржа проєкту (${curLabel})`, font: { size: 11, weight: 'bold' } }
                 },
-                scales: { y: { beginAtZero: true, title: { display: true, text: 'млн грн' } } }
+                scales: { y: { beginAtZero: true, title: { display: true, text: curLabel } } }
             }
         });
     }
@@ -553,6 +699,34 @@ document.addEventListener("DOMContentLoaded", () => {
         st.textContent = "Агро-КВЕД підтверджено в Реєстрі ІІБ";
         st.style.color = "#059669";
     }
+
+    const btnCurUah = document.getElementById('btnCurUah');
+    const btnCurEur = document.getElementById('btnCurEur');
+    if (btnCurUah && btnCurEur) {
+        btnCurUah.addEventListener('click', () => {
+            currentCurrency = 'UAH';
+            btnCurUah.classList.add('active');
+            btnCurEur.classList.remove('active');
+            recalcClusterEconomics();
+            logAction('CURRENCY_SWITCH', 'Обрано валюту розрахунку: UAH (Гривня)');
+        });
+        btnCurEur.addEventListener('click', () => {
+            currentCurrency = 'EUR';
+            btnCurEur.classList.add('active');
+            btnCurUah.classList.remove('active');
+            recalcClusterEconomics();
+            logAction('CURRENCY_SWITCH', 'Обрано валюту розрахунку: EUR (Євро, курс 45.0)');
+        });
+    }
+
+    // Перевірка переходу з адмін-панелі за query-параметром (?edrpou=...)
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryEdr = urlParams.get('edrpou');
+        if (queryEdr && LOCAL_AGRO_COMPANIES[queryEdr]) {
+            currentProfile = LOCAL_AGRO_COMPANIES[queryEdr];
+        }
+    } catch (e) {}
 
     updateProfileUI(currentProfile);
 
@@ -969,7 +1143,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 ["Економічний ефект цифровізації (E₂)", calcState.effectE2, "грн/рік (+15%)"],
                 ["Вигода НУС НААН (кратність зростання)", calcState.naanMult, "раза (проти 46 000 грн без стартапу ІІБ)"],
                 ["Гарантований аванс селекції НААН", calcState.prepaySum, "грн"],
-                ["Точка входу інвестицій (стартове вузьке місце)", calcState.investmentEntryUah, `грн (~${calcState.investmentEntryEur} тис. €)`]
+                ["Точка входу інвестицій (стартове вузьке місце)", calcState.investmentEntryUah, `грн (~${calcState.investmentEntryEur} тис. €)`],
+                ["Окупність лінії переробки (CAPEX 8 млн грн)", `${(8000000 / Math.max(1, calcState.mar4)).toFixed(1)} сезону`, `~${Math.round((8000000 / Math.max(1, calcState.mar4)) * 12)} міс. (Чиста маржа переробки: ${calcState.mar4} грн/рік)`]
             ];
 
             const csvContent = "\uFEFF" + rows.map(e => e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(";")).join("\r\n");

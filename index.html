@@ -115,7 +115,13 @@
                     <h2 class="card-title">2. Інтерактивна Економічна Матриця Драфту ІІБ, Точка входу інвестицій та Мова вигоди учасників</h2>
                     <span class="card-subtitle">Переклад наукової розробки з біологічної мови на мову чистої маржі, роялті та окупності для кожного учасника кластеру</span>
                 </div>
-                <span class="margin-badge" id="calcSummaryBadge">Рентабельність циклу (ROI): 118%</span>
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <div class="currency-toggle" id="currencyToggle">
+                        <button type="button" class="cur-btn active" id="btnCurUah">₴ UAH</button>
+                        <button type="button" class="cur-btn" id="btnCurEur">€ EUR (45.0)</button>
+                    </div>
+                    <span class="margin-badge" id="calcSummaryBadge">Рентабельність циклу (ROI): 118%</span>
+                </div>
             </div>
 
             <div class="calc-grid">
@@ -216,6 +222,11 @@
                             <span class="kpi-lbl">Точка входу інвестицій</span>
                             <span class="kpi-num" id="kpiEntryPoint" style="color: #d97706;">1.67 млн грн</span>
                             <span class="kpi-sub" id="kpiEntryEur">Старт Базової Еліти (~37 тис. €)</span>
+                        </div>
+                        <div class="kpi-box" style="border-left: 3px solid #0284c7;">
+                            <span class="kpi-lbl">Окупність лінії переробки</span>
+                            <span class="kpi-num" id="kpiPayback" style="color: #0284c7;">0.3 сезону</span>
+                            <span class="kpi-sub" id="kpiPaybackSub">CAPEX 8 млн грн (~3.7 міс.)</span>
                         </div>
                     </div>
 
