@@ -32,6 +32,12 @@ from agro_registry_service import (
     search_agro_companies,
     resolve_grant_operator
 )
+from firebase_db_service import (
+    FIREBASE_PROJECT_ID,
+    FIREBASE_WEB_CONFIG,
+    get_firebase_connection_status,
+    sync_document_to_firestore
+)
 
 # Конфігурація логування з автоочищенням (RotatingFileHandler: ліміт 1 МБ, 2 резервні копії)
 log_handler = RotatingFileHandler(
@@ -314,6 +320,8 @@ def health_check():
         "status": "ok",
         "service": "AgroCluster Analytics Backend v3.0 (IIB Draft & Firebase/Cloud Run)",
         "architecture": "IIB Meta-Draft -> 4 Technological Capsules -> Startup Lot Slicing",
+        "firebase_project": FIREBASE_PROJECT_ID,
+        "firebase_web_app_id": FIREBASE_WEB_CONFIG["appId"],
         "telegram_used": False
     }
 
@@ -321,6 +329,11 @@ def health_check():
 @app.get("/api/health")
 def api_health():
     return health_check()
+
+
+@app.get("/api/firebase-status")
+def api_firebase_status():
+    return get_firebase_connection_status()
 
 
 @app.post("/api/draft-calc")
