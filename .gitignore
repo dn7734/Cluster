@@ -5,4 +5,4 @@ __pycache__/
 *.db
 .venv/
 .firebase/
-data/
+data/*.db

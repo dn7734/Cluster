@@ -607,11 +607,14 @@ python3 scripts/import_open_agro_registry.py --search "Поділля"
 
         function populateRegionFilter() {
             const select = document.getElementById('regRegionFilter');
+            const curVal = select.value;
+            select.innerHTML = '<option value="ALL">Всі області України</option>';
             const uniqueObl = Array.from(new Set(CLUSTER_REGISTRY.map(c => c.oblast))).sort();
             uniqueObl.forEach(obl => {
                 const opt = document.createElement('option');
                 opt.value = obl;
                 opt.textContent = obl;
+                if (obl === curVal) opt.selected = true;
                 select.appendChild(opt);
             });
         }
@@ -619,16 +622,17 @@ python3 scripts/import_open_agro_registry.py --search "Поділля"
         function renderRegistryTable(items) {
             const tbody = document.getElementById('registryTableBody');
             tbody.innerHTML = '';
-            document.getElementById('tableFilterCount').textContent = `Відображено ${items.length} з ${CLUSTER_REGISTRY.length}`;
+            document.getElementById('tableFilterCount').textContent = `Відображено ${items.length.toLocaleString('uk-UA')} з ${CLUSTER_REGISTRY.length.toLocaleString('uk-UA')}`;
 
             if (items.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:#64748b;">
-                    За вказаними критеріями підприємств не знайдено. Змініть фільтри або скористайтеся імпортом відкритого реєстру 50 000+.
+                    За вказаними критеріями підприємств не знайдено. Змініть фільтри або скористайтеся пошуком вище.
                 </td></tr>`;
                 return;
             }
 
-            items.forEach(c => {
+            const displayList = items.slice(0, 150);
+            displayList.forEach(c => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td><span class="edrpou-badge">${c.edrpou}</span></td>
@@ -645,6 +649,44 @@ python3 scripts/import_open_agro_registry.py --search "Поділля"
                 `;
                 tbody.appendChild(tr);
             });
+
+            if (items.length > 150) {
+                const trMore = document.createElement('tr');
+                trMore.innerHTML = `<td colspan="7" style="text-align:center; padding:10px; color:#64748b; font-size:11.5px; background:#f8fafc;">
+                    Показано перші 150 з ${items.length.toLocaleString('uk-UA')} підприємств. Скористайтеся рядком пошуку вище для миттєвого звуження за будь-яким словом, районом чи ЄДРПОУ.
+                </td>`;
+                tbody.appendChild(trMore);
+            }
+        }
+
+        async function loadExpandedAdminCatalog() {
+            try {
+                const resp = await fetch('agro_registry_catalog.json');
+                if (resp.ok) {
+                    const catalog = await resp.json();
+                    catalog.forEach(item => {
+                        if (!CLUSTER_REGISTRY.some(x => x.edrpou === item.edrpou)) {
+                            const obl = item.region ? item.region.split(',')[0].trim() : 'Інші регіони';
+                            CLUSTER_REGISTRY.push({
+                                edrpou: item.edrpou,
+                                name: item.company_name,
+                                kved: item.kved,
+                                region: item.region,
+                                oblast: obl.includes('обл.') ? obl : `${obl} обл.`,
+                                role: item.cluster_role || 'FARM_PRODUCER',
+                                roleTitle: item.cluster_role === 'SCIENCE_CORE' ? 'Наукове ядро (НААН)' :
+                                           item.cluster_role === 'SEED_ELITE' ? 'Базове насінництво' :
+                                           item.cluster_role === 'DEEP_PROCESSOR' ? 'Глибока переробка' : 'Фермерський пул',
+                                activity: item.activity_type || 'Товарні посіви та сидерація',
+                                operator: item.grant_operator || item.company_name
+                            });
+                        }
+                    });
+                    populateRegionFilter();
+                    updateChartsAndKpis();
+                    filterRegistryTable();
+                }
+            } catch (e) {}
         }
 
         function filterRegistryTable() {
@@ -808,6 +850,7 @@ python3 scripts/import_open_agro_registry.py --search "Поділля"
         // Перевірка активної сесії при відкритті сторінки
         window.addEventListener('DOMContentLoaded', () => {
             populateRegionFilter();
+            loadExpandedAdminCatalog();
             if (sessionStorage.getItem('agro_admin_authenticated') === 'true') {
                 unlockAdminDashboard();
             }

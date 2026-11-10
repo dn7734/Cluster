@@ -236,6 +236,31 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // Асинхронне підвантаження розширеної бази 2 500+ агропідприємств України
+    async function loadExpandedAgroRegistry() {
+        try {
+            const resp = await fetch('agro_registry_catalog.json');
+            if (resp.ok) {
+                const catalog = await resp.json();
+                catalog.forEach(item => {
+                    if (!LOCAL_AGRO_COMPANIES[item.edrpou]) {
+                        LOCAL_AGRO_COMPANIES[item.edrpou] = {
+                            edrpou: item.edrpou,
+                            company_name: item.company_name,
+                            kved: item.kved,
+                            region: item.region,
+                            activity_type: item.activity_type || "Капсула ІІ • Товарний агропул",
+                            own_contribution_percent: "30% (Агровиробничі ресурси)",
+                            investment_focus: "Контрактація посівів сорту «Біла Принцеса» для локального кластеру",
+                            is_budget_institution: item.kved && item.kved.startsWith("72.")
+                        };
+                    }
+                });
+            }
+        } catch (e) {}
+    }
+    loadExpandedAgroRegistry();
+
     const NON_AGRO_REJECT_LIST = {
         "14360570": {
             company_name: "АТ КБ «ПРИВАТБАНК»",
