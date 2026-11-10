@@ -178,9 +178,7 @@ class TestAgroClusterPlatformV3(unittest.TestCase):
         with open(os.path.join(base_dir, "firebase.json"), encoding="utf-8") as f:
             fb_cfg = json.load(f)
         self.assertIn("hosting", fb_cfg)
-        self.assertIn("dataconnect", fb_cfg)
-        rewrites = fb_cfg["hosting"]["rewrites"]
-        self.assertTrue(any(r.get("run", {}).get("serviceId") == "agrocluster-api" for r in rewrites))
+        self.assertEqual(fb_cfg["hosting"].get("site"), "agrocluster")
 
     def test_08_live_uvicorn_http_e2e(self):
         """E2E перевірка запущеного HTTP-сервера Uvicorn по мережевому сокету."""

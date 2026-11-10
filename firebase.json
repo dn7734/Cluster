@@ -8,52 +8,14 @@
       "**/.*",
       "**/__pycache__/**",
       "tests/**",
+      "scripts/**",
+      "data/**",
       "dataconnect/**",
       "*.py",
       "*.db",
       "*.log*",
       "Dockerfile",
       "requirements.txt"
-    ],
-    "rewrites": [
-      {
-        "source": "/api/**",
-        "run": {
-          "serviceId": "agrocluster-api",
-          "region": "europe-west1"
-        }
-      },
-      {
-        "source": "/chat/**",
-        "run": {
-          "serviceId": "agrocluster-api",
-          "region": "europe-west1"
-        }
-      },
-      {
-        "source": "/export/**",
-        "run": {
-          "serviceId": "agrocluster-api",
-          "region": "europe-west1"
-        }
-      },
-      {
-        "source": "/grants/**",
-        "run": {
-          "serviceId": "agrocluster-api",
-          "region": "europe-west1"
-        }
-      },
-      {
-        "source": "/log",
-        "run": {
-          "serviceId": "agrocluster-api",
-          "region": "europe-west1"
-        }
-      }
     ]
-  },
-  "dataconnect": {
-    "source": "dataconnect"
   }
 }
