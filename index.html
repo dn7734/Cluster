@@ -358,7 +358,18 @@
             </div>
         </section>
     </main>
-
+    <!-- Firebase Web App SDK Configuration for gen-lang-client-0227701733 -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        projectId: "gen-lang-client-0227701733",
+        authDomain: "gen-lang-client-0227701733.firebaseapp.com",
+        storageBucket: "gen-lang-client-0227701733.appspot.com"
+      };
+      if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        try { firebase.initializeApp(firebaseConfig); } catch (e) { console.warn("Firebase init:", e); }
+      }
+    </script>
     <script src="script.js"></script>
 </body>
 
