@@ -47,17 +47,35 @@ class TestAgroClusterPlatformV3(unittest.TestCase):
         self.assertEqual(res["tonsProcessed"], 1200)
         self.assertEqual(res["tonsSiderat"], 800)
         self.assertEqual(res["procPct"] + res["sideratPct"], 100)
-        # Перевірка фракцій переробки (слайд 10 «1_Драфт.pptx»: порошок 50%, олія 30%, шрот 15%)
-        self.assertAlmostEqual(res["powderTons"], 600.0)
+        # Перевірка 3-компонентного балансу переробки (олія 30%, порошок 45%, шрот 23%, втрати 2%)
         self.assertAlmostEqual(res["oilTons"], 360.0)
-        self.assertAlmostEqual(res["mealTons"], 180.0)
-        # Перевірка вигоди НААН (слайд 11: соло = 46 тис. грн, у кластері зростання >= 4.6 раза)
+        self.assertAlmostEqual(res["powderTons"], 540.0)
+        self.assertAlmostEqual(res["mealTons"], 276.0)
+        self.assertAlmostEqual(res["lossTons"], 24.0)
+        self.assertAlmostEqual(
+            res["revenueShares"]["oil"] + res["revenueShares"]["powder"] + res["revenueShares"]["meal"],
+            100.0,
+            places=0
+        )
+        # Перевірка вигоди НААН (слайд 11: соло = 46 тис. грн, у кластері зростання >= 4.6 раза + роялті 5%)
         self.assertEqual(res["naanSoloUah"], 46000)
         self.assertGreaterEqual(res["naanMultiplier"], 4.6)
         self.assertGreater(res["mar1"], res["naanSoloUah"] * 4.6)
+        self.assertGreater(res["royaltyUah"], 0)
         # Перевірка точки інвестиційного входу та загальної маржі
         self.assertGreater(res["investmentEntryUah"], 1000000)
         self.assertGreater(res["totalMargin"], res["rawOnlyMargin"])
+
+        # Перевірка кастомних ринкових параметрів (акордеон цін та роялті)
+        custom = backend_main.calculate_iib_draft_economics(
+            area_ha=1000,
+            yield_t_ha=2.0,
+            processing_pct=60,
+            prepay_pct=30,
+            market={"oilPrice": 100000, "royaltyPct": 7.0}
+        )
+        self.assertGreater(custom["oilRev"], res["oilRev"])
+        self.assertGreater(custom["royaltyUah"], res["royaltyUah"])
 
     def test_02_agro_kved_filter_accepts_only_agrarians(self):
         """Перевірка жорсткого фільтра КВЕД: пропускає аграріїв, насінництво, олійну переробку та НААН."""
@@ -96,7 +114,7 @@ class TestAgroClusterPlatformV3(unittest.TestCase):
     def test_04_provider_grant_operator_rule_for_naan(self):
         """
         Перевірка правила керівника ІІБ (11:55 аудіо):
-        Бюджетна установа НААН (00496802) не подається на грант напряму — заявником стає ТОВ «ІІБ» (40125890).
+        Бюджетна установа НААН (00496802) не подається на грант напряму - заявником стає ТОВ «ІІБ» (40125890).
         """
         naan_prof = verify_and_parse_edrpou("00496802")
         self.assertTrue(naan_prof["ok"])
@@ -113,7 +131,7 @@ class TestAgroClusterPlatformV3(unittest.TestCase):
         self.assertEqual(op_farm["operator_edrpou"], "03728915")
 
     def test_05_startup_lot_scoring_and_docx_generation(self):
-        """Перевірка ранжування Стартап-лотів (~100 тис. € / до 8 млн грн) та генерації DOCX-угоди."""
+        """Перевірка ранжування Стартап-лотів (близько 100 тис. € / до 8 млн грн) та генерації DOCX-угоди."""
         naan_prof = verify_and_parse_edrpou("00496802")
         scored = evaluate_grants(naan_prof, DEFAULT_GRANTS)
         self.assertEqual(len(scored), 4)
@@ -123,12 +141,13 @@ class TestAgroClusterPlatformV3(unittest.TestCase):
         docx_bytes = docx_stream.read()
         self.assertGreater(len(docx_bytes), 10000)
 
-        # Перевіряємо, що DOCX є валідним архівом OpenXML і не містить згадок про Telegram / AgroGrant_Bot
+        # Перевіряємо, що DOCX є валідним архівом OpenXML і не містить згадок про Telegram / AgroGrant_Bot або тильд/довгих тире
         with zipfile.ZipFile( io_bytes := __import__("io").BytesIO(docx_bytes) ) as zf:
             xml_content = zf.read("word/document.xml").decode("utf-8")
             self.assertIn("БІЛА ПРИНЦЕСА", xml_content.upper())
             self.assertIn("40125890", xml_content)
             self.assertIn("4,6", xml_content)
+            self.assertIn("Порошок (45%)", xml_content)
             self.assertNotIn("AgroGrant_Bot", xml_content)
             self.assertNotIn("Telegram", xml_content)
 
@@ -136,7 +155,7 @@ class TestAgroClusterPlatformV3(unittest.TestCase):
         """Перевірка серверних функцій FastAPI (health, /api/edrpou, /api/draft-calc, /chat)."""
         health = backend_main.health_check()
         self.assertEqual(health["status"], "ok")
-        self.assertFalse(health["telegram_used"])
+        self.assertEqual(health["firebase_project"], "gen-lang-client-0227701733")
 
         search_res = backend_main.list_or_search_agro_edrpou(q="Переробка", role="")
         self.assertGreaterEqual(search_res["total"], 1)
@@ -156,29 +175,37 @@ class TestAgroClusterPlatformV3(unittest.TestCase):
         self.assertFalse(chat_res["is_error"])
         self.assertEqual(chat_res["profile"]["edrpou"], "03754120")
 
-    def test_07_frontend_and_firebase_cloud_run_configs(self):
-        """Перевірка HTML/JS/CSS, конфігурації Firebase Hosting + Cloud Run + Data Connect та відсутності Telegram."""
+    def test_07_frontend_and_firebase_hosting_hygiene(self):
+        """Перевірка HTML/JS/CSS, акордеона ринку, кругової діаграми та відсутності тильд, довгих тире і згадок Telegram."""
         base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
         with open(os.path.join(base_dir, "index.html"), encoding="utf-8") as f:
             html_text = f.read()
         self.assertIn("Надбудова над ланцюгом: ТОВ «Інститут інноваційної біоекономіки»", html_text)
         self.assertIn("За кадром • Наукова Новація (1 га)", html_text)
-        self.assertIn("Вихід А: Сидерат | Вихід Б: Переробка", html_text)
+        self.assertIn("marketAccordion", html_text)
+        self.assertIn("doughnutChart", html_text)
         self.assertNotIn("AgroGrant_Bot", html_text)
-        self.assertNotIn("cluster-fcsu.onrender.com", html_text)
+        self.assertNotIn("Telegram", html_text)
+        self.assertNotIn("—", html_text)
+        self.assertNotIn("–", html_text)
+        self.assertNotIn("~", html_text)
 
         with open(os.path.join(base_dir, "script.js"), encoding="utf-8") as f:
             js_text = f.read()
         self.assertIn("resolveGrantOperatorClient", js_text)
-        self.assertIn("NON_AGRO_REJECT_LIST", js_text)
+        self.assertIn("renderDoughnutChart", js_text)
+        self.assertIn("PROCESSING_BALANCE", js_text)
         self.assertNotIn("AgroGrant_Bot", js_text)
-        self.assertNotIn("cluster-fcsu.onrender.com", js_text)
+        self.assertNotIn("Telegram", js_text)
+        self.assertNotIn("—", js_text)
+        self.assertNotIn("–", js_text)
+        self.assertNotIn("~", js_text)
 
         with open(os.path.join(base_dir, "firebase.json"), encoding="utf-8") as f:
             fb_cfg = json.load(f)
         self.assertIn("hosting", fb_cfg)
-        self.assertEqual(fb_cfg["hosting"].get("site"), "agrocluster")
+        self.assertTrue(fb_cfg["hosting"].get("cleanUrls"))
 
     def test_08_live_uvicorn_http_e2e(self):
         """E2E перевірка запущеного HTTP-сервера Uvicorn по мережевому сокету."""
@@ -222,67 +249,6 @@ class TestAgroClusterPlatformV3(unittest.TestCase):
                 proc.stdout.close()
             if proc.stderr:
                 proc.stderr.close()
-
-    def test_09_pricing_accordion_and_product_balance_breakdown(self):
-        """
-        Перевірка динамічного розрахунку 3-компонентного балансу глибокої переробки
-        та гнучких ринкових цін (Олія 30%, Порошок 50%, Шрот 15%, Фракція 5%).
-        """
-        # Базові налаштування
-        base = backend_main.calculate_iib_draft_economics(area_ha=1000, yield_t_ha=2.0, processing_pct=60)
-        self.assertEqual(base["tonsProcessed"], 1200)
-        self.assertAlmostEqual(base["oilTons"], 360.0)
-        self.assertAlmostEqual(base["powderTons"], 600.0)
-        self.assertAlmostEqual(base["mealTons"], 180.0)
-        self.assertAlmostEqual(base["seedFractionTons"], 60.0)
-        self.assertEqual(base["revOil"], 360 * 90000)
-        self.assertEqual(base["revPowder"], 600 * 25000)
-        self.assertEqual(base["revMeal"], 180 * 10000)
-        self.assertEqual(base["revSeedFraction"], 60 * 40000)
-        self.assertEqual(base["rev4"], base["revOil"] + base["revPowder"] + base["revMeal"] + base["revSeedFraction"])
-
-        # Кастомні ринкові ціни (наприклад, експортний сценарій: олія 95 тис. грн/т, порошок 28 тис. грн/т)
-        custom = backend_main.calculate_iib_draft_economics(
-            area_ha=1000,
-            yield_t_ha=2.0,
-            processing_pct=60,
-            price_oil_uah_t=95000.0,
-            price_powder_uah_t=28000.0,
-            price_meal_uah_t=11000.0
-        )
-        self.assertEqual(custom["revOil"], 360 * 95000)
-        self.assertEqual(custom["revPowder"], 600 * 28000)
-        self.assertEqual(custom["revMeal"], 180 * 11000)
-        self.assertGreater(custom["totalMargin"], base["totalMargin"])
-
-    def test_10_doc_generator_with_detailed_processing_balance(self):
-        """
-        Перевірка наявності деталізованого балансу переробки (олія, порошок, шрот)
-        у згенерованому DOCX-файлі рамкової угоди.
-        """
-        sample_prof = {
-            "edrpou": "41258963",
-            "company_name": "ТОВ «АГРО-ЕКО ПЕРЕРОБКА»",
-            "kved": "10.41 Виробництво олії та тваринних жирів",
-            "region": "Черкаська область",
-            "activity_type": "Завод глибокої переробки гірчиці",
-            "size_category": "Лінія екстракції та порошку Zero-Waste",
-            "employees_count": "Розрахункова маржа за матрицею Драфту",
-            "is_budget_institution": False
-        }
-        stream = create_grant_document(sample_prof, DEFAULT_GRANTS)
-        self.assertIsNotNone(stream)
-        stream_bytes = stream.getvalue()
-        self.assertGreater(len(stream_bytes), 10000)
-
-        # Перевірка наповнення документа через розпакування docx як zip
-        with zipfile.ZipFile(stream) as zf:
-            xml_content = zf.read("word/document.xml").decode("utf-8")
-            self.assertIn("Біла Принцеса", xml_content)
-            self.assertIn("Zero-Waste", xml_content)
-            self.assertIn("олії холодного віджиму", xml_content)
-            self.assertIn("гірчичного порошку", xml_content)
-            self.assertIn("білкового шроту", xml_content)
 
 
 if __name__ == "__main__":

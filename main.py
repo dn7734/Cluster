@@ -1,6 +1,6 @@
 """
 НАУКОВО-МЕТОДИЧНИЙ ОПИС МОДУЛЯ (main.py):
-Серверне ядро інформаційно-аналітичної платформи «AgroCluster Analytics» (Версія 3.0 — Cloud Run & Firebase).
+Серверне ядро інформаційно-аналітичної платформи «AgroCluster Analytics» (Версія 3.0 - Cloud Run & Firebase).
 Забезпечує:
 1. Подвійний контур СКБД (SQLAlchemy PostgreSQL для Cloud SQL / Neon + вбудований SQLite3 контур);
 2. Двоконтурну телеметрію з авторотацією (RotatingFileHandler 1 МБ);
@@ -171,88 +171,105 @@ def init_storage() -> None:
 init_storage()
 
 
+# Базові ринкові параметри 2026 р. (узгоджено в інтерв'ю /grill-me, FINAL_IMPLEMENTATION_PLAN.md)
+DEFAULT_MARKET_PARAMS = {
+    "seedPrice": 24000.0,      # ціна насіння-сировини, грн/т
+    "oilPrice": 90000.0,       # олія холодного віджиму, грн/т
+    "powderPrice": 25000.0,    # гірчичний порошок, грн/т
+    "mealPrice": 10000.0,      # кормовий шрот, грн/т
+    "fieldCostHa": 24000.0,    # собівартість польового етапу РС-1, грн/га
+    "procCostT": 5000.0,       # питома собівартість переробки, грн/т сировини
+    "royaltyPct": 5.0          # роялті НААН, % від виручки еліти та продуктів переробки
+}
+
+# Технологічний баланс переробки 1 т насіння «Біла Принцеса»
+PROCESSING_BALANCE = {"oil": 0.30, "powder": 0.45, "meal": 0.23, "loss": 0.02}
+
+
 def calculate_iib_draft_economics(
     area_ha: float = 1000.0,
     yield_t_ha: float = 2.0,
     processing_pct: float = 60.0,
     prepay_pct: float = 30.0,
-    price_oil_uah_t: float = 90000.0,
-    price_powder_uah_t: float = 25000.0,
-    price_meal_uah_t: float = 10000.0,
-    price_siderat_uah_t: float = 32000.0,
-    cost_grow_ha_uah: float = 14970.0,
-    cost_process_t_uah: float = 21500.0
+    market: Optional[dict] = None
 ) -> dict:
     """
-    Розраховує повну економіко-математичну матрицю Драфту ІІБ згідно з «1_Драфт.pptx»:
-    - За кадром (Опція НУС НААН): 1 га селекційна ділянка (1,5 т вал → 1,0 т супереліти у стартап).
-      Без стартапу НААН отримує лише 46 000 грн чистого ефекту; у кластері ІІБ — компенсацію супереліти,
-      частку від 120 т еліти та погектарне роялті (800 грн/га базові + 200 грн/га насіннєві + 100 грн/га товарні),
-      що збільшує надходження в 4,6 раза.
-    - Етап І (Базове насінництво Еліти): до 200 га (виробництво кондиційної Еліти та технічної фракції).
-    - Етап ІІ (Масштабування СН-1 / Товарні посіви у 50-км зоні): area_ha гектарів.
-    - Етап ІІІ (Подвійне замикання):
-      * Вихід А: Сидерат та фасоване насіння у мішках 25 кг (100% - processing_pct) по 42 000 грн/т;
-      * Вихід Б: Глибока переробка Zero-Waste (processing_pct): порошок 50%, олія 30%, шрот 15%, насіннєва фракція 5%.
+    Розраховує економіко-математичну матрицю Драфту ІІБ (4 ланки кластера).
+
+    Ланка 1. Наукове ядро НУС НААН: супереліта, гарантований аванс (prepay_pct від вартості
+    закладання розсадника) і роялті royaltyPct від виручки еліти та продуктів переробки.
+    Без кластера інститут отримує 46 000 грн (слайд 11 «1_Драфт.pptx»).
+    Ланка 2. Базове насінництво еліти.
+    Ланка 3. Товарні посіви РС-1 у 50-км зоні: частина врожаю йде на сидерат (мішки 25 кг),
+    решта продається заводу за ціною сировини.
+    Ланка 4. Глибока переробка: олія 30%, порошок 45%, шрот 23%, втрати 2%.
+    Роялті для ланок 2 і 4 є витратою, а для ланки 1 доходом, тому на загальну маржу не впливає.
     """
+    params = dict(DEFAULT_MARKET_PARAMS)
+    for key, val in (market or {}).items():
+        if key in params and val is not None:
+            params[key] = max(0.0, float(val))
+
     area = max(50.0, float(area_ha))
     yld = max(1.0, float(yield_t_ha))
     proc_ratio = max(0.0, min(1.0, float(processing_pct) / 100.0))
     siderat_ratio = round(1.0 - proc_ratio, 4)
     prepay_ratio = max(0.10, min(0.80, float(prepay_pct) / 100.0))
+    royalty_ratio = min(0.5, params["royaltyPct"] / 100.0)
 
-    # Масштаб насінницької бази за пропорціями 1_Драфт.pptx (норма висіву 12-20 кг/га)
     elite_ha = max(10, round(area / 15))
     super_elite_ha = max(1.0, round(elite_ha / 100, 1))
     total_harvest_tons = round(area * yld)
+    tons_processed = round(total_harvest_tons * proc_ratio)
+    tons_siderat = total_harvest_tons - tons_processed
 
-    # Ланка 1: Наукове ядро (ННЦ «ІЗ НААН») — Супереліта + Роялті (800 грн/га еліта + 200 грн/га насіннєві + 100 грн/га товарні)
-    naan_solo_income_uah = 46000  # Слайд 11 «1_Драфт.pptx»: сума надходжень ІЗ без стартапу = 46 000 грн
-    royalty_uah = round((elite_ha * 800) + (area * 0.25 * 200) + (area * 100))
-    cost1 = round(super_elite_ha * 180000)
-    rev1 = round((super_elite_ha * 350000) + royalty_uah + (elite_ha * 8500))
-    mar1 = rev1 - cost1
-    prepay_sum = round(rev1 * prepay_ratio)
-    naan_Cluster_multiplier = round(max(4.6, mar1 / max(1, naan_solo_income_uah)), 1)
+    # Продуктовий баланс переробки
+    oil_tons = round(tons_processed * PROCESSING_BALANCE["oil"], 1)
+    powder_tons = round(tons_processed * PROCESSING_BALANCE["powder"], 1)
+    meal_tons = round(tons_processed * PROCESSING_BALANCE["meal"], 1)
+    loss_tons = round(tons_processed * PROCESSING_BALANCE["loss"], 1)
+    oil_rev = round(oil_tons * params["oilPrice"])
+    powder_rev = round(powder_tons * params["powderPrice"])
+    meal_rev = round(meal_tons * params["mealPrice"])
 
-    # Ланка 2: Базове насінництво (ДГ / БГ — Еліта, за слайдом 6 «1_Драфт.pptx»: витрати 18,6 тис. грн/га, вихід еліти + некондиції)
-    cost2 = round(elite_ha * 18600)
+    # Ланка 2: еліта (слайд 6 «1_Драфт.pptx»)
     rev2 = round(elite_ha * 52800)
+    royalty_elite = round(rev2 * royalty_ratio)
+    cost2 = round(elite_ha * 18600) + royalty_elite
     mar2 = rev2 - cost2
 
-    # Ланка 3: Товарне агровиробництво та Сидерат СН-1 (слайд 8–9 «1_Драфт.pptx»)
-    tons_siderat = round(total_harvest_tons * siderat_ratio)
-    tons_processed = round(total_harvest_tons * proc_ratio)
-    cost3 = round(area * cost_grow_ha_uah)
-    # Частина врожаю реалізується як фасований сидерат/СН (мішки 25 кг), частина як товарне зерно
-    rev3 = round((tons_siderat * price_siderat_uah_t) + (tons_processed * 20000))
+    # Ланка 3: товарні посіви та сидерат
+    cost3 = round(area * params["fieldCostHa"])
+    rev3 = round(tons_siderat * 32000 + tons_processed * params["seedPrice"])
     mar3 = rev3 - cost3
 
-    # Ланка 4: Глибока переробка Zero-Waste (слайд 10 «1_Драфт.pptx»: Порошок 50%, Олія 30%, Шрот 15%, Насіння 5%)
-    powder_tons = round(tons_processed * 0.50, 1)
-    oil_tons = round(tons_processed * 0.30, 1)
-    meal_tons = round(tons_processed * 0.15, 1)
-    seed_fraction_tons = round(tons_processed * 0.05, 1)
-
-    rev_oil = round(oil_tons * price_oil_uah_t)
-    rev_powder = round(powder_tons * price_powder_uah_t)
-    rev_meal = round(meal_tons * price_meal_uah_t)
-    rev_seed_fraction = round(seed_fraction_tons * 40000.0)
-
-    cost4 = round(tons_processed * cost_process_t_uah)
-    rev4 = rev_oil + rev_powder + rev_meal + rev_seed_fraction
+    # Ланка 4: переробка (сировина + OPEX лінії + роялті)
+    rev4 = oil_rev + powder_rev + meal_rev
+    royalty_processing = round(rev4 * royalty_ratio)
+    cost4 = round(tons_processed * (params["seedPrice"] + params["procCostT"])) + royalty_processing
     mar4 = rev4 - cost4
+
+    # Ланка 1: НУС НААН
+    naan_solo_income_uah = 46000
+    royalty_uah = royalty_elite + royalty_processing
+    cost1 = round(super_elite_ha * 180000)
+    prepay_sum = round(cost1 * prepay_ratio)
+    rev1 = round(super_elite_ha * 350000) + royalty_uah
+    mar1 = rev1 - cost1
+    naan_multiplier = round(max(4.6, mar1 / naan_solo_income_uah), 1)
 
     total_cost = cost1 + cost2 + cost3 + cost4
     total_rev = rev1 + rev2 + rev3 + rev4
     total_margin = mar1 + mar2 + mar3 + mar4
-    raw_only_margin = round(naan_solo_income_uah + (total_harvest_tons * 18000 - cost3))
+    raw_only_margin = round(naan_solo_income_uah + total_harvest_tons * params["seedPrice"] - cost3)
     roi = round((total_margin / max(1, total_cost)) * 100)
     effect_e2 = round(total_margin * 0.15)
 
-    # Точка інвестиційного входу («Вузьке місце» для запуску Базового посіву Еліти + Контрактації ІІБ, слайди 4, 6)
-    investment_entry_uah = round(cost1 + cost2 + 240000)  # Базовий посів + паушальний платіж 240 тис. грн
+    investment_entry_uah = round(cost1 + cost2 + 240000)
     investment_entry_eur = round(investment_entry_uah / 45.0)
+
+    def share(part: int) -> float:
+        return round(part / rev4 * 100, 1) if rev4 else 0.0
 
     return {
         "area": int(area),
@@ -265,18 +282,21 @@ def calculate_iib_draft_economics(
         "totalHarvestTons": total_harvest_tons,
         "tonsProcessed": tons_processed,
         "tonsSiderat": tons_siderat,
-        "powderTons": powder_tons,
         "oilTons": oil_tons,
+        "powderTons": powder_tons,
         "mealTons": meal_tons,
-        "seedFractionTons": seed_fraction_tons,
-        "revOil": rev_oil,
-        "revPowder": rev_powder,
-        "revMeal": rev_meal,
-        "revSeedFraction": rev_seed_fraction,
+        "lossTons": loss_tons,
+        "oilRev": oil_rev,
+        "powderRev": powder_rev,
+        "mealRev": meal_rev,
+        "revenueShares": {"oil": share(oil_rev), "powder": share(powder_rev), "meal": share(meal_rev)},
+        "market": params,
         "cost1": cost1, "rev1": rev1, "mar1": mar1,
         "royaltyUah": royalty_uah,
+        "royaltyElite": royalty_elite,
+        "royaltyProcessing": royalty_processing,
         "naanSoloUah": naan_solo_income_uah,
-        "naanMultiplier": naan_Cluster_multiplier,
+        "naanMultiplier": naan_multiplier,
         "prepaySum": prepay_sum,
         "cost2": cost2, "rev2": rev2, "mar2": mar2,
         "cost3": cost3, "rev3": rev3, "mar3": mar3,
@@ -318,12 +338,13 @@ class DraftCalcRequest(BaseModel):
     yld: float = 2.0
     procPct: float = 60.0
     prepayPct: float = 30.0
-    priceOil: float = 90000.0
-    pricePowder: float = 25000.0
-    priceMeal: float = 10000.0
-    priceSiderat: float = 32000.0
-    costGrow: float = 14970.0
-    costProcess: float = 21500.0
+    seedPrice: Optional[float] = None
+    oilPrice: Optional[float] = None
+    powderPrice: Optional[float] = None
+    mealPrice: Optional[float] = None
+    fieldCostHa: Optional[float] = None
+    procCostT: Optional[float] = None
+    royaltyPct: Optional[float] = None
 
 
 def _record_log_db(action: str, details: str, ip_addr: str = "127.0.0.1") -> None:
@@ -348,8 +369,7 @@ def health_check():
         "service": "AgroCluster Analytics Backend v3.0 (IIB Draft & Firebase/Cloud Run)",
         "architecture": "IIB Meta-Draft -> 4 Technological Capsules -> Startup Lot Slicing",
         "firebase_project": FIREBASE_PROJECT_ID,
-        "firebase_web_app_id": FIREBASE_WEB_CONFIG["appId"],
-        "telegram_used": False
+        "firebase_web_app_id": FIREBASE_WEB_CONFIG["appId"]
     }
 
 
@@ -370,12 +390,7 @@ def compute_draft_matrix(req: DraftCalcRequest):
         yield_t_ha=req.yld,
         processing_pct=req.procPct,
         prepay_pct=req.prepayPct,
-        price_oil_uah_t=req.priceOil,
-        price_powder_uah_t=req.pricePowder,
-        price_meal_uah_t=req.priceMeal,
-        price_siderat_uah_t=req.priceSiderat,
-        cost_grow_ha_uah=req.costGrow,
-        cost_process_t_uah=req.costProcess
+        market={k: getattr(req, k) for k in DEFAULT_MARKET_PARAMS}
     )
 
 

@@ -8,14 +8,27 @@
       "**/.*",
       "**/__pycache__/**",
       "tests/**",
-      "scripts/**",
-      "data/**",
       "dataconnect/**",
       "*.py",
       "*.db",
       "*.log*",
       "Dockerfile",
       "requirements.txt"
+    ],
+    "cleanUrls": true,
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      }
     ]
+  },
+  "dataconnect": {
+    "source": "dataconnect"
   }
 }

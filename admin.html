@@ -4,270 +4,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgroCluster НААН–ІІБ — Панель макроаналітики та Реєстр агропідприємств</title>
+    <title>AgroCluster НААН-ІІБ - Панель макроаналітики та журнал телеметрії</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
     <style>
-        .admin-container { max-width: 1260px; margin: 24px auto; padding: 0 20px; }
-        
+        .admin-container { max-width: 1220px; margin: 24px auto; padding: 0 20px; }
         #loginCard {
-            max-width: 440px; margin: 60px auto; background: var(--card-bg);
-            padding: 32px; border-radius: 10px; border: 1px solid var(--border-color);
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06); text-align: center;
+            max-width: 420px; margin: 60px auto; background: var(--card-bg);
+            padding: 28px; border-radius: 12px; border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08); text-align: center;
         }
         #loginCard input {
             width: 100%; padding: 11px 14px; margin: 14px 0;
-            border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; outline: none;
-            background: #ffffff; color: var(--text-primary);
+            border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;
         }
-        #loginCard input:focus { border-color: var(--accent-green); box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.15); }
-        
         #dashboardContent { display: none; }
-        .admin-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+        .admin-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
         @media (max-width: 860px) { .admin-kpi-grid { grid-template-columns: 1fr 1fr; } }
-        .admin-charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+        .admin-charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         @media (max-width: 860px) { .admin-charts-grid { grid-template-columns: 1fr; } }
-        
-        .log-table-wrapper { max-height: 320px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; }
-        .log-table { width: 100%; border-collapse: collapse; font-size: 12px; background: #ffffff; }
+        .log-table-wrapper { max-height: 360px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+        .log-table { width: 100%; border-collapse: collapse; font-size: 12.5px; background: #ffffff; }
         .log-table th, .log-table td { border-bottom: 1px solid var(--border-color); padding: 9px 12px; text-align: left; }
-        .log-table th { background: #f8fafc; font-weight: 600; color: var(--text-secondary); position: sticky; top: 0; }
-        .log-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
-
-        /* Таблиця реєстру підприємств */
-        .registry-table-wrapper { max-height: 480px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; }
-        .registry-table { width: 100%; border-collapse: collapse; font-size: 12px; background: #ffffff; }
-        .registry-table th, .registry-table td { border-bottom: 1px solid var(--border-color); padding: 9px 12px; text-align: left; vertical-align: middle; }
-        .registry-table th { background: #f8fafc; font-weight: 600; color: var(--text-secondary); position: sticky; top: 0; z-index: 2; border-bottom: 2px solid var(--border-color); }
-        .registry-table tr:hover { background: #f8fafc; }
-        .edrpou-badge { font-family: monospace; font-weight: 700; background: #f1f5f9; color: #0f172a; padding: 2px 6px; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 11.5px; }
-        
-        /* Стриманий єдиний стиль плашок ролей (без райдуги) */
-        .role-pill {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
-            background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1;
-            white-space: nowrap;
-        }
-        .role-indicator { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); }
-        
-        .btn-table-action {
-            display: inline-block; padding: 4px 10px; font-size: 11px; font-weight: 600;
-            background: #0f172a; color: #ffffff; text-decoration: none; border-radius: 4px;
-            transition: 0.15s; white-space: nowrap;
-        }
-        .btn-table-action:hover { background: var(--accent-green); }
-
-        .search-filter-bar {
-            display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: center;
-        }
-        .search-input {
-            flex: 1; min-width: 240px; padding: 8px 12px; border: 1px solid #cbd5e1;
-            border-radius: 6px; font-size: 12.5px; outline: none; background: #ffffff;
-        }
-        .search-input:focus { border-color: var(--accent-green); }
-        .filter-select {
-            padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;
-            background: #ffffff; cursor: pointer; outline: none; color: var(--text-primary);
-        }
-
-        /* Інфо-картки 50 000+ */
-        .opendata-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px;
-        }
-        @media (max-width: 860px) { .opendata-grid { grid-template-columns: 1fr; } }
-        .opendata-card {
-            background: #ffffff; border: 1px solid var(--border-color); border-radius: 6px;
-            padding: 14px; font-size: 12px; line-height: 1.45; border-left: 3px solid #0f172a;
-        }
-        .opendata-card h4 { margin: 0 0 6px 0; font-size: 13px; color: var(--text-primary); }
-        .code-snippet {
-            background: #0f172a; color: #e2e8f0; padding: 12px 14px; border-radius: 6px;
-            font-family: monospace; font-size: 11.5px; overflow-x: auto; margin-top: 10px; line-height: 1.5;
-        }
+        .log-table th { background: #f8fafc; font-weight: 700; color: var(--text-secondary); position: sticky; top: 0; }
+        .log-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; background: #ecfdf5; color: var(--accent-green); }
     </style>
 </head>
 
 <body>
     <header class="topbar">
         <div>
-            <h1 class="brand-title">AgroCluster НААН–ІІБ • Реєстр агропідприємств та макроаналітика</h1>
-            <span class="brand-sub">Центр управління базою 50 000+ юридичних осіб агропромислового комплексу України та телеметрія</span>
+            <h1 class="brand-title">AgroCluster НААН-ІІБ • Підсистема макроаналітики та аудиту телеметрії</h1>
+            <span class="brand-sub">Моніторинг інтеграції суб'єктів інноваційного кластеру «Біла Принцеса» та логування транзакцій</span>
         </div>
         <div class="nav-actions">
-            <span class="status-badge" id="adminConnStatus">Режим верифікації ЄДРПОУ</span>
-            <button id="btnLogout" class="admin-link" style="display:none; cursor:pointer;" onclick="logoutAdmin()">Вийти</button>
-            <a href="index.html" class="admin-link">← До калькулятора кластеру</a>
+            <span class="status-badge" id="adminConnStatus">Режим синхронізації БД</span>
+            <a href="index.html" class="admin-link">← Повернутися до платформи кластеру</a>
         </div>
     </header>
 
     <div class="admin-container">
-        <!-- КАРТКА АВТОРИЗАЦІЇ (SHA-256 та захист від перезавантаження) -->
         <div id="loginCard">
-            <h2 style="margin-top: 0; font-size: 18px; color: var(--text-primary);">Авторизація координатора ТОВ «ІІБ»</h2>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
-                Введіть сервісний ключ доступу до аналітичної панелі (за замовчуванням: <code>agro2026</code>)
+            <h2 style="margin-top: 0; font-size: 18px;">Авторизація координатора ТОВ «ІІБ»</h2>
+            <p style="font-size: 13px; color: var(--text-muted);">
+                Введіть сервісний ключ доступу до панелі макроекономічної аналітики (за замовчуванням: <code>agro2026</code>)
             </p>
-            <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
-                <input type="password" id="adminPass" placeholder="Ключ доступу..." value="agro2026" autocomplete="current-password" autofocus>
-                <button type="submit" class="btn btn-primary" id="loginBtn" style="width: 100%;">Увійти до панелі управління</button>
-            </form>
-            <div id="authError" style="color: var(--danger); background: var(--danger-bg); border: 1px solid #fecaca; padding: 8px 12px; border-radius: 6px; font-size: 12.5px; margin-top: 12px; display: none;">
-                Помилка автентифікації: невірний ключ доступу
+            <input type="password" id="adminPass" placeholder="Пароль адміністратора..." value="agro2026">
+            <button class="btn" id="loginBtn" style="background: var(--accent-green); width: 100%;">Увійти до панелі управління</button>
+            <div id="authError" style="color: var(--danger); font-size: 13px; margin-top: 10px; display: none;">
+                Помилка автентифікації: невірний пароль доступу
             </div>
         </div>
 
-        <!-- ОСНОВНИЙ КОНТЕНТ ПАНЕЛІ -->
         <div id="dashboardContent">
-            <!-- ВЕРХНЯ ПАНЕЛЬ ДІЙ -->
             <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <div>
-                    <h2 class="card-title">Реєстр суб'єктів аграрного ринку та макроекономічні індикатори</h2>
-                    <span class="card-subtitle">Централізований каталог діючих агровиробників, насіннєвих господарств, заводів переробки та інститутів НААН</span>
+                    <h2 class="card-title">Зведені індикатори трансферу технологій та кластеризації</h2>
+                    <span class="card-subtitle">Дані агрегуються з реєстру верифікованих учасників кластеру та двоконтурної системи логування</span>
                 </div>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button class="btn btn-primary" id="syncGrantsBtn">Синхронізувати каталог НААН–ІІБ</button>
-                    <button class="btn btn-secondary" id="refreshLogsBtn">Оновити дані</button>
-                    <button class="btn btn-outline" id="clearLocalLogsBtn">Очистити буфер логів</button>
+                    <button class="btn" id="syncGrantsBtn" style="background: var(--accent-green);">Синхронізувати каталог НААН-ІІБ</button>
+                    <button class="btn" id="refreshLogsBtn" style="background: var(--accent-dark);">Оновити телеметрію</button>
+                    <button class="btn" id="clearLocalLogsBtn" style="background: #64748b;">Очистити локальний буфер</button>
                 </div>
             </div>
 
-            <!-- KPI КАРТКИ -->
             <div class="admin-kpi-grid">
                 <div class="card" style="margin-bottom: 0;">
-                    <span class="kpi-lbl">Суб'єктів у каталозі ядра</span>
-                    <span class="kpi-num" id="kpiTotal" style="font-size: 22px;">21</span>
-                    <span class="kpi-sub" style="color:var(--accent-green); font-weight:600;">+ 50 000+ у відкритому ЄДР</span>
+                    <span class="kpi-lbl">Суб'єктів у кластері</span>
+                    <span class="kpi-num" id="kpiTotal" style="font-size: 24px;">4</span>
                 </div>
                 <div class="card" style="margin-bottom: 0;">
-                    <span class="kpi-lbl">Верифіковано за КВЕД</span>
-                    <span class="kpi-num" id="kpiVerified" style="font-size: 22px; color: var(--accent-green);">100%</span>
-                    <span class="kpi-sub">Рослинництво, переробка, НААН</span>
+                    <span class="kpi-lbl">Верифіковано за ЄДРПОУ</span>
+                    <span class="kpi-num" id="kpiVerified" style="font-size: 24px; color: var(--accent-green);">4</span>
                 </div>
                 <div class="card" style="margin-bottom: 0;">
                     <span class="kpi-lbl">Моделей фінансування</span>
-                    <span class="kpi-num" id="kpiGrants" style="font-size: 22px;">4</span>
-                    <span class="kpi-sub">Стартап-лоти ~100 тис. € / до 8 млн грн</span>
+                    <span class="kpi-num" id="kpiGrants" style="font-size: 24px;">4</span>
                 </div>
                 <div class="card" style="margin-bottom: 0;">
                     <span class="kpi-lbl">Записів у журналі логів</span>
-                    <span class="kpi-num" id="kpiLogsCount" style="font-size: 22px; color: var(--text-primary);">0</span>
-                    <span class="kpi-sub">Клієнтська та хмарна телеметрія</span>
+                    <span class="kpi-num" id="kpiLogsCount" style="font-size: 24px; color: var(--accent-blue);">0</span>
                 </div>
             </div>
 
-            <!-- ГРАФІКИ РОЗПОДІЛУ (ВИТРИМАНА B2B ПАЛІТРА БЕЗ РАЙДУГИ) -->
             <div class="admin-charts-grid">
                 <div class="card" style="margin-bottom: 0;">
                     <div class="card-header">
-                        <h3 class="card-title" style="font-size: 14px;">Регіональна локалізація суб'єктів кластеру</h3>
+                        <h3 class="card-title" style="font-size: 14.5px;">Регіональна локалізація учасників кластеру</h3>
                     </div>
-                    <div style="height: 240px;">
+                    <div style="height: 250px;">
                         <canvas id="regionChart"></canvas>
                     </div>
                 </div>
                 <div class="card" style="margin-bottom: 0;">
                     <div class="card-header">
-                        <h3 class="card-title" style="font-size: 14px;">Структура розподілу за ланками доданої вартості</h3>
+                        <h3 class="card-title" style="font-size: 14.5px;">Структура розподілу за ланками доданої вартості</h3>
                     </div>
-                    <div style="height: 240px;">
+                    <div style="height: 250px;">
                         <canvas id="activityChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- ІНТЕРАКТИВНИЙ РЕЄСТР ПІДПРИЄМСТВ КЛАСТЕРУ -->
             <div class="card">
                 <div class="card-header">
                     <div>
-                        <h3 class="card-title">Верифікований реєстр аграрних підприємств України (ЄДРПОУ Реєстр Кластеру)</h3>
-                        <span class="card-subtitle">Суб'єкти з підтвердженими КВЕД Секції А (01.xx), олійної/харчової переробки (10.41/10.84/10.91) та установ НААН (72.19)</span>
-                    </div>
-                    <span class="margin-badge" id="tableFilterCount">Відображено 21 з 21</span>
-                </div>
-
-                <div class="search-filter-bar">
-                    <input type="text" id="regSearchInput" class="search-input" placeholder="Швидкий пошук за ЄДРПОУ, назвою, областю чи КВЕД...">
-                    <select id="regRoleFilter" class="filter-select">
-                        <option value="ALL">Всі ланки кластеру</option>
-                        <option value="SCIENCE_CORE">Наукове ядро (НУС НААН)</option>
-                        <option value="SEED_ELITE">Базове насінництво (ДГ/БГ)</option>
-                        <option value="FARM_PRODUCER">Фермерський пул (СН-1)</option>
-                        <option value="DEEP_PROCESSOR">Глибока переробка (Заводи)</option>
-                    </select>
-                    <select id="regRegionFilter" class="filter-select">
-                        <option value="ALL">Всі області України</option>
-                    </select>
-                    <button class="btn btn-outline" id="btnResetFilters" style="padding: 7px 12px; font-size: 11.5px;">Скинути</button>
-                </div>
-
-                <div class="registry-table-wrapper">
-                    <table class="registry-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 95px;">ЄДРПОУ</th>
-                                <th style="width: 270px;">Найменування суб'єкта</th>
-                                <th style="width: 210px;">Галузевий КВЕД</th>
-                                <th style="width: 160px;">Локалізація</th>
-                                <th style="width: 170px;">Капсула у кластері</th>
-                                <th>Офіційний Заявник на грант (Правило ІІБ)</th>
-                                <th style="width: 85px; text-align: center;">Дія</th>
-                            </tr>
-                        </thead>
-                        <tbody id="registryTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- БЛОК МАСОВОГО ПОПОВНЕННЯ БАЗИ ТА 50 000+ АГРАРІЇВ -->
-            <div class="card">
-                <div class="card-header">
-                    <div>
-                        <h3 class="card-title">Масове розширення каталогу: Інтеграція 50 000+ аграрних підприємств України</h3>
-                        <span class="card-subtitle">Державні реєстри відкритих даних, секторальна потокова фільтрація та API-шлюзи</span>
-                    </div>
-                </div>
-
-                <div class="opendata-grid">
-                    <div class="opendata-card">
-                        <h4>1. Офіційний ЄДР на Data.gov.ua (ДП «НАІС»)</h4>
-                        <p><strong>Безкоштовно та офіційно:</strong> Щотижневий відкритий набір даних Міністерства юстиції (~1,5 млн юросіб). Наш потоковий КВЕД-фільтр відбирає діючих аграріїв (01.xx, 10.41, 10.61, 10.84, 72.19) — це <strong>понад 54 000 підприємств</strong>.</p>
-                        <div style="font-size: 11px; color: var(--accent-green); font-weight: 600;">✔ Формат: XML / JSON / ZIP (1.8 ГБ) • 0 грн</div>
-                    </div>
-                    <div class="opendata-card">
-                        <h4>2. Державний аграрний реєстр (ДАР)</h4>
-                        <p><strong>Офіційна платформа Мінагрополітики:</strong> <code>dar.gov.ua</code> містить понад 100 000 кабінетів агровиробників України з підтвердженим контрольним земельним банком у Державному земельному кадастрі (ДЗК).</p>
-                        <div style="font-size: 11px; color: var(--text-secondary); font-weight: 600;">✔ Верифікація кадастру та історії грантів «єРобота»</div>
-                    </div>
-                    <div class="opendata-card">
-                        <h4>3. Комерційні API (YouControl / OpenDataBot)</h4>
-                        <p><strong>Онлайн REST API:</strong> Для миттєвої перевірки ЄДРПОУ на лету (податковий статус, ліцензії, судові обтяження, статус банкрутства та кінцеві бенефіціари). Використовується як другий контур скорингу.</p>
-                        <div style="font-size: 11px; color: var(--text-secondary); font-weight: 600;">✔ Онлайн-перевірка судових та податкових ризиків</div>
-                    </div>
-                </div>
-
-                <div style="background:#f8fafc; border: 1px solid var(--border-color); border-radius:6px; padding:14px; margin-top:14px;">
-                    <h4 style="margin:0 0 6px 0; font-size:13px; color:var(--text-primary);">Фоновий інструмент потокового імпорту в локальну SQLite / JSON базу</h4>
-                    <p style="margin:0 0 10px 0; font-size:12px; color:var(--text-secondary);">
-                        У репозиторії створено готовий скрипт <code>scripts/import_open_agro_registry.py</code>. Він імпортує великі державні архіви потоком без перевантаження оперативної пам'яті:
-                    </p>
-                    <div class="code-snippet">
-# 1. Генерація та індексація 50 000 українських агропідприємств в SQLite (~0.8 сек):
-python3 scripts/import_open_agro_registry.py --generate-sample 50000 --output-sqlite data/agro_registry_50k.db
-
-# 2. Швидкий пошук підприємства за назвою або кодом ЄДРПОУ:
-python3 scripts/import_open_agro_registry.py --search "Поділля"
-                    </div>
-                </div>
-            </div>
-
-            <!-- ЖУРНАЛ ТЕЛЕМЕТРІЇ -->
-            <div class="card">
-                <div class="card-header">
-                    <div>
-                        <h3 class="card-title">Журнал аудиту транзакцій та телеметрії (System Audit Log)</h3>
-                        <span class="card-subtitle">Об'єднаний потік подій: локальний буфер дій користувача та серверні логи аудиту</span>
+                        <h3 class="card-title">Двоконтурний журнал логування розробки та дій користувачів (System Audit Log)</h3>
+                        <span class="card-subtitle">Відображає об'єднаний потік подій із клієнтського буфера LocalStorage та серверної таблиці PostgreSQL system_logs</span>
                     </div>
                 </div>
                 <div class="log-table-wrapper">
@@ -287,477 +132,99 @@ python3 scripts/import_open_agro_registry.py --search "Поділля"
     </div>
 
     <script>
-        const BACKEND_URL = (window.location.hostname.includes("github.io") || window.location.hostname.includes("web.app") || window.location.protocol === "file:")
+        const BACKEND_URL = (window.location.hostname.includes("github.io") || window.location.protocol === "file:")
             ? ""
             : window.location.origin;
-
-        // Безпечний список дозволених SHA-256 хешів паролів (не зберігаємо відкриті паролі в коді)
-        // agro2026 -> 077d1cf29426c4cda94f4134632c9d19533de0d870732519896f69ae9acdcb7f
-        // iib2026  -> 7e0701c46c7f28f05d14869d455b0485ea534d036d4586b870b07110ba8d53db
-        // admin2026-> 6051fc84a7a0d74c225fb18a496b09952da5642e60723ecae543298edd7d82d6
-        const VALID_ADMIN_HASHES = new Set([
-            "077d1cf29426c4cda94f4134632c9d19533de0d870732519896f69ae9acdcb7f",
-            "7e0701c46c7f28f05d14869d455b0485ea534d036d4586b870b07110ba8d53db",
-            "6051fc84a7a0d74c225fb18a496b09952da5642e60723ecae543298edd7d82d6",
-            "e683b571d341e9a30a99a4811c2ae3fab353de092fab9133286af14e112d6ab2"
-        ]);
-
-        async function computeSha256(text) {
-            try {
-                if (window.crypto && crypto.subtle) {
-                    const encoder = new TextEncoder();
-                    const data = encoder.encode(text);
-                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-                }
-            } catch (e) {}
-            // Резервний безпечний шлях
-            return text === 'agro2026' ? '077d1cf29426c4cda94f4134632c9d19533de0d870732519896f69ae9acdcb7f' : '';
-        }
-
-        async function handleAdminLogin(event) {
-            if (event) event.preventDefault();
-            const passInput = document.getElementById('adminPass');
-            const passVal = (passInput ? passInput.value : '').trim();
-            const errBox = document.getElementById('authError');
-            errBox.style.display = 'none';
-
-            if (!passVal) {
-                errBox.textContent = 'Будь ласка, введіть ключ доступу.';
-                errBox.style.display = 'block';
-                return;
-            }
-
-            const hash = await computeSha256(passVal);
-            if (!VALID_ADMIN_HASHES.has(hash) && passVal !== 'agro2026') {
-                errBox.textContent = 'Помилка автентифікації: невірний ключ доступу.';
-                errBox.style.display = 'block';
-                return;
-            }
-
-            // Збереження сесії в sessionStorage (при оновленні сторінки не вибиває)
-            try {
-                sessionStorage.setItem('agro_admin_authenticated', 'true');
-                sessionStorage.setItem('agro_admin_session_time', Date.now().toString());
-            } catch (e) {}
-
-            unlockAdminDashboard();
-        }
-
-        function unlockAdminDashboard() {
-            document.getElementById('loginCard').style.display = 'none';
-            document.getElementById('dashboardContent').style.display = 'block';
-            document.getElementById('btnLogout').style.display = 'inline-block';
-            loadTelemetryAndStats();
-        }
-
-        function logoutAdmin() {
-            try {
-                sessionStorage.removeItem('agro_admin_authenticated');
-                sessionStorage.removeItem('agro_admin_session_time');
-            } catch (e) {}
-            document.getElementById('dashboardContent').style.display = 'none';
-            document.getElementById('loginCard').style.display = 'block';
-            document.getElementById('btnLogout').style.display = 'none';
-            document.getElementById('adminPass').value = '';
-        }
-
-        // Повний каталог верифікованих аграрних підприємств України за методологією ТОВ «ІІБ»
-        const CLUSTER_REGISTRY = [
-            {
-                edrpou: "00496802",
-                name: "ННЦ «ІНСТИТУТ ЗЕМЛЕРОБСТВА НААН»",
-                kved: "72.19 Дослідження й експериментальні розробки у сфері природничих наук",
-                region: "Київська обл., смт Чабани",
-                oblast: "Київська обл.",
-                role: "SCIENCE_CORE",
-                roleTitle: "Наукове ядро (НААН)",
-                activity: "Опція 1 т Супереліти (1 га) та роялті",
-                operator: "ТОВ «ІНСТИТУТ ІННОВАЦІЙНОЇ БІОЕКОНОМІКИ» (Провайдер)"
-            },
-            {
-                edrpou: "40125890",
-                name: "ТОВ «ІНСТИТУТ ІННОВАЦІЙНОЇ БІОЕКОНОМІКИ»",
-                kved: "70.22 Управління біоекономічними кластерами",
-                region: "м. Київ, вул. Васильківська",
-                oblast: "Київська обл.",
-                role: "SCIENCE_CORE",
-                roleTitle: "Провайдер ІІБ",
-                activity: "Провайдинг Драфту та Оператор грантових лотів",
-                operator: "ТОВ «ІНСТИТУТ ІННОВАЦІЙНОЇ БІОЕКОНОМІКИ» (Прямий заявник)"
-            },
-            {
-                edrpou: "00496819",
-                name: "ДП ДГ «ЧАБАНИ» ННЦ «ІЗ НААН»",
-                kved: "01.64 Оброблення насіння для відтворення",
-                region: "Київська обл., Фастівський р-н",
-                oblast: "Київська обл.",
-                role: "SEED_ELITE",
-                roleTitle: "Базове насінництво",
-                activity: "200 га Базової Еліти (120 т насіння)",
-                operator: "ДП ДГ «ЧАБАНИ» ННЦ «ІЗ НААН»"
-            },
-            {
-                edrpou: "00496825",
-                name: "ДП ДГ «САЛИВОНКІВСЬКЕ» ІЦБ НААН",
-                kved: "01.64 Оброблення насіння для відтворення",
-                region: "Київська обл., Білоцерківський р-н",
-                oblast: "Київська обл.",
-                role: "SEED_ELITE",
-                roleTitle: "Базове насінництво",
-                activity: "Вирощування насіння вищих репродукцій сорту «Біла Принцеса»",
-                operator: "ДП ДГ «САЛИВОНКІВСЬКЕ»"
-            },
-            {
-                edrpou: "00496831",
-                name: "ІНСТИТУТ КОРМІВ ТА СІЛЬСЬКОГО ГОСПОДАРСТВА НААН",
-                kved: "72.19 Дослідження й експериментальні розробки",
-                region: "Вінницька обл., м. Вінниця",
-                oblast: "Вінницька обл.",
-                role: "SCIENCE_CORE",
-                roleTitle: "Наукове ядро (НААН)",
-                activity: "Науковий супровід сидерації та кормової бази",
-                operator: "ТОВ «ІНСТИТУТ ІННОВАЦІЙНОЇ БІОЕКОНОМІКИ» (Провайдер)"
-            },
-            {
-                edrpou: "00496848",
-                name: "ІНСТИТУТ ОЛІЙНИХ КУЛЬТУР НААН",
-                kved: "72.19 Дослідження в агронауці",
-                region: "Запорізька обл., Запорізький р-н",
-                oblast: "Запорізька обл.",
-                role: "SCIENCE_CORE",
-                roleTitle: "Наукове ядро (НААН)",
-                activity: "Селекція та сортовипробування хрестоцвітих культур",
-                operator: "ТОВ «ІНСТИТУТ ІННОВАЦІЙНОЇ БІОЕКОНОМІКИ» (Провайдер)"
-            },
-            {
-                edrpou: "03728915",
-                name: "ФГ «ПОДІЛЬСЬКИЙ КОЛОС»",
-                kved: "01.11 Вирощування зернових та насіння олійних культур",
-                region: "Вінницька обл., Вінницький р-н",
-                oblast: "Вінницька обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Товарні посіви СН-1 та сидерація у 50-км зоні",
-                operator: "ФГ «ПОДІЛЬСЬКИЙ КОЛОС»"
-            },
-            {
-                edrpou: "39584120",
-                name: "ПСП «КОЛОС ПОДІЛЛЯ»",
-                kved: "01.11 Вирощування зернових культур",
-                region: "Вінницька обл., Тульчинський р-н",
-                oblast: "Вінницька обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Товарний клин гірчиці як попередник озимих",
-                operator: "ПСП «КОЛОС ПОДІЛЛЯ»"
-            },
-            {
-                edrpou: "33445566",
-                name: "СТОВ «АГРОСВІТ ПОЛТАВЩИНИ»",
-                kved: "01.11 Вирощування зернових культур",
-                region: "Полтавська обл., Миргородський р-н",
-                oblast: "Полтавська обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Товарні посіви сорту «Біла Принцеса» для переробки",
-                operator: "СТОВ «АГРОСВІТ ПОЛТАВЩИНИ»"
-            },
-            {
-                edrpou: "31985472",
-                name: "ТОВ «АСТАРТА-КИЇВ»",
-                kved: "01.11 Вирощування зернових і технічних культур",
-                region: "Полтавська обл., Полтавський р-н",
-                oblast: "Полтавська обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Масштабування сидеральних сівозмін та товарного зерна",
-                operator: "ТОВ «АСТАРТА-КИЇВ»"
-            },
-            {
-                edrpou: "41258963",
-                name: "ТОВ «АГРО-ЕКО ПЕРЕРОБКА»",
-                kved: "10.41 Виробництво олії та тваринних жирів",
-                region: "Черкаська обл., Черкаський р-н",
-                oblast: "Черкаська обл.",
-                role: "DEEP_PROCESSOR",
-                roleTitle: "Глибока переробка",
-                activity: "Завод глибокої переробки Zero-Waste (олія, порошок, шрот)",
-                operator: "ТОВ «АГРО-ЕКО ПЕРЕРОБКА»"
-            },
-            {
-                edrpou: "37895412",
-                name: "СТОВ «ЧЕРКАСИ-АГРОЛАН»",
-                kved: "01.11 Вирощування зернових культур",
-                region: "Черкаська обл., м. Черкаси",
-                oblast: "Черкаська обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Контрактація посівів для локального заводу переробки",
-                operator: "СТОВ «ЧЕРКАСИ-АГРОЛАН»"
-            },
-            {
-                edrpou: "38954120",
-                name: "СФГ «СВІТАНОК СТЕПУ»",
-                kved: "01.11 Вирощування зернових культур",
-                region: "Кіровоградська обл., Олександрійський р-н",
-                oblast: "Кіровоградська обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Товарне вирощування та насінництво в умовах Степу",
-                operator: "СФГ «СВІТАНОК СТЕПУ»"
-            },
-            {
-                edrpou: "33654128",
-                name: "ТОВ «ПОДІЛЛЯ-ЗЕРНОПРОДУКТ»",
-                kved: "01.11 Вирощування зернових і насіння олійних культур",
-                region: "Хмельницька обл., м. Хмельницький",
-                oblast: "Хмельницька обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Впровадження білої гірчиці у сівозміну як попередника озимих",
-                operator: "ТОВ «ПОДІЛЛЯ-ЗЕРНОПРОДУКТ»"
-            },
-            {
-                edrpou: "32145896",
-                name: "ТОВ «АГРОІНВЕСТ ДНІПРО»",
-                kved: "01.11 Вирощування зернових і насіння олійних культур",
-                region: "Дніпропетровська обл., Дніпровський р-н",
-                oblast: "Дніпропетровська обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Товарні посіви посухостійкого сорту «Біла Принцеса»",
-                operator: "ТОВ «АГРОІНВЕСТ ДНІПРО»"
-            },
-            {
-                edrpou: "36985214",
-                name: "ТОВ «ОЕЗ \"ОЛІЯР-СХІД\"»",
-                kved: "10.41 Виробництво олії та тваринних жирів",
-                region: "Дніпропетровська обл., м. Кам'янське",
-                oblast: "Дніпропетровська обл.",
-                role: "DEEP_PROCESSOR",
-                roleTitle: "Глибока переробка",
-                activity: "Контрактація 50-км зони та промислова переробка насіння",
-                operator: "ТОВ «ОЕЗ \"ОЛІЯР-СХІД\"»"
-            },
-            {
-                edrpou: "37458129",
-                name: "ТОВ «ЕКО-ОЛІЯ ПІВДЕНЬ»",
-                kved: "10.41 Виробництво олії та жирів",
-                region: "Одеська обл., м. Одеса",
-                oblast: "Одеська обл.",
-                role: "DEEP_PROCESSOR",
-                roleTitle: "Глибока переробка",
-                activity: "Холодне пресування олії та портовий експортний термінал",
-                operator: "ТОВ «ЕКО-ОЛІЯ ПІВДЕНЬ»"
-            },
-            {
-                edrpou: "34852109",
-                name: "ТОВ «СЛОБОЖАНСЬКИЙ АГРОКОМБІНАТ»",
-                kved: "10.84 Виробництво прянощів і приправ",
-                region: "Харківська обл., м. Харків",
-                oblast: "Харківська обл.",
-                role: "DEEP_PROCESSOR",
-                roleTitle: "Глибока переробка",
-                activity: "Виробництво гірчичного порошку вищого гатунку",
-                operator: "ТОВ «СЛОБОЖАНСЬКИЙ АГРОКОМБІНАТ»"
-            },
-            {
-                edrpou: "36541280",
-                name: "ФГ «ПОЛІСЬКА НИВА»",
-                kved: "01.11 Вирощування зернових і бобових культур",
-                region: "Житомирська обл., Житомирський р-н",
-                oblast: "Житомирська обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Сидеральні посіви та фітосанітарне оздоровлення ґрунтів",
-                operator: "ФГ «ПОЛІСЬКА НИВА»"
-            },
-            {
-                edrpou: "31245879",
-                name: "ТОВ «ВОЛИНЬ-ЗЕРНО-ПРОДУКТ» (ТМ ВІЛІЯ)",
-                kved: "01.11 Вирощування зернових та олійних культур",
-                region: "Волинська обл., м. Луцьк",
-                oblast: "Волинська обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Прямий експорт партій олії та порошку до Євросоюзу",
-                operator: "ТОВ «ВОЛИНЬ-ЗЕРНО-ПРОДУКТ»"
-            },
-            {
-                edrpou: "35041289",
-                name: "ТОВ «ЧЕРНІГІВСЬКА ІНДУСТРІАЛЬНА МОЛОЧНА КОМПАНІЯ» (ІМК)",
-                kved: "01.11 Вирощування зернових і олійних культур",
-                region: "Чернігівська обл., Чернігівський р-н",
-                oblast: "Чернігівська обл.",
-                role: "FARM_PRODUCER",
-                roleTitle: "Фермерський пул",
-                activity: "Замкнений цикл: насіння + споживання шроту на корм тваринам",
-                operator: "ТОВ «ЧІМК»"
-            }
-        ];
-
         let regChartInstance = null;
         let actChartInstance = null;
 
-        function getRoleBadge(role, roleTitle) {
-            return `<span class="role-pill"><span class="role-indicator"></span>${roleTitle}</span>`;
-        }
+        const FALLBACK_STATS = {
+            total: 4,
+            edrpou_verified: 4,
+            grants_count: 4,
+            avg_own_percent: 30,
+            regions: {
+                "Київська обл. (НААН & ІІБ)": 2,
+                "Вінницька обл. (Насінництво)": 1,
+                "Черкаська обл. (Переробка)": 1
+            },
+            activities: {
+                "І. Селекція (Супереліта)": 1,
+                "ІІ. Координація (ІІБ)": 1,
+                "ІІІ. Насінництво (РС-1)": 1,
+                "ІV. Глибока переробка": 1
+            }
+        };
 
-        function populateRegionFilter() {
-            const select = document.getElementById('regRegionFilter');
-            const curVal = select.value;
-            select.innerHTML = '<option value="ALL">Всі області України</option>';
-            const uniqueObl = Array.from(new Set(CLUSTER_REGISTRY.map(c => c.oblast))).sort();
-            uniqueObl.forEach(obl => {
-                const opt = document.createElement('option');
-                opt.value = obl;
-                opt.textContent = obl;
-                if (obl === curVal) opt.selected = true;
-                select.appendChild(opt);
-            });
-        }
+        async function loadTelemetryAndStats(password) {
+            const errBox = document.getElementById('authError');
+            const statusBadge = document.getElementById('adminConnStatus');
+            errBox.style.display = 'none';
 
-        function renderRegistryTable(items) {
-            const tbody = document.getElementById('registryTableBody');
-            tbody.innerHTML = '';
-            document.getElementById('tableFilterCount').textContent = `Відображено ${items.length.toLocaleString('uk-UA')} з ${CLUSTER_REGISTRY.length.toLocaleString('uk-UA')}`;
-
-            if (items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:#64748b;">
-                    За вказаними критеріями підприємств не знайдено. Змініть фільтри або скористайтеся пошуком вище.
-                </td></tr>`;
+            if (password !== 'agro2026') {
+                errBox.style.display = 'block';
                 return;
             }
 
-            const displayList = items.slice(0, 150);
-            displayList.forEach(c => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><span class="edrpou-badge">${c.edrpou}</span></td>
-                    <td><strong>${c.name}</strong><br><span style="color:#64748b; font-size:11px;">${c.activity}</span></td>
-                    <td><span style="font-size:11.5px; color:#334155;">${c.kved}</span></td>
-                    <td>${c.region}</td>
-                    <td>${getRoleBadge(c.role, c.roleTitle)}</td>
-                    <td style="font-size:11.5px; color:#1e293b;">${c.operator}</td>
-                    <td style="text-align: center;">
-                        <a href="index.html?edrpou=${c.edrpou}" class="btn-table-action" title="Завантажити суб'єкта до фінансового калькулятора Драфту">
-                            Вибрати ↗
-                        </a>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+            let statsData = FALLBACK_STATS;
+            let serverLogs = [];
 
-            if (items.length > 150) {
-                const trMore = document.createElement('tr');
-                trMore.innerHTML = `<td colspan="7" style="text-align:center; padding:10px; color:#64748b; font-size:11.5px; background:#f8fafc;">
-                    Показано перші 150 з ${items.length.toLocaleString('uk-UA')} підприємств. Скористайтеся рядком пошуку вище для миттєвого звуження за будь-яким словом, районом чи ЄДРПОУ.
-                </td>`;
-                tbody.appendChild(trMore);
-            }
-        }
-
-        async function loadExpandedAdminCatalog() {
             try {
-                const resp = await fetch('agro_registry_catalog.json');
-                if (resp.ok) {
-                    const catalog = await resp.json();
-                    catalog.forEach(item => {
-                        if (!CLUSTER_REGISTRY.some(x => x.edrpou === item.edrpou)) {
-                            const obl = item.region ? item.region.split(',')[0].trim() : 'Інші регіони';
-                            CLUSTER_REGISTRY.push({
-                                edrpou: item.edrpou,
-                                name: item.company_name,
-                                kved: item.kved,
-                                region: item.region,
-                                oblast: obl.includes('обл.') ? obl : `${obl} обл.`,
-                                role: item.cluster_role || 'FARM_PRODUCER',
-                                roleTitle: item.cluster_role === 'SCIENCE_CORE' ? 'Наукове ядро (НААН)' :
-                                           item.cluster_role === 'SEED_ELITE' ? 'Базове насінництво' :
-                                           item.cluster_role === 'DEEP_PROCESSOR' ? 'Глибока переробка' : 'Фермерський пул',
-                                activity: item.activity_type || 'Товарні посіви та сидерація',
-                                operator: item.grant_operator || item.company_name
-                            });
-                        }
-                    });
-                    populateRegionFilter();
-                    updateChartsAndKpis();
-                    filterRegistryTable();
+                const resStats = await fetch(`${BACKEND_URL}/api/stats?password=${encodeURIComponent(password)}`);
+                if (resStats.ok) {
+                    statsData = await resStats.json();
+                    statusBadge.textContent = "БД PostgreSQL • Синхронізовано";
+                }
+            } catch (e) {
+                statusBadge.textContent = "Автономний контур телеметрії";
+            }
+
+            try {
+                const resLogs = await fetch(`${BACKEND_URL}/api/logs?password=${encodeURIComponent(password)}`);
+                if (resLogs.ok) {
+                    const parsed = await resLogs.json();
+                    serverLogs = parsed.logs || [];
                 }
             } catch (e) {}
-        }
 
-        function filterRegistryTable() {
-            const query = document.getElementById('regSearchInput').value.trim().toLowerCase();
-            const role = document.getElementById('regRoleFilter').value;
-            const region = document.getElementById('regRegionFilter').value;
+            const localLogs = JSON.parse(localStorage.getItem('agrocluster_logs') || '[]');
+            const combinedLogs = [...localLogs, ...serverLogs].slice(0, 80);
 
-            const filtered = CLUSTER_REGISTRY.filter(item => {
-                const matchQuery = !query ||
-                    item.edrpou.includes(query) ||
-                    item.name.toLowerCase().includes(query) ||
-                    item.kved.toLowerCase().includes(query) ||
-                    item.region.toLowerCase().includes(query) ||
-                    item.activity.toLowerCase().includes(query);
+            document.getElementById('loginCard').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'block';
 
-                const matchRole = role === "ALL" || item.role === role;
-                const matchRegion = region === "ALL" || item.oblast === region;
+            document.getElementById('kpiTotal').textContent = statsData.total;
+            document.getElementById('kpiVerified').textContent = statsData.edrpou_verified;
+            document.getElementById('kpiGrants').textContent = statsData.grants_count;
+            document.getElementById('kpiLogsCount').textContent = combinedLogs.length;
 
-                return matchQuery && matchRole && matchRegion;
-            });
-
-            renderRegistryTable(filtered);
-        }
-
-        function updateChartsAndKpis() {
-            const regCount = {};
-            CLUSTER_REGISTRY.forEach(c => {
-                regCount[c.oblast] = (regCount[c.oblast] || 0) + 1;
-            });
-
-            const actCount = {
-                "І. Селекція НААН": CLUSTER_REGISTRY.filter(c => c.role === "SCIENCE_CORE").length,
-                "ІІ. Базове насінництво": CLUSTER_REGISTRY.filter(c => c.role === "SEED_ELITE").length,
-                "ІІІ. Товарний пул СН-1": CLUSTER_REGISTRY.filter(c => c.role === "FARM_PRODUCER").length,
-                "ІV. Глибока переробка": CLUSTER_REGISTRY.filter(c => c.role === "DEEP_PROCESSOR").length
-            };
-
-            document.getElementById('kpiTotal').textContent = CLUSTER_REGISTRY.length;
-            document.getElementById('kpiVerified').textContent = '100%';
-            document.getElementById('kpiGrants').textContent = '4';
-
-            // Кругова діаграма регіонів (стримана корпоративна палітра)
             if (regChartInstance) regChartInstance.destroy();
-            const palette = ['#0f172a', '#15803d', '#334155', '#166534', '#475569', '#16a34a', '#64748b', '#86efac', '#94a3b8', '#cbd5e1'];
             regChartInstance = new Chart(document.getElementById('regionChart'), {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(regCount),
+                    labels: Object.keys(statsData.regions),
                     datasets: [{
-                        data: Object.values(regCount),
-                        backgroundColor: palette.slice(0, Object.keys(regCount).length)
+                        data: Object.values(statsData.regions),
+                        backgroundColor: ['#0f172a', '#059669', '#2563eb', '#d97706']
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+                    plugins: { legend: { position: 'bottom' } }
                 }
             });
 
-            // Стовпчаста діаграма ролей (лісовий смарагд)
             if (actChartInstance) actChartInstance.destroy();
             actChartInstance = new Chart(document.getElementById('activityChart'), {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(actCount),
+                    labels: Object.keys(statsData.activities),
                     datasets: [{
-                        label: "Суб'єктів",
-                        data: Object.values(actCount),
-                        backgroundColor: '#15803d',
-                        borderRadius: 4
+                        label: 'Суб\'єкти кластеру',
+                        data: Object.values(statsData.activities),
+                        backgroundColor: '#059669',
+                        borderRadius: 6
                     }]
                 },
                 options: {
@@ -767,35 +234,12 @@ python3 scripts/import_open_agro_registry.py --search "Поділля"
                     scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
                 }
             });
-        }
-
-        async function loadTelemetryAndStats() {
-            const statusBadge = document.getElementById('adminConnStatus');
-            let serverLogs = [];
-            try {
-                const resLogs = await fetch(`${BACKEND_URL}/api/logs?password=agro2026`);
-                if (resLogs.ok) {
-                    const parsed = await resLogs.json();
-                    serverLogs = parsed.logs || [];
-                    statusBadge.textContent = "БД PostgreSQL • Синхронізовано";
-                }
-            } catch (e) {
-                statusBadge.textContent = "Клієнтський контур верифікації ЄДРПОУ";
-            }
-
-            const localLogs = JSON.parse(localStorage.getItem('agrocluster_logs') || '[]');
-            const combinedLogs = [...localLogs, ...serverLogs].slice(0, 100);
-
-            document.getElementById('kpiLogsCount').textContent = combinedLogs.length;
-
-            updateChartsAndKpis();
-            renderRegistryTable(CLUSTER_REGISTRY);
 
             const tbody = document.getElementById('logsTableBody');
             tbody.innerHTML = '';
 
             if (combinedLogs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#64748b; padding: 20px;">Подій ще не зафіксовано. Перейдіть на головну сторінку та змініть параметри калькулятора, оберіть ЄДРПОУ або експортуйте звіт.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#64748b; padding: 20px;">Подій ще не зафіксовано. Перейдіть на головну сторінку та змініть параметри калькулятора або згенеруйте PDF.</td></tr>';
             } else {
                 combinedLogs.forEach(item => {
                     const tr = document.createElement('tr');
@@ -809,25 +253,17 @@ python3 scripts/import_open_agro_registry.py --search "Поділля"
             }
         }
 
-        // Слухачі подій
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            loadTelemetryAndStats(document.getElementById('adminPass').value.trim());
+        });
+
         document.getElementById('refreshLogsBtn').addEventListener('click', () => {
-            loadTelemetryAndStats();
+            loadTelemetryAndStats(document.getElementById('adminPass').value.trim() || 'agro2026');
         });
 
         document.getElementById('clearLocalLogsBtn').addEventListener('click', () => {
             localStorage.removeItem('agrocluster_logs');
-            loadTelemetryAndStats();
-        });
-
-        document.getElementById('regSearchInput').addEventListener('input', filterRegistryTable);
-        document.getElementById('regRoleFilter').addEventListener('change', filterRegistryTable);
-        document.getElementById('regRegionFilter').addEventListener('change', filterRegistryTable);
-
-        document.getElementById('btnResetFilters').addEventListener('click', () => {
-            document.getElementById('regSearchInput').value = '';
-            document.getElementById('regRoleFilter').value = 'ALL';
-            document.getElementById('regRegionFilter').value = 'ALL';
-            renderRegistryTable(CLUSTER_REGISTRY);
+            loadTelemetryAndStats(document.getElementById('adminPass').value.trim() || 'agro2026');
         });
 
         document.getElementById('syncGrantsBtn').addEventListener('click', async (e) => {
@@ -839,21 +275,12 @@ python3 scripts/import_open_agro_registry.py --search "Поділля"
             logs.unshift({
                 timestamp: new Date().toLocaleString('uk-UA'),
                 action: 'ADMIN_CATALOG_SYNC',
-                details: 'Актуалізовано 21 верифіковане агропідприємство України та підключено відкритий датасет 50 000+ ЄДР'
+                details: 'Актуалізовано матрицю 4 моделей комерціалізації сорту «Біла Принцеса»'
             });
             localStorage.setItem('agrocluster_logs', JSON.stringify(logs));
-            await loadTelemetryAndStats();
+            await loadTelemetryAndStats('agro2026');
             btn.disabled = false;
-            btn.textContent = 'Синхронізувати каталог НААН–ІІБ';
-        });
-
-        // Перевірка активної сесії при відкритті сторінки
-        window.addEventListener('DOMContentLoaded', () => {
-            populateRegionFilter();
-            loadExpandedAdminCatalog();
-            if (sessionStorage.getItem('agro_admin_authenticated') === 'true') {
-                unlockAdminDashboard();
-            }
+            btn.textContent = 'Синхронізувати каталог НААН-ІІБ';
         });
     </script>
 </body>
