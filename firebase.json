@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "agrocluster",
     "public": ".",
     "ignore": [
       "firebase.json",
