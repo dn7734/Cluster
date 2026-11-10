@@ -6,14 +6,16 @@
  * 2. Парсер та галузевий верифікатор юридичних осіб України за ЄДРПОУ (Тільки Аграрії, Переробники та НУС НААН);
  * 3. Правило комерційного Оператора подачі (заміна бюджетної установи НААН на Провайдера ТОВ «ІІБ»);
  * 4. Вирізку Стартап-лотів під джерела фінансування (~100 тис. € грант, до 8 млн грн переробка, 50-км Off-take);
- * 5. Миттєву генерацію Драфту (PDF), Тизера Стартапу (PDF), Кластерної Угоди (DOCX) та Веб-Скоринг (без Telegram).
+ * 5. Миттєву генерацію Драфту (PDF), Тизера Стартапу (PDF), Кластерної Угоди (DOCX) та Веб-Скоринг.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Автоматичне визначення хмарного бекенду (Firebase Hosting + Cloud Run або локальний сервер)
-    const BACKEND_URL = (window.location.hostname.includes("github.io") || window.location.protocol === "file:")
-        ? ""
-        : window.location.origin;
+    // Автоматичне визначення хмарного бекенду (Firebase Hosting / GitHub Pages або локальний API сервер)
+    const isStaticHosting = window.location.hostname.includes("github.io") ||
+                            window.location.hostname.includes("web.app") ||
+                            window.location.hostname.includes("firebaseapp.com") ||
+                            window.location.protocol === "file:";
+    const BACKEND_URL = isStaticHosting ? "" : window.location.origin;
 
     const ALLOWED_AGRO_KVEDS = [
         "01.11", "01.13", "01.19", "01.21", "01.24", "01.25", "01.26", "01.28", "01.30",
@@ -220,6 +222,16 @@ document.addEventListener("DOMContentLoaded", () => {
             localLogs.unshift(entry);
             localStorage.setItem('agrocluster_logs', JSON.stringify(localLogs.slice(0, 100)));
         } catch (err) {}
+
+        if (window.firestoreDb) {
+            try {
+                window.firestoreDb.collection("system_logs").add({
+                    action: actionName,
+                    details: detailsStr,
+                    timestamp: new Date().toISOString()
+                }).catch(() => {});
+            } catch (err) {}
+        }
 
         if (!BACKEND_URL) return;
         try {
@@ -471,9 +483,41 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    function saveCustomPricesToStorage() {
+        try {
+            const p = {
+                priceOil: inpPriceOil ? inpPriceOil.value : "90000",
+                pricePowder: inpPricePowder ? inpPricePowder.value : "25000",
+                priceMeal: inpPriceMeal ? inpPriceMeal.value : "10000",
+                priceSiderat: inpPriceSiderat ? inpPriceSiderat.value : "32000",
+                costGrow: inpCostGrow ? inpCostGrow.value : "14970",
+                costProcess: inpCostProcess ? inpCostProcess.value : "21500"
+            };
+            localStorage.setItem('agrocluster_custom_prices', JSON.stringify(p));
+        } catch (e) {}
+    }
+
+    function loadCustomPricesFromStorage() {
+        try {
+            const raw = localStorage.getItem('agrocluster_custom_prices');
+            if (raw) {
+                const p = JSON.parse(raw);
+                if (inpPriceOil && p.priceOil) inpPriceOil.value = p.priceOil;
+                if (inpPricePowder && p.pricePowder) inpPricePowder.value = p.pricePowder;
+                if (inpPriceMeal && p.priceMeal) inpPriceMeal.value = p.priceMeal;
+                if (inpPriceSiderat && p.priceSiderat) inpPriceSiderat.value = p.priceSiderat;
+                if (inpCostGrow && p.costGrow) inpCostGrow.value = p.costGrow;
+                if (inpCostProcess && p.costProcess) inpCostProcess.value = p.costProcess;
+            }
+        } catch (e) {}
+    }
+
     [inpPriceOil, inpPricePowder, inpPriceMeal, inpPriceSiderat, inpCostGrow, inpCostProcess].forEach(el => {
         if (!el) return;
-        el.addEventListener('input', recalcClusterEconomics);
+        el.addEventListener('input', () => {
+            recalcClusterEconomics();
+            saveCustomPricesToStorage();
+        });
     });
 
     if (btnResetPrices) {
@@ -484,11 +528,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (inpPriceSiderat) inpPriceSiderat.value = 32000;
             if (inpCostGrow) inpCostGrow.value = 14970;
             if (inpCostProcess) inpCostProcess.value = 21500;
+            try { localStorage.removeItem('agrocluster_custom_prices'); } catch (e) {}
             recalcClusterEconomics();
             logAction('PRICING_RESET', 'Скинуто параметри ринку та собівартості до дефолтів 2026');
         });
     }
 
+    loadCustomPricesFromStorage();
     recalcClusterEconomics();
 
     function updateProfileUI(prof) {
@@ -883,7 +929,64 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 4. Відкриття вбудованого Веб-Модуля Скорингу Грантів та Вирізки Стартапу (Повністю без Telegram)
+    // 4. Експорт Фінансово-Економічної Матриці (CSV/Excel з підтримкою кирилиці UTF-8 BOM)
+    const btnDownloadCsv = document.getElementById('downloadCsvBtn');
+    if (btnDownloadCsv) {
+        btnDownloadCsv.addEventListener('click', () => {
+            const rows = [
+                ["Параметр фінансової моделі", "Розрахункове значення", "Одиниця виміру / Додатковий коментар"],
+                ["Дата розрахунку", new Date().toLocaleDateString('uk-UA'), ""],
+                ["Суб'єкт кластеру", currentProfile.company_name, `ЄДРПОУ: ${currentProfile.edrpou}`],
+                ["Галузевий КВЕД", currentProfile.kved, ""],
+                ["Капсула у Драфті ІІБ", currentProfile.activity_type, ""],
+                ["", "", ""],
+                ["--- МАСШТАБ КЛАСТЕРНОГО ЦИКЛУ ---", "", ""],
+                ["Площа посівів СН-1 у 50-км зоні", calcState.area, "га"],
+                ["Врожайність сорту «Біла Принцеса»", calcState.yld, "т/га"],
+                ["Валовий збір насіння", calcState.totalHarvestTons, "т"],
+                ["Частка глибокої переробки (Вихід Б)", calcState.procPct, "%"],
+                ["Частка фасованого сидерату (Вихід А)", calcState.sideratPct, "%"],
+                ["Обсяг насіння на переробку", calcState.tonsProcessed, "т"],
+                ["Обсяг насіння на сидерат (мішки 25 кг)", calcState.tonsSiderat, "т"],
+                ["", "", ""],
+                ["--- БАЛАНС ГЛИБОКОЇ ПЕРЕРОБКИ ZERO-WASTE ---", "", ""],
+                ["Олія холодного віджиму (30%)", calcState.oilTons, `т | Ціна: ${calcState.priceOil} грн/т | Виручка: ${calcState.revOil} грн`],
+                ["Гірчичний порошок (50%)", calcState.powderTons, `т | Ціна: ${calcState.pricePowder} грн/т | Виручка: ${calcState.revPowder} грн`],
+                ["Кормовий білковий шрот (15%)", calcState.mealTons, `т | Ціна: ${calcState.priceMeal} грн/т | Виручка: ${calcState.revMeal} грн`],
+                ["Технічна насіннєва фракція (5%)", calcState.seedFractionTons, `т | Ціна: 40000 грн/т | Виручка: ${calcState.revSeedFraction} грн`],
+                ["", "", ""],
+                ["--- ВИТРАТИ ТА ЧИСТА МАРЖА ЗА 4 КАПСУЛАМИ ---", "", ""],
+                ["За кадром: Наукове ядро (НУС НААН)", `Витрати: ${calcState.cost1} грн`, `Виручка: ${calcState.rev1} грн | Маржа: +${calcState.mar1} грн`],
+                ["Капсула І: Базове насінництво (ДГ)", `Витрати: ${calcState.cost2} грн`, `Виручка: ${calcState.rev2} грн | Маржа: +${calcState.mar2} грн`],
+                ["Капсула ІІ: Фермерський пул СН-1", `Витрати: ${calcState.cost3} грн`, `Виручка: ${calcState.rev3} грн | Маржа: +${calcState.mar3} грн`],
+                ["Капсула ІІІ: Завод переробки Zero-Waste", `Витрати: ${calcState.cost4} грн`, `Виручка: ${calcState.rev4} грн | Маржа: +${calcState.mar4} грн`],
+                ["", "", ""],
+                ["--- ЗВЕДЕНІ ФІНАНСОВІ ІНДИКАТОРИ ---", "", ""],
+                ["Сукупні витрати циклу", calcState.totalCost, "грн"],
+                ["Сукупна виручка кластеру", calcState.totalRev, "грн"],
+                ["Сукупна чиста маржа кластеру", calcState.totalMargin, "грн"],
+                ["Рентабельність інвестицій (ROI)", calcState.roi, "%"],
+                ["Економічний ефект цифровізації (E₂)", calcState.effectE2, "грн/рік (+15%)"],
+                ["Вигода НУС НААН (кратність зростання)", calcState.naanMult, "раза (проти 46 000 грн без стартапу ІІБ)"],
+                ["Гарантований аванс селекції НААН", calcState.prepaySum, "грн"],
+                ["Точка входу інвестицій (стартове вузьке місце)", calcState.investmentEntryUah, `грн (~${calcState.investmentEntryEur} тис. €)`]
+            ];
+
+            const csvContent = "\uFEFF" + rows.map(e => e.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(";")).join("\r\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `AgroCluster_Financial_Model_${calcState.area}ha.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            logAction('CSV_FINANCIAL_MODEL_DOWNLOADED', `ЄДРПОУ: ${currentProfile.edrpou}, Площа: ${calcState.area} га, Маржа: ${fmtMln(calcState.totalMargin)}`);
+        });
+    }
+
+    // 5. Відкриття вбудованого Веб-Модуля Скорингу Грантів та Вирізки Стартапу
     const grantModalWrapper = document.getElementById('grantModalWrapper');
     const grantModalBody = document.getElementById('grantModalBody');
 
@@ -896,7 +999,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         grantModalBody.innerHTML = `
             <div style="background:#eff6ff; border:1px solid #93c5fd; border-radius:8px; padding:12px; margin-bottom:14px; font-size:12.5px;">
-                <strong style="color:#1d4ed8; display:block; margin-bottom:4px;">✔ Верифікація Заявника за методологією ТОВ «ІІБ» (Без використання Telegram):</strong>
+                <strong style="color:#1d4ed8; display:block; margin-bottom:4px;">✔ Верифікація Заявника за методологією ТОВ «ІІБ»:</strong>
                 <div><strong>Обраний учасник кластеру:</strong> ${currentProfile.company_name} (ЄДРПОУ ${currentProfile.edrpou}, ${currentProfile.kved})</div>
                 <div style="margin-top:4px;"><strong>Офіційний Заявник (Оператор подачі):</strong> <span style="color:#059669; font-weight:700;">${op.operator_name} (ЄДРПОУ ${op.operator_edrpou})</span></div>
                 <div style="margin-top:4px; color:#475569; font-size:11.5px;">${op.note}</div>

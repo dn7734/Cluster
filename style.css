@@ -339,6 +339,10 @@ input[type="range"] { width: 100%; accent-color: var(--accent-green); cursor: po
 }
 
 .export-bar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+@media (max-width: 640px) {
+    .export-bar-grid { grid-template-columns: 1fr; }
+    .export-bar-grid button { grid-column: span 1 !important; }
+}
 
 #pdfOverlayWrapper, #grantModalWrapper {
     display: none;
