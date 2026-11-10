@@ -188,6 +188,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentProfile = LOCAL_AGRO_COMPANIES["00496802"];
     let calcState = {};
     let compareChart = null;
+    let doughnutChart = null;
 
     function resolveGrantOperatorClient(prof) {
         if (prof.is_budget_institution) {
@@ -249,12 +250,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const slProc = document.getElementById('slProc');
     const slPrepay = document.getElementById('slPrepay');
 
+    const inpPriceOil = document.getElementById('inpPriceOil');
+    const inpPricePowder = document.getElementById('inpPricePowder');
+    const inpPriceMeal = document.getElementById('inpPriceMeal');
+    const inpPriceSiderat = document.getElementById('inpPriceSiderat');
+    const inpCostGrow = document.getElementById('inpCostGrow');
+    const inpCostProcess = document.getElementById('inpCostProcess');
+    const btnResetPrices = document.getElementById('btnResetPrices');
+
     function recalcClusterEconomics() {
         const area = parseFloat(slArea.value);
         const yld = parseFloat(slYield.value);
         const procPct = parseFloat(slProc.value) / 100.0;
         const sideratPct = +(1.0 - procPct).toFixed(2);
         const prepayPct = parseFloat(slPrepay.value) / 100.0;
+
+        const priceOil = inpPriceOil ? parseFloat(inpPriceOil.value) || 90000 : 90000;
+        const pricePowder = inpPricePowder ? parseFloat(inpPricePowder.value) || 25000 : 25000;
+        const priceMeal = inpPriceMeal ? parseFloat(inpPriceMeal.value) || 10000 : 10000;
+        const priceSiderat = inpPriceSiderat ? parseFloat(inpPriceSiderat.value) || 32000 : 32000;
+        const costGrow = inpCostGrow ? parseFloat(inpCostGrow.value) || 14970 : 14970;
+        const costProcess = inpCostProcess ? parseFloat(inpCostProcess.value) || 21500 : 21500;
 
         document.getElementById('valArea').textContent = area;
         document.getElementById('valYield').textContent = yld.toFixed(1);
@@ -274,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const powderTons = +(tonsProcessed * 0.50).toFixed(1);
         const oilTons = +(tonsProcessed * 0.30).toFixed(1);
         const mealTons = +(tonsProcessed * 0.15).toFixed(1);
+        const seedFractionTons = +(tonsProcessed * 0.05).toFixed(1);
 
         document.getElementById('dualExitHint').textContent =
             `Вихід Б (Переробка ${tonsProcessed} т): порошок ${powderTons} т, олія ${oilTons} т, шрот ${mealTons} т | Вихід А (Сидерат 25 кг): ${tonsSiderat} т`;
@@ -293,13 +310,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const mar2 = rev2 - cost2;
 
         // Капсула 3: Фермерський пул СН-1 (Товарне зерно + Сидерат у мішках 25 кг — слайди 8–9 «1_Драфт.pptx»)
-        const cost3 = Math.round(area * 14970);
-        const rev3 = Math.round((tonsSiderat * 32000) + (tonsProcessed * 20000));
+        const cost3 = Math.round(area * costGrow);
+        const rev3 = Math.round((tonsSiderat * priceSiderat) + (tonsProcessed * 20000));
         const mar3 = rev3 - cost3;
 
         // Капсула 4: Завод глибокої переробки Zero-Waste (слайд 10 «1_Драфт.pptx»)
-        const cost4 = Math.round(tonsProcessed * 21500);
-        const rev4 = Math.round(tonsProcessed * 43000);
+        const revOil = Math.round(oilTons * priceOil);
+        const revPowder = Math.round(powderTons * pricePowder);
+        const revMeal = Math.round(mealTons * priceMeal);
+        const revSeedFraction = Math.round(seedFractionTons * 40000);
+
+        const cost4 = Math.round(tonsProcessed * costProcess);
+        const rev4 = revOil + revPowder + revMeal + revSeedFraction;
         const mar4 = rev4 - cost4;
 
         const totalCost = cost1 + cost2 + cost3 + cost4;
@@ -319,7 +341,9 @@ document.addEventListener("DOMContentLoaded", () => {
             sideratPct: Math.round(sideratPct * 100),
             prepayPct: Math.round(prepayPct * 100),
             superEliteHa, eliteHa, totalHarvestTons,
-            tonsProcessed, tonsSiderat, powderTons, oilTons, mealTons,
+            tonsProcessed, tonsSiderat, powderTons, oilTons, mealTons, seedFractionTons,
+            priceOil, pricePowder, priceMeal, priceSiderat, costGrow, costProcess,
+            revOil, revPowder, revMeal, revSeedFraction,
             cost1, rev1, mar1, royaltyUah, naanSoloUah, naanMult, prepaySum,
             cost2, rev2, mar2,
             cost3, rev3, mar3,
@@ -358,10 +382,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('tMar4').textContent = '+' + fmtMln(mar4);
 
         renderComparisonChart(rawOnlyMargin, totalMargin);
+        renderRevenueStructureChart(revOil, revPowder, revMeal, revSeedFraction);
     }
 
     function renderComparisonChart(rawMargin, clusterMargin) {
         const ctx = document.getElementById('marginCompareChart');
+        if (!ctx) return;
         const rawMln = +(rawMargin / 1000000).toFixed(2);
         const clMln = +(clusterMargin / 1000000).toFixed(2);
 
@@ -374,7 +400,7 @@ document.addEventListener("DOMContentLoaded", () => {
         compareChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Без Драфту ІІБ (Сировина / Самостійний продаж)', 'Кластер ІІБ (Сидерат 25 кг + Переробка Zero-Waste)'],
+                labels: ['Без Драфту ІІБ (Сировина)', 'Кластер ІІБ (Zero-Waste)'],
                 datasets: [{
                     label: 'Чиста маржа (млн грн)',
                     data: [rawMln, clMln],
@@ -385,18 +411,83 @@ document.addEventListener("DOMContentLoaded", () => {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Чиста маржа проєкту (млн грн)', font: { size: 11, weight: 'bold' } }
+                },
                 scales: { y: { beginAtZero: true, title: { display: true, text: 'млн грн' } } }
             }
         });
     }
 
+    function renderRevenueStructureChart(oilRev, powderRev, mealRev, seedRev) {
+        const ctx = document.getElementById('revenueStructureChart');
+        if (!ctx) return;
+        const oilMln = +(oilRev / 1000000).toFixed(2);
+        const powderMln = +(powderRev / 1000000).toFixed(2);
+        const mealMln = +(mealRev / 1000000).toFixed(2);
+        const seedMln = +(seedRev / 1000000).toFixed(2);
+
+        if (doughnutChart) {
+            doughnutChart.data.datasets[0].data = [oilMln, powderMln, mealMln, seedMln];
+            doughnutChart.update();
+            return;
+        }
+
+        doughnutChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Олія (30%)', 'Порошок (50%)', 'Шрот (15%)', 'Фракція (5%)'],
+                datasets: [{
+                    data: [oilMln, powderMln, mealMln, seedMln],
+                    backgroundColor: ['#059669', '#d97706', '#2563eb', '#94a3b8'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { boxWidth: 10, font: { size: 10 } }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Виручка переробки (млн грн)',
+                        font: { size: 11, weight: 'bold' }
+                    }
+                }
+            }
+        });
+    }
+
     [slArea, slYield, slProc, slPrepay].forEach(el => {
+        if (!el) return;
         el.addEventListener('input', recalcClusterEconomics);
         el.addEventListener('change', () => {
             logAction('DRAFT_MATRIX_SIMULATION', `Площа: ${calcState.area} га, Переробка: ${calcState.procPct}%, Сидерат: ${calcState.sideratPct}%, Маржа: ${fmtMln(calcState.totalMargin)}`);
         });
     });
+
+    [inpPriceOil, inpPricePowder, inpPriceMeal, inpPriceSiderat, inpCostGrow, inpCostProcess].forEach(el => {
+        if (!el) return;
+        el.addEventListener('input', recalcClusterEconomics);
+    });
+
+    if (btnResetPrices) {
+        btnResetPrices.addEventListener('click', () => {
+            if (inpPriceOil) inpPriceOil.value = 90000;
+            if (inpPricePowder) inpPricePowder.value = 25000;
+            if (inpPriceMeal) inpPriceMeal.value = 10000;
+            if (inpPriceSiderat) inpPriceSiderat.value = 32000;
+            if (inpCostGrow) inpCostGrow.value = 14970;
+            if (inpCostProcess) inpCostProcess.value = 21500;
+            recalcClusterEconomics();
+            logAction('PRICING_RESET', 'Скинуто параметри ринку та собівартості до дефолтів 2026');
+        });
+    }
 
     recalcClusterEconomics();
 
@@ -630,7 +721,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     </tr>
                     <tr>
                         <td style="border: 1px solid #cbd5e1; padding: 5px;"><strong>Капсула ІІІ: Глибока переробка Zero-Waste</strong></td>
-                        <td style="border: 1px solid #cbd5e1; padding: 5px;">${calcState.tonsProcessed} т (порошок ${calcState.powderTons} т, олія ${calcState.oilTons} т)</td>
+                        <td style="border: 1px solid #cbd5e1; padding: 5px;">${calcState.tonsProcessed} т (олія ${calcState.oilTons} т, порошок ${calcState.powderTons} т, шрот ${calcState.mealTons} т)</td>
                         <td style="border: 1px solid #cbd5e1; padding: 5px;">${fmtMln(calcState.cost4)}</td>
                         <td style="border: 1px solid #cbd5e1; padding: 5px;">${fmtMln(calcState.rev4)}</td>
                         <td style="border: 1px solid #cbd5e1; padding: 5px; font-weight: bold; color: #059669;">+${fmtMln(calcState.mar4)}</td>
@@ -640,6 +731,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h3 style="font-size: 13px; color: #059669; margin: 10px 0 5px 0;">3. Точка інвестиційного входу та Мова вигоди учасників</h3>
                 <div style="background: #ecfdf5; border: 1px solid #6ee7b7; padding: 10px; border-radius: 6px; font-size: 11.5px; line-height: 1.55;">
                     • <strong>Сукупна чиста маржа кластеру:</strong> ${fmtMln(calcState.totalMargin)} (ROI: <strong>${calcState.roi}%</strong>)<br>
+                    • <strong>Баланс виручки глибокої переробки:</strong> Олія 30% (${fmtMln(calcState.revOil)}), Порошок 50% (${fmtMln(calcState.revPowder)}), Шрот 15% (${fmtMln(calcState.revMeal)}), Фракція (${fmtMln(calcState.revSeedFraction)})<br>
                     • <strong>Точка входу інвестицій (потреба у стартовому капіталі на вузьке місце):</strong> ${fmtMln(calcState.investmentEntryUah)} (~${calcState.investmentEntryEur} тис. €)<br>
                     • <strong>Вигода НУС НААН:</strong> зростання доходу у <strong>${calcState.naanMult} раза</strong> порівняно із самостійним продажем насіння без стартапу (46 тис. грн)<br>
                     • <strong>Подвійне замикання:</strong> ${calcState.tonsSiderat} т фасованого сидерату (відновлення азоту, захист від нематод) + ${calcState.tonsProcessed} т на глибоку переробку в 50-км зоні (експорт Німеччина, Нідерланди).

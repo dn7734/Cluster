@@ -373,3 +373,107 @@ input[type="range"] { width: 100%; accent-color: var(--accent-green); cursor: po
     box-shadow: 0 12px 32px rgba(15, 23, 42, 0.35);
     margin-top: 20px;
 }
+
+/* Панель-акордеон ринкових цін та собівартості */
+.pricing-accordion {
+    margin-top: 14px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: 0.2s;
+}
+.pricing-accordion[open] {
+    background: #ffffff;
+    border-color: var(--accent-green);
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.08);
+}
+.pricing-summary {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-dark);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.pricing-summary:hover {
+    color: var(--accent-green);
+}
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #e2e8f0;
+}
+@media (max-width: 768px) {
+    .pricing-grid { grid-template-columns: 1fr; }
+}
+.pricing-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.pricing-input-group label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+.pricing-input-group input {
+    padding: 6px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 12px;
+    background: #f8fafc;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+.pricing-input-group input:focus {
+    outline: none;
+    border-color: var(--accent-green);
+    background: #ffffff;
+}
+.pricing-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #f1f5f9;
+}
+.btn-reset-pricing {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.btn-reset-pricing:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+/* Двоколонковий блок діаграм */
+.charts-2col {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 16px;
+    height: 220px;
+}
+@media (max-width: 860px) {
+    .charts-2col {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    .charts-2col > div {
+        height: 190px;
+    }
+}
+

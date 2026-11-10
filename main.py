@@ -175,7 +175,13 @@ def calculate_iib_draft_economics(
     area_ha: float = 1000.0,
     yield_t_ha: float = 2.0,
     processing_pct: float = 60.0,
-    prepay_pct: float = 30.0
+    prepay_pct: float = 30.0,
+    price_oil_uah_t: float = 90000.0,
+    price_powder_uah_t: float = 25000.0,
+    price_meal_uah_t: float = 10000.0,
+    price_siderat_uah_t: float = 32000.0,
+    cost_grow_ha_uah: float = 14970.0,
+    cost_process_t_uah: float = 21500.0
 ) -> dict:
     """
     Розраховує повну економіко-математичну матрицю Драфту ІІБ згідно з «1_Драфт.pptx»:
@@ -214,17 +220,27 @@ def calculate_iib_draft_economics(
     rev2 = round(elite_ha * 52800)
     mar2 = rev2 - cost2
 
-    # Ланка 3: Товарне агровиробництво та Сидерат СН-1 (слайд 8–9 «1_Драфт.pptx»: витрати ~14,97 тис. грн/га)
+    # Ланка 3: Товарне агровиробництво та Сидерат СН-1 (слайд 8–9 «1_Драфт.pptx»)
     tons_siderat = round(total_harvest_tons * siderat_ratio)
     tons_processed = round(total_harvest_tons * proc_ratio)
-    cost3 = round(area * 14970)
-    # Частина врожаю реалізується як фасований сидерат/СН (мішки 25 кг по 42 000 грн/т), частина як товарне зерно по 18 000–24 000 грн/т
-    rev3 = round((tons_siderat * 32000) + (tons_processed * 20000))
+    cost3 = round(area * cost_grow_ha_uah)
+    # Частина врожаю реалізується як фасований сидерат/СН (мішки 25 кг), частина як товарне зерно
+    rev3 = round((tons_siderat * price_siderat_uah_t) + (tons_processed * 20000))
     mar3 = rev3 - cost3
 
     # Ланка 4: Глибока переробка Zero-Waste (слайд 10 «1_Драфт.pptx»: Порошок 50%, Олія 30%, Шрот 15%, Насіння 5%)
-    cost4 = round(tons_processed * 21500)
-    rev4 = round(tons_processed * 43000)
+    powder_tons = round(tons_processed * 0.50, 1)
+    oil_tons = round(tons_processed * 0.30, 1)
+    meal_tons = round(tons_processed * 0.15, 1)
+    seed_fraction_tons = round(tons_processed * 0.05, 1)
+
+    rev_oil = round(oil_tons * price_oil_uah_t)
+    rev_powder = round(powder_tons * price_powder_uah_t)
+    rev_meal = round(meal_tons * price_meal_uah_t)
+    rev_seed_fraction = round(seed_fraction_tons * 40000.0)
+
+    cost4 = round(tons_processed * cost_process_t_uah)
+    rev4 = rev_oil + rev_powder + rev_meal + rev_seed_fraction
     mar4 = rev4 - cost4
 
     total_cost = cost1 + cost2 + cost3 + cost4
@@ -249,9 +265,14 @@ def calculate_iib_draft_economics(
         "totalHarvestTons": total_harvest_tons,
         "tonsProcessed": tons_processed,
         "tonsSiderat": tons_siderat,
-        "powderTons": round(tons_processed * 0.50, 1),
-        "oilTons": round(tons_processed * 0.30, 1),
-        "mealTons": round(tons_processed * 0.15, 1),
+        "powderTons": powder_tons,
+        "oilTons": oil_tons,
+        "mealTons": meal_tons,
+        "seedFractionTons": seed_fraction_tons,
+        "revOil": rev_oil,
+        "revPowder": rev_powder,
+        "revMeal": rev_meal,
+        "revSeedFraction": rev_seed_fraction,
         "cost1": cost1, "rev1": rev1, "mar1": mar1,
         "royaltyUah": royalty_uah,
         "naanSoloUah": naan_solo_income_uah,
@@ -297,6 +318,12 @@ class DraftCalcRequest(BaseModel):
     yld: float = 2.0
     procPct: float = 60.0
     prepayPct: float = 30.0
+    priceOil: float = 90000.0
+    pricePowder: float = 25000.0
+    priceMeal: float = 10000.0
+    priceSiderat: float = 32000.0
+    costGrow: float = 14970.0
+    costProcess: float = 21500.0
 
 
 def _record_log_db(action: str, details: str, ip_addr: str = "127.0.0.1") -> None:
@@ -342,7 +369,13 @@ def compute_draft_matrix(req: DraftCalcRequest):
         area_ha=req.area,
         yield_t_ha=req.yld,
         processing_pct=req.procPct,
-        prepay_pct=req.prepayPct
+        prepay_pct=req.prepayPct,
+        price_oil_uah_t=req.priceOil,
+        price_powder_uah_t=req.pricePowder,
+        price_meal_uah_t=req.priceMeal,
+        price_siderat_uah_t=req.priceSiderat,
+        cost_grow_ha_uah=req.costGrow,
+        cost_process_t_uah=req.costProcess
     )
 
 

@@ -155,6 +155,44 @@
                         <input type="range" id="slPrepay" min="15" max="50" step="5" value="30">
                         <div class="slider-hint">Зворотне фінансування НУС НААН із контрактації кластеру під наступний цикл</div>
                     </div>
+
+                    <!-- Панель-акордеон «Параметри ринку та собівартості» -->
+                    <details class="pricing-accordion" id="pricingAccordion">
+                        <summary class="pricing-summary">
+                            <span>⚙️ Параметри ринку та собівартості (Ціни продуктів, OPEX, Роялті)</span>
+                            <span style="font-size: 11px; color: var(--accent-green);">Налаштувати ▾</span>
+                        </summary>
+                        <div class="pricing-grid">
+                            <div class="pricing-input-group">
+                                <label for="inpPriceOil">Гірчична олія (грн/т):</label>
+                                <input type="number" id="inpPriceOil" value="90000" step="1000">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label for="inpPricePowder">Гірчичний порошок (грн/т):</label>
+                                <input type="number" id="inpPricePowder" value="25000" step="500">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label for="inpPriceMeal">Кормовий шрот (грн/т):</label>
+                                <input type="number" id="inpPriceMeal" value="10000" step="500">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label for="inpPriceSiderat">Фасований сидерат (грн/т):</label>
+                                <input type="number" id="inpPriceSiderat" value="32000" step="1000">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label for="inpCostGrow">Вирощування СН-1 (грн/га):</label>
+                                <input type="number" id="inpCostGrow" value="14970" step="100">
+                            </div>
+                            <div class="pricing-input-group">
+                                <label for="inpCostProcess">Переробка насіння (грн/т):</label>
+                                <input type="number" id="inpCostProcess" value="21500" step="500">
+                            </div>
+                        </div>
+                        <div class="pricing-actions">
+                            <span style="font-size: 10.5px; color: var(--text-muted);">Баланс 1 т: Олія 30%, Порошок 50%, Шрот 15%, Фракція 5%</span>
+                            <button type="button" class="btn-reset-pricing" id="btnResetPrices">Скинути до базових (2026)</button>
+                        </div>
+                    </details>
                 </div>
 
                 <div>
@@ -348,12 +386,17 @@
             <div class="card">
                 <div class="card-header">
                     <div>
-                        <h2 class="card-title">Порівняння економічного ефекту: Без ІІБ (Сировина) vs Кластерна матриця ІІБ</h2>
-                        <span class="card-subtitle">Візуалізація приросту чистої маржі за рахунок подвійного виходу (Сидерат 25 кг + Переробка Zero-Waste)</span>
+                        <h2 class="card-title">Аналітична візуалізація: Порівняння маржі та Структура переробки Zero-Waste</h2>
+                        <span class="card-subtitle">Зліва: чиста маржа («Без ІІБ» vs «Кластер ІІБ»). Справа: розподіл грошової виручки переробки (Олія • Порошок • Шрот • Фракція)</span>
                     </div>
                 </div>
-                <div style="height: 185px;">
-                    <canvas id="marginCompareChart"></canvas>
+                <div class="charts-2col">
+                    <div style="position: relative; height: 100%;">
+                        <canvas id="marginCompareChart"></canvas>
+                    </div>
+                    <div style="position: relative; height: 100%;">
+                        <canvas id="revenueStructureChart"></canvas>
+                    </div>
                 </div>
             </div>
         </section>

@@ -225,6 +225,67 @@ class TestAgroClusterPlatformV3(unittest.TestCase):
             if proc.stderr:
                 proc.stderr.close()
 
+    def test_09_pricing_accordion_and_product_balance_breakdown(self):
+        """
+        Перевірка динамічного розрахунку 3-компонентного балансу глибокої переробки
+        та гнучких ринкових цін (Олія 30%, Порошок 50%, Шрот 15%, Фракція 5%).
+        """
+        # Базові налаштування
+        base = backend_main.calculate_iib_draft_economics(area_ha=1000, yield_t_ha=2.0, processing_pct=60)
+        self.assertEqual(base["tonsProcessed"], 1200)
+        self.assertAlmostEqual(base["oilTons"], 360.0)
+        self.assertAlmostEqual(base["powderTons"], 600.0)
+        self.assertAlmostEqual(base["mealTons"], 180.0)
+        self.assertAlmostEqual(base["seedFractionTons"], 60.0)
+        self.assertEqual(base["revOil"], 360 * 90000)
+        self.assertEqual(base["revPowder"], 600 * 25000)
+        self.assertEqual(base["revMeal"], 180 * 10000)
+        self.assertEqual(base["revSeedFraction"], 60 * 40000)
+        self.assertEqual(base["rev4"], base["revOil"] + base["revPowder"] + base["revMeal"] + base["revSeedFraction"])
+
+        # Кастомні ринкові ціни (наприклад, експортний сценарій: олія 95 тис. грн/т, порошок 28 тис. грн/т)
+        custom = backend_main.calculate_iib_draft_economics(
+            area_ha=1000,
+            yield_t_ha=2.0,
+            processing_pct=60,
+            price_oil_uah_t=95000.0,
+            price_powder_uah_t=28000.0,
+            price_meal_uah_t=11000.0
+        )
+        self.assertEqual(custom["revOil"], 360 * 95000)
+        self.assertEqual(custom["revPowder"], 600 * 28000)
+        self.assertEqual(custom["revMeal"], 180 * 11000)
+        self.assertGreater(custom["totalMargin"], base["totalMargin"])
+
+    def test_10_doc_generator_with_detailed_processing_balance(self):
+        """
+        Перевірка наявності деталізованого балансу переробки (олія, порошок, шрот)
+        у згенерованому DOCX-файлі рамкової угоди.
+        """
+        sample_prof = {
+            "edrpou": "41258963",
+            "company_name": "ТОВ «АГРО-ЕКО ПЕРЕРОБКА»",
+            "kved": "10.41 Виробництво олії та тваринних жирів",
+            "region": "Черкаська область",
+            "activity_type": "Завод глибокої переробки гірчиці",
+            "size_category": "Лінія екстракції та порошку Zero-Waste",
+            "employees_count": "Розрахункова маржа за матрицею Драфту",
+            "is_budget_institution": False
+        }
+        stream = create_grant_document(sample_prof, DEFAULT_GRANTS)
+        self.assertIsNotNone(stream)
+        stream_bytes = stream.getvalue()
+        self.assertGreater(len(stream_bytes), 10000)
+
+        # Перевірка наповнення документа через розпакування docx як zip
+        with zipfile.ZipFile(stream) as zf:
+            xml_content = zf.read("word/document.xml").decode("utf-8")
+            self.assertIn("Біла Принцеса", xml_content)
+            self.assertIn("Zero-Waste", xml_content)
+            self.assertIn("олії холодного віджиму", xml_content)
+            self.assertIn("гірчичного порошку", xml_content)
+            self.assertIn("білкового шроту", xml_content)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
