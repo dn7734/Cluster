@@ -26,7 +26,7 @@ FIREBASE_WEB_CONFIG = {
     "projectId": "gen-lang-client-0227701733",
     "appId": "1:406478061283:web:3b4475e4c71208da764fd6",
     "storageBucket": "gen-lang-client-0227701733.firebasestorage.app",
-    "apiKey": "AIzaSyAe5WQ2t3hhJU8clq2BCPOWZvUXzk_P96E",
+    "apiKey": os.getenv("FIREBASE_API_KEY", ""),
     "authDomain": "gen-lang-client-0227701733.firebaseapp.com",
     "messagingSenderId": "406478061283",
     "projectNumber": "406478061283"

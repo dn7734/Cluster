@@ -1,8 +1,42 @@
-app.log*
+# Python & Environments
 __pycache__/
-*.pyc
-.env
-*.db
+*.py[cod]
+*$py.class
+*.so
 .venv/
-.firebase/
+env/
+venv/
+ENV/
+
+# Logs & Databases
+*.log
+*.log*
+app.log*
+*.db
+*.sqlite3
 data/*.db
+
+# Secrets, API Keys & Credentials (STRICT RULE)
+.env
+.env.*
+!.env.example
+*.sa.json
+firebase-sa.json
+*service_account*.json
+*credential*.json
+*credentials*.json
+*secret*.json
+*.pem
+*.key
+*.pfx
+*.pkcs12
+
+# Firebase & Deployment Caches
+.firebase/
+.firebaserc.local
+
+# IDE & OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
